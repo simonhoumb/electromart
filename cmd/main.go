@@ -8,6 +8,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
+// init loads the .env file when the program starts.
 func init() {
 	// Load .env file
 	if err := godotenv.Load(); err != nil {
