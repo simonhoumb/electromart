@@ -8,8 +8,8 @@
 
 ## Contact 📧
 
-- [Eskil Alstad](mailto:
-- [Erik Bjørnsen](mailto:
-- [Simon Husås Houmb](mailto:
-- [Maja Melby](mailto:
-- [Jon André Solberg](mailto:
+- [Eskil Alstad](mailto:eskil.alstad@ntnu.no)
+- [Erik Bjørnsen](mailto:erbj@stud.ntnu.no)
+- [Simon Husås Houmb](mailto:simon.h.houmb@ntnu.no)
+- [Maja Melby](mailto:maja.melby@ntnu.no)
+- [Jon André Solberg](mailto:jon.a.h.solberg@ntnu.no)
