@@ -4,7 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/go-sql-driver/mysql"
 	"log"
+	"os"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -29,14 +31,29 @@ func Connect() *sql.DB {
 }
 
 // getDataSourceName returns a Data Source Name string for connecting to a MySQL database.
-func getDataSourceName(dbUser string, dbPassword string, dbIP string, dbName string) string {
-	return fmt.Sprintf("%s:%s@tcp(%s)/%s", dbUser, dbPassword, dbIP, dbName)
+func getDataSourceName() string {
+	dbUser := os.Getenv("DB_USER")
+	dbPassword := os.Getenv("DB_PASSWORD")
+	dbNet := os.Getenv("DB_NET")
+	dbIP := os.Getenv("DB_IP")
+	dbName := os.Getenv("DB_NAME")
+
+	cfg := mysql.Config{
+		User:                 dbUser,
+		Passwd:               dbPassword,
+		Net:                  dbNet,
+		Addr:                 dbIP,
+		DBName:               dbName,
+		AllowNativePasswords: true,
+	}
+
+	return cfg.FormatDSN()
 }
 
 // openDatabaseConnection opens a connection to the database and returns a pointer to the database.
 func openDatabaseConnection() *sql.DB {
 	// Open a database connection.
-	db, err := sql.Open("mysql", getDataSourceName(DATABASE_USER, DATABASE_PASSWORD, DATABASE_IP, DATABASE_NAME))
+	db, err := sql.Open("mysql", getDataSourceName())
 	if err != nil {
 		log.Fatal("Error when opening the database: ", err)
 	}
