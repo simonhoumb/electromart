@@ -1,7 +1,7 @@
 package main
 
 import (
-	server "Database_Project/Internal"
+	server "Database_Project/internal"
 	"github.com/joho/godotenv"
 	"log"
 )
