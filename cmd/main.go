@@ -1,11 +1,9 @@
 package main
 
 import (
-	database_2024 "Database_Project"
 	server "Database_Project/Internal"
 	"Database_Project/db"
 	"Database_Project/structs"
-	"database/sql"
 	"encoding/json"
 	"log"
 	"net/http"
