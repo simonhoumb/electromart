@@ -5,10 +5,9 @@ import (
 	"Database_Project/db"
 	"Database_Project/structs"
 	"encoding/json"
-	"net/http"
+	"github.com/joho/godotenv"
 	"log"
 	"net/http"
-	"github.com/joho/godotenv"
 )
 
 func init() {
@@ -50,4 +49,4 @@ func getProducts(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(jsonData)
-	}(database)
+}
