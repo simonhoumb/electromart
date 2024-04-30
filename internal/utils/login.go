@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"Database_Project/structs"
+	"Database_Project/internal/structs"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -39,8 +39,8 @@ func CheckLogin(db *sql.DB) http.HandlerFunc {
 			http.Error(w, "Username not found", http.StatusUnauthorized)
 			return
 		} else if err != nil {
-			fmt.Println("Internal Error when fetching row:", err)
-			http.Error(w, "Internal Error", http.StatusInternalServerError)
+			fmt.Println("internal Error when fetching row:", err)
+			http.Error(w, "internal Error", http.StatusInternalServerError)
 			return
 		}
 
@@ -62,7 +62,7 @@ func CheckLogin(db *sql.DB) http.HandlerFunc {
 		jsonResp, err := json.Marshal(resp)
 		if err != nil {
 			fmt.Println("Error in JSON encoding:", err)
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			http.Error(w, "internal Server Error", http.StatusInternalServerError)
 			return
 		}
 

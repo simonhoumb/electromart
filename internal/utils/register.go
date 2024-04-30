@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"Database_Project/structs"
+	"Database_Project/internal/structs"
 	"database/sql"
 	"encoding/json"
 	"github.com/go-sql-driver/mysql"
@@ -28,7 +28,7 @@ func RegisterUser(db *sql.DB) http.HandlerFunc {
 
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(creds.Password), 10)
 		if err != nil {
-			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			http.Error(w, "internal server error", http.StatusInternalServerError)
 			return
 		}
 
@@ -49,7 +49,7 @@ func RegisterUser(db *sql.DB) http.HandlerFunc {
 			return
 		} else if err != nil {
 			log.Printf("Failed to insert user: %v", err)
-			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			http.Error(w, "internal server error", http.StatusInternalServerError)
 			return
 		}
 
