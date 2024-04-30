@@ -3,8 +3,9 @@ package main
 import (
 	server "Database_Project/Internal"
 	"Database_Project/db"
-	"Database_Project/structs"
-	"encoding/json"
+	database_2024 "Database_Project/db"
+	"Database_Project/utils"
+	"database/sql"
 	"github.com/joho/godotenv"
 	"log"
 	"net/http"
@@ -19,34 +20,36 @@ func init() {
 
 // main is the entry point for the program.
 func main() {
-	server.Start()
-}
-
-func getProducts(w http.ResponseWriter, r *http.Request) {
-	rows, err := db.Client.Query("SELECT * FROM Product")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	defer rows.Close()
-
-	products := make([]structs.Product, 0)
-	for rows.Next() {
-		product := structs.Product{}
-		err := rows.Scan(&product.ID, &product.Name, &product.Description, &product.Price)
+	database := database_2024.Connect()
+	// Close the database connection when the main function returns.
+	defer func(db *sql.DB) {
+		err := db.Close()
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
+			log.Fatal(err)
 		}
-		products = append(products, product)
-	}
+	}(database)
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "templates/index.html")
+	})
+	http.HandleFunc("/login", utils.CheckLogin(database))
+	http.HandleFunc("/logout", utils.LogoutUser(database))
+	http.HandleFunc("/cart", func(w http.ResponseWriter, r *http.Request) {
+		utils.GetCartItems(w, r, database)
+	})
+	http.HandleFunc("/profile", func(w http.ResponseWriter, r *http.Request) {
+		utils.GetUserProfile(w, r, database)
+	})
+	http.HandleFunc("/api/categories", db.GetCategoriesHandler(database))
+	http.HandleFunc("/register", utils.RegisterUser(database))
+	http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("./assets"))))
 
-	jsonData, err := json.Marshal(products)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	http.HandleFunc("/loginPage", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "templates/Login.html")
+	})
 
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(jsonData)
+	http.HandleFunc("/registerPage", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "templates/register.html")
+	})
+
+	http.ListenAndServe(":8080", nil)
 }
