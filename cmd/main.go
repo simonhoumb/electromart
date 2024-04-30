@@ -1,13 +1,26 @@
 package main
 
 import (
+	database_2024 "Database_Project"
 	server "Database_Project/Internal"
 	"Database_Project/db"
 	"Database_Project/structs"
+	"database/sql"
 	"encoding/json"
+	"log"
 	"net/http"
+
+	"github.com/joho/godotenv"
 )
 
+func init() {
+	// Load .env file
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("No .env file found")
+	}
+}
+
+// main is the entry point for the program.
 func main() {
 	server.Start()
 }
