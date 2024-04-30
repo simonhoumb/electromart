@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"github.com/go-sql-driver/mysql"
 	"log"
 	"net/http"
@@ -13,18 +12,6 @@ import (
 )
 
 var Client *sql.DB
-
-func Connect() *sql.DB {
-	db, err := sql.Open("mysql", "dev:Devdevdev2!@tcp(10.212.169.49:3306)/ElectroMart")
-	if err != nil {
-		log.Fatal(err)
-	}
-	if err = db.Ping(); err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println("Successfully connected to the database.")
-	return db
-}
 
 type Category struct {
 	ID          int    `json:"id"`
@@ -83,8 +70,8 @@ func getDataSourceName() string {
 	return cfg.FormatDSN()
 }
 
-// openDatabaseConnection opens a connection to the database and returns a pointer to the database.
-func openDatabaseConnection() *sql.DB {
+// OpenDatabaseConnection opens a connection to the database and returns a pointer to the database.
+func OpenDatabaseConnection() *sql.DB {
 	// Open a database connection.
 	db, err := sql.Open("mysql", getDataSourceName())
 	if err != nil {
