@@ -1,6 +1,7 @@
 package main
 
 import (
+	server "Database_Project/Internal"
 	"Database_Project/db"
 	database_2024 "Database_Project/db"
 	"Database_Project/utils"
@@ -10,8 +11,14 @@ import (
 	"net/http"
 )
 
-var database *sql.DB
+func init() {
+	// Load .env file
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("No .env file found")
+	}
+}
 
+// main is the entry point for the program.
 func main() {
 	database := database_2024.Connect()
 	// Close the database connection when the main function returns.
@@ -45,11 +52,4 @@ func main() {
 	})
 
 	http.ListenAndServe(":8080", nil)
-}
-
-func init() {
-	// Load .env file
-	if err := godotenv.Load(); err != nil {
-		log.Fatal("No .env file found")
-	}
 }
