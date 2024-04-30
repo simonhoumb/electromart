@@ -1,7 +1,9 @@
 package server
 
 import (
+	"Database_Project/internal/constants"
 	"Database_Project/internal/db"
+	"Database_Project/internal/handlers/products"
 	utils2 "Database_Project/internal/utils"
 	"log"
 	"net/http"
@@ -21,6 +23,9 @@ func Start() {
 
 	db.Client = db.Connect()
 	defer db.Client.Close()
+
+	// Handle the products endpoint
+	mux.HandleFunc(constants.ProductsPath, products.Handler)
 
 	mux.HandleFunc(
 		"/", func(w http.ResponseWriter, r *http.Request) {
