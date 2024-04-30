@@ -10,8 +10,6 @@ import (
 	"net/http"
 	"os"
 	"time"
-
-	_ "github.com/go-sql-driver/mysql"
 )
 
 var Client *sql.DB
@@ -24,7 +22,7 @@ func Connect() *sql.DB {
 	if err = db.Ping(); err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("Successfully connected to the Client.")
+	fmt.Println("Successfully connected to the database.")
 	return db
 }
 
@@ -63,7 +61,6 @@ func GetCategoriesHandler(db *sql.DB) http.HandlerFunc {
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(jsonData)
 	}
-
 }
 
 // getDataSourceName returns a Data Source Name string for connecting to a MySQL database.
