@@ -6,6 +6,7 @@ import (
 	"Database_Project/structs"
 	"Database_Project/utils"
 	"database/sql"
+<<<<<<< HEAD
 	"encoding/json"
 	"net/http"
 )
@@ -69,4 +70,29 @@ func getProducts(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(jsonData)
+=======
+	"log"
+
+	"github.com/joho/godotenv"
+)
+
+func init() {
+	// Load .env file
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("No .env file found")
+	}
+}
+
+// main is the entry point for the program.
+func main() {
+	// Connect to the database.
+	database := database_2024.Connect()
+	// Close the database connection when the main function returns.
+	defer func(db *sql.DB) {
+		err := db.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}(database)
+>>>>>>> c17c4090de936c9a4a86f22494a83ba9b0090f36
 }
