@@ -3,6 +3,7 @@ package server
 import (
 	"Database_Project/internal/constants"
 	"Database_Project/internal/db"
+	"Database_Project/internal/handlers/categories"
 	"Database_Project/internal/handlers/products"
 	"Database_Project/internal/utils"
 	"log"
@@ -27,6 +28,9 @@ func Start() {
 
 	// Handle the products endpoint
 	mux.HandleFunc(constants.ProductsPath, products.Handler)
+
+	// Handle the categories endpoint
+	mux.HandleFunc(constants.CategoriesPath, categories.Handler)
 
 	mux.HandleFunc(
 		"/", func(w http.ResponseWriter, r *http.Request) {
