@@ -10,6 +10,8 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+var Client *sql.DB
+
 func Connect() *sql.DB {
 	db, err := sql.Open("mysql", "dev:Devdevdev2!@tcp(10.212.169.49:3306)/ElectroMart")
 	if err != nil {
@@ -18,7 +20,7 @@ func Connect() *sql.DB {
 	if err = db.Ping(); err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("Successfully connected to the database.")
+	fmt.Println("Successfully connected to the Client.")
 	return db
 }
 
