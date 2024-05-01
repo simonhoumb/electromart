@@ -54,7 +54,6 @@ func Start() {
 		},
 	)
 
-	mux.HandleFunc("/api/categories", db.GetCategoriesHandler(db.Client))
 	mux.HandleFunc("/register", utils.RegisterUser(db.Client))
 
 	mux.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("./assets"))))

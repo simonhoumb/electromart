@@ -3,52 +3,13 @@ package db
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"github.com/go-sql-driver/mysql"
 	"log"
-	"net/http"
 	"os"
 	"time"
 )
 
 var Client *sql.DB
-
-type Category struct {
-	ID          int    `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-}
-
-func GetCategoriesHandler(db *sql.DB) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		var categories []Category
-
-		rows, err := db.Query("SELECT id, name, description FROM Category")
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		defer rows.Close()
-
-		for rows.Next() {
-			var c Category
-			if err := rows.Scan(&c.ID, &c.Name, &c.Description); err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
-			}
-			categories = append(categories, c)
-		}
-
-		jsonData, err := json.Marshal(categories)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		w.Write(jsonData)
-	}
-}
 
 // getDataSourceName returns a Data Source Name string for connecting to a MySQL database.
 func getDataSourceName() string {
@@ -72,11 +33,14 @@ func getDataSourceName() string {
 
 // OpenDatabaseConnection opens a connection to the database and returns a pointer to the database.
 func OpenDatabaseConnection() *sql.DB {
-	// Open a database connection.
 	db, err := sql.Open("mysql", getDataSourceName())
 	if err != nil {
 		log.Fatal("Error when opening the database: ", err)
 	}
+
+	// Call the ping function to ensure the database is up and running
+	pingDatabase(db)
+
 	return db
 }
 
