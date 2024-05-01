@@ -2,6 +2,7 @@ package products
 
 import (
 	"Database_Project/internal/db"
+	"Database_Project/internal/structs"
 	"Database_Project/internal/utils"
 	"encoding/json"
 	"fmt"
@@ -62,9 +63,42 @@ func handleGetDetailRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleUpdateDetailRequest(w http.ResponseWriter, r *http.Request) {
+	id, err := utils.GetIDFromRequest(r)
+	if utils.HandleError(w, r, http.StatusBadRequest, err, "Error getting ID from request") {
+		return
+	}
 
+	// Decode the request body into a product
+	var updatedProduct structs.Product
+	if err := json.NewDecoder(r.Body).Decode(&updatedProduct); utils.HandleError(w, r, http.StatusBadRequest, err, "Error decoding request body") {
+		return
+	}
+
+	if updatedProduct.ID != id {
+		utils.HandleError(w, r, http.StatusBadRequest, fmt.Errorf("ID in request body does not match ID in URL"), "ID in request body does not match ID in URL")
+		return
+	}
+
+	// Update the product with the given ID
+	if err := db.UpdateProduct(db.Client, updatedProduct); utils.HandleError(w, r, http.StatusInternalServerError, err, "Error updating product in database") {
+		return
+	}
+
+	// Return no content
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func handleDeleteDetailRequest(w http.ResponseWriter, r *http.Request) {
+	id, err := utils.GetIDFromRequest(r)
+	if utils.HandleError(w, r, http.StatusBadRequest, err, "Error getting ID from request") {
+		return
+	}
 
+	// Get the product with the given ID
+	if err := db.DeleteProductByID(db.Client, id); utils.HandleError(w, r, http.StatusInternalServerError, err, "Error deleting product from database") {
+		return
+	}
+
+	// Return no content
+	w.WriteHeader(http.StatusNoContent)
 }
