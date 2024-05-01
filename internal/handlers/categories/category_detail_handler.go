@@ -43,7 +43,7 @@ func handleGetDetailRequest(w http.ResponseWriter, r *http.Request) {
 	//}
 	//
 	//// Get the category with the given ID
-	//category, err := db.GetCategoryByID(db.Client, id)
+	//category, err := db.GetCategoryByID(id)
 	//if utils.HandleError(w, r, http.StatusInternalServerError, err, "Error getting categories from database") {
 	//	return
 	//}
@@ -76,7 +76,7 @@ func handleUpdateDetailRequest(w http.ResponseWriter, r *http.Request) {
 	//}
 	//
 	//// Update the category with the given ID
-	//if err := db.UpdateCategory(db.Client, updatedCategory); utils.HandleError(w, r, http.StatusInternalServerError, err, "Error updating category in database") {
+	//if err := db.UpdateCategory(updatedCategory); utils.HandleError(w, r, http.StatusInternalServerError, err, "Error updating category in database") {
 	//	return
 	//}
 	//
@@ -91,7 +91,7 @@ func handleDeleteDetailRequest(w http.ResponseWriter, r *http.Request) {
 	//}
 	//
 	//// Get the category with the given ID
-	//if err := db.DeleteCategoryByID(db.Client, id); utils.HandleError(w, r, http.StatusInternalServerError, err, "Error deleting category from database") {
+	//if err := db.DeleteCategoryByID(id); utils.HandleError(w, r, http.StatusInternalServerError, err, "Error deleting category from database") {
 	//	return
 	//}
 	//
