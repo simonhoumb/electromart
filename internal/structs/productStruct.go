@@ -9,3 +9,8 @@ type Product struct {
 	QtyInStock  int     `json:"qtyInStock"`
 	Price       float64 `json:"price"`
 }
+
+type ProductDiscount struct {
+	DiscountID string `json:"discountID"`
+	ProductID  string `json:"productID"`
+}
