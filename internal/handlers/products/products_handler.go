@@ -23,15 +23,15 @@ TODO:
 */
 
 // Implemented methods for the endpoint
-var implementedMethods = []string{
+var productsImplementedMethods = []string{
 	http.MethodGet,
 	http.MethodPost,
 }
 
 /*
-Handler for the /products endpoint.
+HandleProducts for the /products endpoint.
 */
-func Handler(w http.ResponseWriter, r *http.Request) {
+func HandleProducts(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-type", "application/json")
 	// Switch on the HTTP request method
 	switch r.Method {
@@ -46,7 +46,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		http.Error(
 			w, fmt.Sprintf(
 				"REST Method '%s' not supported. Currently only '%v' are supported.", r.Method,
-				implementedMethods,
+				productsImplementedMethods,
 			), http.StatusNotImplemented,
 		)
 		return
@@ -62,7 +62,6 @@ func handleGetAllRequest(w http.ResponseWriter, r *http.Request) {
 	if productsJSON, err := json.Marshal(products); utils.HandleError(w, r, http.StatusInternalServerError, err, "error during encoding response") {
 		return
 	} else {
-		w.Header().Set("content-type", "application/json")
 		if _, err := w.Write(productsJSON); utils.HandleError(w, r, http.StatusInternalServerError, err, "error writing response") {
 			return
 		}

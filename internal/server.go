@@ -27,7 +27,8 @@ func Start() {
 	defer db.Client.Close()
 
 	// Handle the products endpoint
-	mux.HandleFunc(constants.ProductsPath, products.Handler)
+	mux.HandleFunc(constants.ProductsPath, products.HandleProducts)
+	mux.HandleFunc(constants.ProductsPath+"{id}", products.HandleProductDetail)
 
 	// Handle the categories endpoint
 	mux.HandleFunc(constants.CategoriesPath, categories.Handler)

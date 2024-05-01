@@ -23,7 +23,7 @@ For a function that returns an error along with another value (e.g. a response):
 		return
 	}
 
-See product_handler.go for an example of how to use this function. TODO: Remove this line
+See products_handler.go for an example of how to use this function. TODO: Remove this line
 */
 func HandleError(w http.ResponseWriter, r *http.Request, status int, err error, errorMessage string) bool {
 	if err != nil {
