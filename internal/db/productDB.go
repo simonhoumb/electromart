@@ -13,11 +13,10 @@ SearchProducts retrieves rows from the Product table in the database based on th
 The query string is used to search for products by name, description, brand name, and category name.
 Returns a slice of Product structs if successful, or an error if not.
 */
-func SearchProducts(db *sql.DB, query string) ([]structs.Product, error) {
+func SearchProducts(query string) ([]structs.Product, error) {
 	lowerQuery := strings.ToLower(query) // Convert query to lowercase
-	rows, err := db.Query(
-		`
-      SELECT * FROM Product
+	rows, err := Client.Query(
+		`SELECT * FROM Product
       WHERE LOWER(Name) LIKE ? OR Description LIKE ? OR BrandID IN (SELECT ID FROM Brand WHERE LOWER(Name) LIKE ?)
         AND CategoryID IN (SELECT ID FROM Category WHERE LOWER(Name) LIKE ?);
   `, "%"+lowerQuery+"%", "%"+lowerQuery+"%", "%"+lowerQuery+"%", "%"+lowerQuery+"%",
@@ -44,8 +43,8 @@ func SearchProducts(db *sql.DB, query string) ([]structs.Product, error) {
 /*
 GetAllProducts retrieves all rows from the Product table in the database and returns them as a slice of Product structs.
 */
-func GetAllProducts(db *sql.DB) ([]structs.Product, error) {
-	rows, err := db.Query(`SELECT * FROM Product`)
+func GetAllProducts() ([]structs.Product, error) {
+	rows, err := Client.Query(`SELECT * FROM Product`)
 	if err != nil {
 		log.Println("Error when selecting all products: ", err)
 		return nil, err
@@ -62,7 +61,7 @@ func GetAllProducts(db *sql.DB) ([]structs.Product, error) {
 /*
 GetProductByID retrieves a single row from the Product table in the database based on the ID and returns it as a Product struct.
 */
-func GetProductByID(db *sql.DB, id string) (*structs.Product, error) {
+func GetProductByID(id string) (*structs.Product, error) {
 	exists, err := productExists(id)
 	if err != nil {
 		log.Println("Error when checking if product exists: ", err)
@@ -70,7 +69,7 @@ func GetProductByID(db *sql.DB, id string) (*structs.Product, error) {
 	}
 	if exists {
 		var product structs.Product
-		err2 := db.QueryRow("SELECT * FROM Product WHERE ID = ?", id).Scan(
+		err2 := Client.QueryRow("SELECT * FROM Product WHERE ID = ?", id).Scan(
 			&product.ID,
 			&product.Name,
 			&product.BrandID,
@@ -93,16 +92,16 @@ func GetProductByID(db *sql.DB, id string) (*structs.Product, error) {
 /*
 AddProduct adds a single row to the Product table in the database. Returns the ID if successful, or an error if not.
 */
-func AddProduct(db *sql.DB, product structs.Product) (string, error) {
+func AddProduct(product structs.Product) (string, error) {
 	// Generate and retrieve new UUID
-	id, err := GenerateUUID(db)
+	id, err := GenerateUUID(Client)
 	if err != nil {
 		log.Println("Error generating UUID: ", err)
 		return "", err
 	}
 
 	// Insert product
-	_, err2 := db.Exec(
+	_, err2 := Client.Exec(
 		`INSERT INTO Product (ID, Name, BrandID, CategoryID, Description, QtyInStock, 
 Price) VALUES (?, ?, ?, ?, ?, ?, ?)`,
 		id,
@@ -125,7 +124,7 @@ Price) VALUES (?, ?, ?, ?, ?, ?, ?)`,
 UpdateProduct updates a single row in the Product table in the database based on the ID in the provided Product struct.
 Returns nil if successful, or an error if not.
 */
-func UpdateProduct(db *sql.DB, product structs.Product) error {
+func UpdateProduct(product structs.Product) error {
 	// Check if product exists
 	exists, err := productExists(product.ID)
 	if err != nil {
@@ -133,7 +132,7 @@ func UpdateProduct(db *sql.DB, product structs.Product) error {
 		return err
 	}
 	if exists {
-		_, err2 := db.Exec(
+		_, err2 := Client.Exec(
 			"UPDATE Product SET Name = ?, BrandID = ?, CategoryID = ?, Description = ?, QtyInStock = ?, Price = ? WHERE ID = ?",
 			product.Name,
 			product.BrandID,
@@ -158,14 +157,14 @@ func UpdateProduct(db *sql.DB, product structs.Product) error {
 DeleteProductByID deletes a single row from the Product table in the database based on the ID.
 Returns nil if successful, or an error if not.
 */
-func DeleteProductByID(db *sql.DB, id string) error {
+func DeleteProductByID(id string) error {
 	exists, err := productExists(id)
 	if err != nil {
 		log.Println("Error when checking if product exists: ", err)
 		return err
 	}
 	if exists {
-		_, err2 := db.Exec("DELETE FROM Product WHERE ID = ?", id)
+		_, err2 := Client.Exec("DELETE FROM Product WHERE ID = ?", id)
 		if err2 != nil {
 			log.Println("Error when deleting product: ", err2)
 			return err2
