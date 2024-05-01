@@ -4,7 +4,6 @@ import (
 	"Database_Project/internal/structs"
 	"database/sql"
 	"log"
-	"strconv"
 	"strings"
 )
 
@@ -81,12 +80,40 @@ func GetProductByID(db *sql.DB, id string) (structs.Product, error) {
 }
 
 /*
-AddProduct adds a single row to the Product table in the database. Returns the ID if successful.
+AddProduct adds a single row to the Product table in the database. Returns the ID if successful, or an error if not.
 */
 func AddProduct(db *sql.DB, product structs.Product) (string, error) {
-	result, err := db.Exec(
-		`INSERT INTO Product (ID, Name, BrandID, CategoryID, Description, QtyInStock, Price) VALUES (UUID(), ?, ?, ?,
-?, ?, ?)`,
+	// Prepare statements (consider deferring closing after use)
+	uuidStmt, err := db.Prepare(
+		`SELECT UUID();`,
+	)
+	if err != nil {
+		log.Println("Error preparing UUID statement: ", err)
+		return "", err
+	}
+
+	insertStmt, err3 := db.Prepare(
+		`INSERT INTO Product (ID, Name, BrandID, CategoryID, Description, QtyInStock, 
+Price) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+	)
+	if err3 != nil {
+		log.Println("Error preparing insert statement: ", err3)
+		return "", err3
+	}
+
+	// Generate UUID
+	row := uuidStmt.QueryRow()
+
+	// Retrieve UUID
+	var uuid string
+	if err4 := row.Scan(&uuid); err4 != nil {
+		log.Println("Error generating UUID: ", err4)
+		return "", err4
+	}
+
+	// Insert product
+	_, err = insertStmt.Exec(
+		uuid,
 		product.Name,
 		product.BrandID,
 		product.CategoryID,
@@ -95,16 +122,11 @@ func AddProduct(db *sql.DB, product structs.Product) (string, error) {
 		product.Price,
 	)
 	if err != nil {
-		log.Println("Error when adding product: ", err)
+		log.Println("Error inserting product: ", err)
 		return "", err
 	}
-	id, err2 := result.LastInsertId()
-	if err2 != nil {
-		log.Println("Error when getting last insert ID: ", err2)
-		return "", err2
-	}
 
-	return strconv.FormatInt(id, 10), nil
+	return uuid, nil // Return the UUID
 }
 
 /*
@@ -112,6 +134,7 @@ UpdateProduct updates a single row in the Product table in the database based on
 Returns nil if successful, or an error if not.
 */
 func UpdateProduct(db *sql.DB, product structs.Product) error {
+
 	_, err := db.Exec(
 		"UPDATE Product SET Name = ?, BrandID = ?, CategoryID = ?, Description = ?, QtyInStock = ?, Price = ? WHERE ID = ?",
 		product.Name,
@@ -130,7 +153,8 @@ func UpdateProduct(db *sql.DB, product structs.Product) error {
 }
 
 /*
-DeleteProduct deletes a single row from the Product table in the database based on the ID. Returns nil if successful, or an error if not.
+DeleteProductByID deletes a single row from the Product table in the database based on the ID.
+Returns nil if successful, or an error if not.
 */
 func DeleteProductByID(db *sql.DB, id string) error {
 	_, err := db.Exec("DELETE FROM Product WHERE ID = ?", id)
@@ -141,6 +165,9 @@ func DeleteProductByID(db *sql.DB, id string) error {
 	return nil
 }
 
+/*
+rowsToSlice converts the rows from a SQL query to a slice of Product structs.
+*/
 func rowsToSlice(rows *sql.Rows) ([]structs.Product, error) {
 	var productSlice []structs.Product
 	for rows.Next() {
@@ -162,10 +189,12 @@ func rowsToSlice(rows *sql.Rows) ([]structs.Product, error) {
 	return productSlice, nil
 }
 
-func ProductExists(product structs.Product) (bool, error) {
+/*
+ProductExists checks if a product with the provided ID exists in the database.
+*/
+func productExists(id string) (bool, error) {
 	var exists bool
-
-	err := Client.QueryRow(`SELECT EXISTS(SELECT * FROM Product WHERE ID = ?)`, product.ID).Scan(&exists)
+	err := Client.QueryRow(`SELECT EXISTS(SELECT * FROM Product WHERE ID = ?)`, id).Scan(&exists)
 	if err != nil {
 		return false, err
 	}
