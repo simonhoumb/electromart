@@ -18,8 +18,7 @@ func SearchProducts(db *sql.DB, query string) ([]structs.Product, error) {
 		`
       SELECT * FROM Product
       WHERE LOWER(Name) LIKE ? OR Description LIKE ? OR BrandID IN (SELECT ID FROM Brand WHERE LOWER(Name) LIKE ?)
-        AND CategoryID IN (SELECT ID FROM Category WHERE LOWER(Name) LIKE ?)
-      ORDER BY Name;
+        AND CategoryID IN (SELECT ID FROM Category WHERE LOWER(Name) LIKE ?);
   `, "%"+lowerQuery+"%", "%"+lowerQuery+"%", "%"+lowerQuery+"%", "%"+lowerQuery+"%",
 	)
 	if err != nil {
@@ -126,7 +125,7 @@ func UpdateProduct(db *sql.DB, product structs.Product) error {
 /*
 DeleteProduct deletes a single row from the Product table in the database based on the ID. Returns nil if successful, or an error if not.
 */
-func DeleteProduct(db *sql.DB, id string) error {
+func DeleteProductByID(db *sql.DB, id string) error {
 	_, err := db.Exec("DELETE FROM Product WHERE ID = ?", id)
 	if err != nil {
 		log.Println("Error when deleting product: ", err)
