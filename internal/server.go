@@ -3,6 +3,7 @@ package server
 import (
 	"Database_Project/internal/constants"
 	"Database_Project/internal/db"
+	"Database_Project/internal/handlers/categories"
 	"Database_Project/internal/handlers/products"
 	"Database_Project/internal/handlers/users"
 	"Database_Project/internal/session"
@@ -24,6 +25,7 @@ func Start() {
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "templates/index.html")
 	})
+
 
 	mux.HandleFunc("/api/check_login", users.CheckLoginHandler(userDB))
 	mux.HandleFunc("/api/logout", users.LogoutHandler())
