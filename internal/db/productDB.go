@@ -83,37 +83,18 @@ func GetProductByID(db *sql.DB, id string) (structs.Product, error) {
 AddProduct adds a single row to the Product table in the database. Returns the ID if successful, or an error if not.
 */
 func AddProduct(db *sql.DB, product structs.Product) (string, error) {
-	// Prepare statements (consider deferring closing after use)
-	uuidStmt, err := db.Prepare(
-		`SELECT UUID();`,
-	)
+	// Generate and retrieve new UUID
+	id, err := GenerateUUID(db)
 	if err != nil {
-		log.Println("Error preparing UUID statement: ", err)
+		log.Println("Error generating UUID: ", err)
 		return "", err
 	}
 
-	insertStmt, err3 := db.Prepare(
+	// Insert product
+	_, err2 := db.Exec(
 		`INSERT INTO Product (ID, Name, BrandID, CategoryID, Description, QtyInStock, 
 Price) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-	)
-	if err3 != nil {
-		log.Println("Error preparing insert statement: ", err3)
-		return "", err3
-	}
-
-	// Generate UUID
-	row := uuidStmt.QueryRow()
-
-	// Retrieve UUID
-	var uuid string
-	if err4 := row.Scan(&uuid); err4 != nil {
-		log.Println("Error generating UUID: ", err4)
-		return "", err4
-	}
-
-	// Insert product
-	_, err = insertStmt.Exec(
-		uuid,
+		id,
 		product.Name,
 		product.BrandID,
 		product.CategoryID,
@@ -121,12 +102,12 @@ Price) VALUES (?, ?, ?, ?, ?, ?, ?)`,
 		product.QtyInStock,
 		product.Price,
 	)
-	if err != nil {
-		log.Println("Error inserting product: ", err)
-		return "", err
+	if err2 != nil {
+		log.Println("Error inserting product: ", err2)
+		return "", err2
 	}
 
-	return uuid, nil // Return the UUID
+	return id, nil // Return the UUID
 }
 
 /*
