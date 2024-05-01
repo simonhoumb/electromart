@@ -1,5 +1,18 @@
 package structs
 
+import "database/sql"
+
+type ActiveUser struct {
+	Id        string         `json:"Id"`
+	Username  string         `json:"Username"`
+	Email     string         `json:"Email"`
+	FirstName string         `json:"FirstName"`
+	LastName  string         `json:"LastName"`
+	Address   sql.NullString `json:"Address,omitempty"`
+	PostCode  sql.NullString `json:"PostCode,omitempty"`
+	Password  string         `json:"Password"`
+}
+
 type User struct {
 	ID        string `json:"id"`
 	Username  string `json:"username"`
@@ -7,7 +20,7 @@ type User struct {
 	Password  string `json:"password"`
 	FirstName string `json:"firstName"`
 	LastName  string `json:"lastName"`
-	Phone     int64  `json:"phone"`
+	Phone     string `json:"phone"`
 	CartID    string `json:"cartID"`
 }
 

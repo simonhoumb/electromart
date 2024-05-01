@@ -1,9 +1,12 @@
 package db
 
 import (
+	"Database_Project/internal/structs"
 	"database/sql"
 	"fmt"
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
+	"log"
 )
 
 type UserDB struct {
@@ -51,4 +54,69 @@ func (db *UserDB) CheckLogin(username string, password string) (bool, error) {
 
 	// Both username and password match the record in the database
 	return true, nil
+}
+
+func (db *UserDB) CreateUserCart() (string, error) {
+	cartID := uuid.New().String()
+	query := `INSERT INTO Cart (ID, TotalAmount) VALUES (?, ?)`
+	_, err := db.Client.Exec(query, cartID, 0)
+	if err != nil {
+		return "", err
+	}
+	return cartID, nil
+}
+
+// CreateUser creates a new user in the database.
+func (db *UserDB) RegisterUser(userID, username, hashedPassword, email, firstName, lastName string, phone string, cartID string) error {
+	query := `INSERT INTO User (ID, Username, Password, Email, FirstName, LastName, Phone, CartID) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+	_, err := db.Client.Exec(query, userID, username, hashedPassword, email, firstName, lastName, phone, cartID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// GetUser retrieves a user with given username from the database.
+func (db *UserDB) GetUser(username string) (structs.ActiveUser, error) {
+	var user structs.ActiveUser
+
+	query := `SELECT User.ID, User.Username, User.Email, User.Password, User.FirstName, User.LastName, 
+       	   Address.Street, PostalCode.PostalCode
+              FROM User 
+              LEFT JOIN Address ON User.ID = Address.UserID
+              LEFT JOIN PostalCode ON Address.PostalCode = PostalCode.PostalCode
+              WHERE User.Username = ?`
+
+	err := db.Client.QueryRow(query, username).Scan(
+		&user.Id,
+		&user.Username,
+		&user.Email,
+		&user.Password,
+		&user.FirstName,
+		&user.LastName,
+		&user.Address,
+		&user.PostCode,
+	)
+
+	if err != nil {
+		log.Printf("Error fetching user info for %v: %v", username, err)
+		return user, err
+	}
+
+	return user, nil
+}
+
+// UpdateUser updates the user's information in the database.
+func (db *UserDB) UpdateUser(user structs.ActiveUser) error {
+	// Query to update a user in the database
+	queryStmt := `UPDATE User SET FirstName = ?, LastName = ?, Address = ?, PostCode = ? WHERE Username = ?`
+
+	// Execute the SQL command to update the user
+	_, err := db.Client.Exec(queryStmt, &user.FirstName, &user.LastName, &user.Address, &user.PostCode, &user.Username)
+	if err != nil {
+		// Return an error with more context.
+		return fmt.Errorf("Failed to update user: %v", err)
+	}
+
+	return nil
 }
