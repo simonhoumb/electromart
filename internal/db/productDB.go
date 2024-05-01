@@ -112,6 +112,7 @@ UpdateProduct updates a single row in the Product table in the database based on
 Returns nil if successful, or an error if not.
 */
 func UpdateProduct(db *sql.DB, product structs.Product) error {
+
 	_, err := db.Exec(
 		"UPDATE Product SET Name = ?, BrandID = ?, CategoryID = ?, Description = ?, QtyInStock = ?, Price = ? WHERE ID = ?",
 		product.Name,
@@ -130,7 +131,8 @@ func UpdateProduct(db *sql.DB, product structs.Product) error {
 }
 
 /*
-DeleteProduct deletes a single row from the Product table in the database based on the ID. Returns nil if successful, or an error if not.
+DeleteProductByID deletes a single row from the Product table in the database based on the ID.
+Returns nil if successful, or an error if not.
 */
 func DeleteProductByID(db *sql.DB, id string) error {
 	_, err := db.Exec("DELETE FROM Product WHERE ID = ?", id)
@@ -141,6 +143,9 @@ func DeleteProductByID(db *sql.DB, id string) error {
 	return nil
 }
 
+/*
+rowsToSlice converts the rows from a SQL query to a slice of Product structs.
+*/
 func rowsToSlice(rows *sql.Rows) ([]structs.Product, error) {
 	var productSlice []structs.Product
 	for rows.Next() {
@@ -162,10 +167,12 @@ func rowsToSlice(rows *sql.Rows) ([]structs.Product, error) {
 	return productSlice, nil
 }
 
-func ProductExists(product structs.Product) (bool, error) {
+/*
+ProductExists checks if a product with the provided ID exists in the database.
+*/
+func productExists(id string) (bool, error) {
 	var exists bool
-
-	err := Client.QueryRow(`SELECT EXISTS(SELECT * FROM Product WHERE ID = ?)`, product.ID).Scan(&exists)
+	err := Client.QueryRow(`SELECT EXISTS(SELECT * FROM Product WHERE ID = ?)`, id).Scan(&exists)
 	if err != nil {
 		return false, err
 	}
