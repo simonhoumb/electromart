@@ -18,8 +18,7 @@ func SearchProducts(db *sql.DB, query string) ([]structs.Product, error) {
 		`
       SELECT * FROM Product
       WHERE LOWER(Name) LIKE ? OR Description LIKE ? OR BrandID IN (SELECT ID FROM Brand WHERE LOWER(Name) LIKE ?)
-        AND CategoryID IN (SELECT ID FROM Category WHERE LOWER(Name) LIKE ?)
-      ORDER BY Name;
+        AND CategoryID IN (SELECT ID FROM Category WHERE LOWER(Name) LIKE ?);
   `, "%"+lowerQuery+"%", "%"+lowerQuery+"%", "%"+lowerQuery+"%", "%"+lowerQuery+"%",
 	)
 	if err != nil {
