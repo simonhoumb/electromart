@@ -1,32 +1,39 @@
 package categories
 
 import (
+	"Database_Project/internal/db"
+	"Database_Project/internal/structs"
+	"Database_Project/internal/utils"
 	"encoding/json"
 	"fmt"
 	"net/http"
 )
 
 // Implemented methods for the endpoint
-var implementedMethods = []string{
+var categoriesImplementedMethods = []string{
 	http.MethodGet,
+	http.MethodPost,
 }
 
 /*
-Handler for the /products endpoint.
+HandleCategories for the /categories endpoint.
 */
-func Handler(w http.ResponseWriter, r *http.Request) {
+func HandleCategories(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-type", "application/json")
 	// Switch on the HTTP request method
 	switch r.Method {
 	case http.MethodGet:
 		handleGetAllRequest(w, r)
 
+	case http.MethodPost:
+		handleCreateRequest(w, r)
+
 	default:
 		// If the method is not implemented, return an error with the allowed methods
 		http.Error(
 			w, fmt.Sprintf(
 				"REST Method '%s' not supported. Currently only '%v' are supported.", r.Method,
-				implementedMethods,
+				categoriesImplementedMethods,
 			), http.StatusNotImplemented,
 		)
 		return
@@ -35,21 +42,44 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 func handleGetAllRequest(w http.ResponseWriter, r *http.Request) {
 	// Get all categories
-	// categories := db.somethingsomething()
-	categories := []string{"category1", "category2", "category3"}
-
-	// Marshal the products into a JSON object
-	productsJSON, err := json.Marshal(categories)
-	if err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	categories, err := db.GetAllCategories(db.Client)
+	if utils.HandleError(w, r, http.StatusInternalServerError, err, "error getting categories from database") {
 		return
 	}
 
-	// Write the JSON object to the response
-	_, err = w.Write(productsJSON)
-	if err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		fmt.Println("Error writing response:", err)
+	// Return the categories
+	if categoriesJSON, err := json.Marshal(categories); utils.HandleError(w, r, http.StatusInternalServerError, err, "error during encoding response") {
 		return
+	} else {
+		if _, err := w.Write(categoriesJSON); utils.HandleError(w, r, http.StatusInternalServerError, err, "error writing response") {
+			return
+		}
+	}
+}
+
+func handleCreateRequest(w http.ResponseWriter, r *http.Request) {
+	var category structs.Category
+
+	if err := json.NewDecoder(r.Body).Decode(&category); utils.HandleError(w, r, http.StatusBadRequest, err, "error during decoding request") {
+		return
+	}
+
+	if err := category.ValidateNewCategoryRequest(); utils.HandleError(w, r, http.StatusBadRequest, err, "invalid request json, check documentation") {
+		return
+	}
+
+	// Create the category
+	categoryID, err := db.AddCategory(db.Client, category)
+	if utils.HandleError(w, r, http.StatusInternalServerError, err, "error adding category to database") {
+		return
+	}
+
+	// Two above in one if statement
+	if categoryIDJSON, err := json.Marshal(structs.CreateCategoryResponse{ID: categoryID}); utils.HandleError(w, r, http.StatusInternalServerError, err, "error during encoding response") {
+		return
+	} else {
+		if _, err := w.Write(categoryIDJSON); utils.HandleError(w, r, http.StatusInternalServerError, err, "error writing response") {
+			return
+		}
 	}
 }

@@ -26,13 +26,15 @@ func Start() {
 
 	defer db.Client.Close()
 
+	// API endpoints
 	// Handle the products endpoint
 	mux.HandleFunc(constants.ProductsPath, products.HandleProducts)
 	mux.HandleFunc(constants.ProductsPath+"{id}", products.HandleProductDetail)
 	mux.HandleFunc(constants.ProductsPath+"search/{query}", products.HandleQueryProducts)
 
 	// Handle the categories endpoint
-	mux.HandleFunc(constants.CategoriesPath, categories.Handler)
+	mux.HandleFunc(constants.CategoriesPath, categories.HandleCategories)
+	mux.HandleFunc(constants.CategoriesPath+"{id}", categories.HandleCategoryDetail)
 
 	mux.HandleFunc(
 		"/", func(w http.ResponseWriter, r *http.Request) {
