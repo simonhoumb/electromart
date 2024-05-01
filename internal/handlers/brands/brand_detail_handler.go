@@ -43,7 +43,7 @@ func handleGetDetailRequest(w http.ResponseWriter, r *http.Request) {
 	//}
 	//
 	//// Get the brand with the given ID
-	//brand, err := db.GetBrandByID(db.Client, id)
+	//brand, err := db.GetBrandByID(id)
 	//if utils.HandleError(w, r, http.StatusInternalServerError, err, "Error getting brands from database") {
 	//	return
 	//}
@@ -76,7 +76,7 @@ func handleUpdateDetailRequest(w http.ResponseWriter, r *http.Request) {
 	//}
 	//
 	//// Update the brand with the given ID
-	//if err := db.UpdateBrand(db.Client, updatedBrand); utils.HandleError(w, r, http.StatusInternalServerError, err, "Error updating brand in database") {
+	//if err := db.UpdateBrand(updatedBrand); utils.HandleError(w, r, http.StatusInternalServerError, err, "Error updating brand in database") {
 	//	return
 	//}
 	//
@@ -91,7 +91,7 @@ func handleDeleteDetailRequest(w http.ResponseWriter, r *http.Request) {
 	//}
 	//
 	//// Get the brand with the given ID
-	//if err := db.DeleteBrandByID(db.Client, id); utils.HandleError(w, r, http.StatusInternalServerError, err, "Error deleting brand from database") {
+	//if err := db.DeleteBrandByID(id); utils.HandleError(w, r, http.StatusInternalServerError, err, "Error deleting brand from database") {
 	//	return
 	//}
 	//

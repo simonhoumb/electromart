@@ -47,7 +47,7 @@ func handleGetDetailRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get the product with the given ID
-	product, err := db.GetProductByID(db.Client, id)
+	product, err := db.GetProductByID(id)
 	if utils.HandleError(w, r, http.StatusInternalServerError, err, "Error getting products from database") {
 		return
 	}
@@ -80,7 +80,7 @@ func handleUpdateDetailRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Update the product with the given ID
-	if err := db.UpdateProduct(db.Client, updatedProduct); utils.HandleError(w, r, http.StatusInternalServerError, err, "Error updating product in database") {
+	if err := db.UpdateProduct(updatedProduct); utils.HandleError(w, r, http.StatusInternalServerError, err, "Error updating product in database") {
 		return
 	}
 
@@ -95,7 +95,7 @@ func handleDeleteDetailRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get the product with the given ID
-	if err := db.DeleteProductByID(db.Client, id); utils.HandleError(w, r, http.StatusInternalServerError, err, "Error deleting product from database") {
+	if err := db.DeleteProductByID(id); utils.HandleError(w, r, http.StatusInternalServerError, err, "Error deleting product from database") {
 		return
 	}
 

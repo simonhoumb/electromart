@@ -36,7 +36,7 @@ func HandleBrands(w http.ResponseWriter, r *http.Request) {
 
 func handleGetAllRequest(w http.ResponseWriter, r *http.Request) {
 	//// Get all brands
-	//brands, err := db.GetAllBrands(db.Client)
+	//brands, err := db.GetAllBrands()
 	//if utils.HandleError(w, r, http.StatusInternalServerError, err, "error getting brands from database") {
 	//	return
 	//}
@@ -63,7 +63,7 @@ func handleCreateRequest(w http.ResponseWriter, r *http.Request) {
 	//}
 	//
 	//// Create the brand
-	//brandID, err := db.AddBrand(db.Client, brand)
+	//brandID, err := db.AddBrand(brand)
 	//if utils.HandleError(w, r, http.StatusInternalServerError, err, "error adding brand to database") {
 	//	return
 	//}

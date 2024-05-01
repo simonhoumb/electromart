@@ -42,7 +42,7 @@ func HandleProducts(w http.ResponseWriter, r *http.Request) {
 
 func handleGetAllRequest(w http.ResponseWriter, r *http.Request) {
 	// Get all products
-	products, err := db.GetAllProducts(db.Client)
+	products, err := db.GetAllProducts()
 	if utils.HandleError(w, r, http.StatusInternalServerError, err, "error getting products from database") {
 		return
 	}
@@ -69,7 +69,7 @@ func handleCreateRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create the product
-	productID, err := db.AddProduct(db.Client, product)
+	productID, err := db.AddProduct(product)
 	if utils.HandleError(w, r, http.StatusInternalServerError, err, "error adding product to database") {
 		return
 	}

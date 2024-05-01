@@ -38,7 +38,7 @@ func handleProductsQueryRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get the product with the given ID
-	products, err := db.SearchProducts(db.Client, query)
+	products, err := db.SearchProducts(query)
 	if utils.HandleError(w, r, http.StatusInternalServerError, err, "Error getting products from database") {
 		return
 	}

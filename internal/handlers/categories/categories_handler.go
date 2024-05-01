@@ -38,7 +38,7 @@ func HandleCategories(w http.ResponseWriter, r *http.Request) {
 
 func handleGetAllRequest(w http.ResponseWriter, r *http.Request) {
 	//// Get all categories
-	//categories, err := db.GetAllCategories(db.Client)
+	//categories, err := db.GetAllCategories()
 	//if utils.HandleError(w, r, http.StatusInternalServerError, err, "error getting categories from database") {
 	//	return
 	//}
@@ -65,7 +65,7 @@ func handleCreateRequest(w http.ResponseWriter, r *http.Request) {
 	//}
 	//
 	//// Create the category
-	//categoryID, err := db.AddCategory(db.Client, category)
+	//categoryID, err := db.AddCategory(category)
 	//if utils.HandleError(w, r, http.StatusInternalServerError, err, "error adding category to database") {
 	//	return
 	//}
