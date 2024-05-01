@@ -125,7 +125,7 @@ func UpdateProduct(db *sql.DB, product structs.Product) error {
 /*
 DeleteProduct deletes a single row from the Product table in the database based on the ID. Returns nil if successful, or an error if not.
 */
-func DeleteProduct(db *sql.DB, id string) error {
+func DeleteProductByID(db *sql.DB, id string) error {
 	_, err := db.Exec("DELETE FROM Product WHERE ID = ?", id)
 	if err != nil {
 		log.Println("Error when deleting product: ", err)
