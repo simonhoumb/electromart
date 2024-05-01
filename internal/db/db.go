@@ -54,3 +54,16 @@ func pingDatabase(db *sql.DB) {
 		log.Fatal("Error when pinging database: ", err)
 	}
 }
+
+/*
+GenerateUUID uses MySQL DB to generate a new UUID and returns it as a string.
+*/
+func GenerateUUID(db *sql.DB) (string, error) {
+	// Generate and retrieve new UUID
+	var uuid string
+	if err := db.QueryRow(`SELECT UUID();`).Scan(&uuid); err != nil {
+		log.Println("Error generating UUID: ", err)
+		return "", err
+	}
+	return uuid, nil
+}

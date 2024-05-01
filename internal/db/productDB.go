@@ -3,6 +3,7 @@ package db
 import (
 	"Database_Project/internal/structs"
 	"database/sql"
+	"fmt"
 	"log"
 	"strings"
 )
@@ -61,59 +62,50 @@ func GetAllProducts(db *sql.DB) ([]structs.Product, error) {
 /*
 GetProductByID retrieves a single row from the Product table in the database based on the ID and returns it as a Product struct.
 */
-func GetProductByID(db *sql.DB, id string) (structs.Product, error) {
-	var product structs.Product
-	err := db.QueryRow("SELECT * FROM Product WHERE ID = ?", id).Scan(
-		&product.ID,
-		&product.Name,
-		&product.BrandID,
-		&product.CategoryID,
-		&product.Description,
-		&product.QtyInStock,
-		&product.Price,
-	)
+func GetProductByID(db *sql.DB, id string) (*structs.Product, error) {
+	exists, err := productExists(id)
 	if err != nil {
-		log.Println("Error when selecting product by ID: ", err)
-		return product, err
+		log.Println("Error when checking if product exists: ", err)
+		return nil, err
 	}
-	return product, nil
+	if exists {
+		var product structs.Product
+		err2 := db.QueryRow("SELECT * FROM Product WHERE ID = ?", id).Scan(
+			&product.ID,
+			&product.Name,
+			&product.BrandID,
+			&product.CategoryID,
+			&product.Description,
+			&product.QtyInStock,
+			&product.Price,
+		)
+		if err2 != nil {
+			log.Println("Error when selecting product by ID: ", err2)
+			return nil, err2
+		}
+		return &product, nil
+	} else {
+		log.Println("Product does not exist")
+		return nil, fmt.Errorf("product ID does not match any products in DB")
+	}
 }
 
 /*
 AddProduct adds a single row to the Product table in the database. Returns the ID if successful, or an error if not.
 */
 func AddProduct(db *sql.DB, product structs.Product) (string, error) {
-	// Prepare statements (consider deferring closing after use)
-	uuidStmt, err := db.Prepare(
-		`SELECT UUID();`,
-	)
+	// Generate and retrieve new UUID
+	id, err := GenerateUUID(db)
 	if err != nil {
-		log.Println("Error preparing UUID statement: ", err)
+		log.Println("Error generating UUID: ", err)
 		return "", err
 	}
 
-	insertStmt, err3 := db.Prepare(
+	// Insert product
+	_, err2 := db.Exec(
 		`INSERT INTO Product (ID, Name, BrandID, CategoryID, Description, QtyInStock, 
 Price) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-	)
-	if err3 != nil {
-		log.Println("Error preparing insert statement: ", err3)
-		return "", err3
-	}
-
-	// Generate UUID
-	row := uuidStmt.QueryRow()
-
-	// Retrieve UUID
-	var uuid string
-	if err4 := row.Scan(&uuid); err4 != nil {
-		log.Println("Error generating UUID: ", err4)
-		return "", err4
-	}
-
-	// Insert product
-	_, err = insertStmt.Exec(
-		uuid,
+		id,
 		product.Name,
 		product.BrandID,
 		product.CategoryID,
@@ -121,12 +113,12 @@ Price) VALUES (?, ?, ?, ?, ?, ?, ?)`,
 		product.QtyInStock,
 		product.Price,
 	)
-	if err != nil {
-		log.Println("Error inserting product: ", err)
-		return "", err
+	if err2 != nil {
+		log.Println("Error inserting product: ", err2)
+		return "", err2
 	}
 
-	return uuid, nil // Return the UUID
+	return id, nil // Return the UUID
 }
 
 /*
@@ -134,20 +126,30 @@ UpdateProduct updates a single row in the Product table in the database based on
 Returns nil if successful, or an error if not.
 */
 func UpdateProduct(db *sql.DB, product structs.Product) error {
-
-	_, err := db.Exec(
-		"UPDATE Product SET Name = ?, BrandID = ?, CategoryID = ?, Description = ?, QtyInStock = ?, Price = ? WHERE ID = ?",
-		product.Name,
-		product.BrandID,
-		product.CategoryID,
-		product.Description,
-		product.QtyInStock,
-		product.Price,
-		product.ID,
-	)
+	// Check if product exists
+	exists, err := productExists(product.ID)
 	if err != nil {
-		log.Println("Error when updating product: ", err)
+		log.Println("Error when checking if product exists: ", err)
 		return err
+	}
+	if exists {
+		_, err2 := db.Exec(
+			"UPDATE Product SET Name = ?, BrandID = ?, CategoryID = ?, Description = ?, QtyInStock = ?, Price = ? WHERE ID = ?",
+			product.Name,
+			product.BrandID,
+			product.CategoryID,
+			product.Description,
+			product.QtyInStock,
+			product.Price,
+			product.ID,
+		)
+		if err2 != nil {
+			log.Println("Error when updating product: ", err2)
+			return err2
+		}
+	} else {
+		log.Println("Product does not exist")
+		return fmt.Errorf("product ID does not match any products in DB")
 	}
 	return nil
 }
@@ -157,10 +159,20 @@ DeleteProductByID deletes a single row from the Product table in the database ba
 Returns nil if successful, or an error if not.
 */
 func DeleteProductByID(db *sql.DB, id string) error {
-	_, err := db.Exec("DELETE FROM Product WHERE ID = ?", id)
+	exists, err := productExists(id)
 	if err != nil {
-		log.Println("Error when deleting product: ", err)
+		log.Println("Error when checking if product exists: ", err)
 		return err
+	}
+	if exists {
+		_, err2 := db.Exec("DELETE FROM Product WHERE ID = ?", id)
+		if err2 != nil {
+			log.Println("Error when deleting product: ", err2)
+			return err2
+		}
+	} else {
+		log.Println("Product does not exist")
+		return fmt.Errorf("product ID does not match any products in DB")
 	}
 	return nil
 }
