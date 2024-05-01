@@ -4,6 +4,7 @@ import (
 	"Database_Project/internal/structs"
 	"database/sql"
 	"log"
+	"strconv"
 	"strings"
 )
 
@@ -80,12 +81,12 @@ func GetProductByID(db *sql.DB, id string) (structs.Product, error) {
 }
 
 /*
-AddProduct adds a single row to the Product table in the database. Returns nil if successful, or an error if not.
+AddProduct adds a single row to the Product table in the database. Returns the ID if successful.
 */
-func AddProduct(db *sql.DB, product structs.Product) error {
-	_, err := db.Exec(
-		"INSERT INTO Product (ID, Name, BrandID, CategoryID, Description, QtyInStock, Price) VALUES (?, ?, ?, ?, ?, ?, ?)",
-		product.ID,
+func AddProduct(db *sql.DB, product structs.Product) (string, error) {
+	result, err := db.Exec(
+		`INSERT INTO Product (ID, Name, BrandID, CategoryID, Description, QtyInStock, Price) VALUES (UUID(), ?, ?, ?,
+?, ?, ?)`,
 		product.Name,
 		product.BrandID,
 		product.CategoryID,
@@ -95,9 +96,15 @@ func AddProduct(db *sql.DB, product structs.Product) error {
 	)
 	if err != nil {
 		log.Println("Error when adding product: ", err)
-		return err
+		return "", err
 	}
-	return nil
+	id, err2 := result.LastInsertId()
+	if err2 != nil {
+		log.Println("Error when getting last insert ID: ", err2)
+		return "", err2
+	}
+
+	return strconv.FormatInt(id, 10), nil
 }
 
 /*
@@ -153,4 +160,15 @@ func rowsToSlice(rows *sql.Rows) ([]structs.Product, error) {
 		productSlice = append(productSlice, product)
 	}
 	return productSlice, nil
+}
+
+func ProductExists(product structs.Product) (bool, error) {
+	var exists bool
+
+	err := Client.QueryRow(`SELECT EXISTS(SELECT * FROM Product WHERE ID = ?)`, product.ID).Scan(&exists)
+	if err != nil {
+		return false, err
+	}
+
+	return exists, nil
 }
