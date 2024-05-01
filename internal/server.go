@@ -21,6 +21,7 @@ func Start() {
 	userDB := &db.UserDB{Client: db.OpenDatabaseConnection()}
 	defer userDB.Client.Close()
 
+	db.Client = db.OpenDatabaseConnection()
 	defer db.Client.Close()
 
 	// API endpoints
@@ -40,7 +41,6 @@ func Start() {
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "templates/index.html")
 	})
-
 
 	mux.HandleFunc("/api/check_login", users.CheckLoginHandler(userDB))
 	mux.HandleFunc("/api/logout", users.LogoutHandler())
