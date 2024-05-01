@@ -9,13 +9,6 @@ type Credentials struct {
 	Phone     int    `json:"phone"`
 }
 
-type Product struct {
-	ID          int    `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Price       string `json:"price"`
-}
-
 type MessageResponse struct {
 	Message string `json:"message"`
 }

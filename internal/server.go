@@ -20,7 +20,15 @@ func Start() {
 	userDB := &db.UserDB{Client: db.OpenDatabaseConnection()}
 	defer userDB.Client.Close()
 
-	mux.HandleFunc(constants.ProductsPath, products.Handler)
+	defer db.Client.Close()
+
+	// Handle the products endpoint
+	mux.HandleFunc(constants.ProductsPath, products.HandleProducts)
+	mux.HandleFunc(constants.ProductsPath+"{id}", products.HandleProductDetail)
+	mux.HandleFunc(constants.ProductsPath+"search/{query}", products.HandleQueryProducts)
+
+	// Handle the categories endpoint
+	mux.HandleFunc(constants.CategoriesPath, categories.Handler)
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "templates/index.html")
