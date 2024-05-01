@@ -1,11 +1,5 @@
 package structs
 
-import "database/sql"
-
-type UserDB struct {
-	Client *sql.DB
-}
-
 type User struct {
 	ID        string `json:"id"`
 	Username  string `json:"username"`

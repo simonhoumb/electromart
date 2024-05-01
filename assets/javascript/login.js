@@ -4,7 +4,7 @@ document.getElementById('loginForm').addEventListener('submit', function (event)
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
 
-    fetch('/login', {
+    fetch('/api/login', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -27,19 +27,12 @@ document.getElementById('loginForm').addEventListener('submit', function (event)
         });
 });
 
-function logout() {
-    fetch('/logout', {
-        method: 'POST',
-    })
-        .then(() => {
-            // Clear the username and update the UI
-            document.getElementById('user-not-logged').style.display = 'block';
-            document.getElementById('logged-username').textContent = '';
-            document.getElementById('user-logged').style.display = 'none';
-            // Now, let's redirect user to login page
-            window.location.href = '/';
+function logoutUser() {
+    fetch('/api/logout', { credentials: 'include' })
+        .then(response => response.text())
+        .then(text => {
+            checkLoginState();
+            window.location.href = "/";
         })
-        .catch((error) => {
-            console.error('Error:', error);
-        });
+        .catch(error => console.error('Error:', error));
 }
