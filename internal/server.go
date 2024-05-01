@@ -29,6 +29,7 @@ func Start() {
 	// Handle the products endpoint
 	mux.HandleFunc(constants.ProductsPath, products.HandleProducts)
 	mux.HandleFunc(constants.ProductsPath+"{id}", products.HandleProductDetail)
+	mux.HandleFunc(constants.ProductsPath+"search/{query}", products.HandleQueryProducts)
 
 	// Handle the categories endpoint
 	mux.HandleFunc(constants.CategoriesPath, categories.Handler)

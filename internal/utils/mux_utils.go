@@ -14,3 +14,12 @@ func GetIDFromRequest(r *http.Request) (string, error) {
 
 	return id, nil
 }
+
+func GetQueryFromRequest(r *http.Request) (string, error) {
+	query := r.PathValue("query")
+	if query == "" {
+		return "", errors.New("query not found in request")
+	}
+
+	return query, nil
+}

@@ -46,14 +46,10 @@ func handleGetDetailRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get the product with the given ID
-	products, err := db.GetAllProducts(db.Client)
+	product, err := db.GetProductByID(db.Client, id)
 	if utils.HandleError(w, r, http.StatusInternalServerError, err, "Error getting products from database") {
 		return
 	}
-
-	// Take first product from the list TODO: Change this to get the product with the given ID
-	product := products[0]
-	product.ID = product.ID + id
 
 	// Return the product
 	if marshalledProduct, err := json.Marshal(product); utils.HandleError(w, r, http.StatusInternalServerError, err, "Error during encoding response") {
