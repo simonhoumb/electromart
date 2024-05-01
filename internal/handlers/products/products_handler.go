@@ -1,9 +1,11 @@
 package products
 
 import (
+	"Database_Project/internal/utils"
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"reflect"
 )
 
 /*
@@ -56,19 +58,14 @@ func handleGetAllRequest(w http.ResponseWriter, r *http.Request) {
 	// products := db.somethingsomething()
 	products := []string{"product1", "product2", "product3"}
 
-	// Marshal the products into a JSON object
-	productsJSON, err := json.Marshal(products)
-	if err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	// In one if statement
+	if productsJSON, err := json.Marshal(products); utils.HandleError(w, r, http.StatusInternalServerError, err, "error during encoding response") {
 		return
-	}
-
-	// Write the JSON object to the response
-	_, err = w.Write(productsJSON)
-	if err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		fmt.Println("Error writing response:", err)
-		return
+	} else {
+		w.Header().Set("content-type", "application/json")
+		if _, err := w.Write(productsJSON); utils.HandleError(w, r, http.StatusInternalServerError, err, "error writing response") {
+			return
+		}
 	}
 }
 
@@ -92,6 +89,23 @@ type CreateProductRequest struct {
 	Price       int    `json:"price"`
 }
 
+func (req CreateProductRequest) Validate() error {
+	values := reflect.ValueOf(req)
+	for i := 0; i < values.NumField(); i++ {
+		switch values.Field(i).Interface().(type) {
+		case int:
+			if values.Field(i).Int() < 0 {
+				return fmt.Errorf("field %s must be a positive integer", values.Type().Field(i).Name)
+			}
+		default:
+			if values.Field(i).IsZero() {
+				return fmt.Errorf("field '%s' is invalid and/or required", values.Type().Field(i).Name)
+			}
+		}
+	}
+	return nil
+}
+
 type CreateProductResponse struct {
 	ID string `json:"id"`
 }
@@ -99,9 +113,11 @@ type CreateProductResponse struct {
 func handleCreateRequest(w http.ResponseWriter, r *http.Request) {
 	var req CreateProductRequest
 
-	err := json.NewDecoder(r.Body).Decode(&req)
-	if err != nil {
-		http.Error(w, "Bad Request", http.StatusBadRequest)
+	if err := json.NewDecoder(r.Body).Decode(&req); utils.HandleError(w, r, http.StatusBadRequest, err, "error during decoding request") {
+		return
+	}
+
+	if err := req.Validate(); utils.HandleError(w, r, http.StatusBadRequest, err, "invalid request json, check documentation") {
 		return
 	}
 
@@ -109,18 +125,12 @@ func handleCreateRequest(w http.ResponseWriter, r *http.Request) {
 	// productID := db.somethingsomething()
 	productID := "productID"
 
-	// Marshal the product ID into a JSON object
-	productIDJSON, err := json.Marshal(CreateProductResponse{ID: productID})
-	if err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	// Two above in one if statement
+	if productIDJSON, err := json.Marshal(CreateProductResponse{ID: productID}); utils.HandleError(w, r, http.StatusInternalServerError, err, "error during encoding response") {
 		return
-	}
-
-	// Write the JSON object to the response
-	_, err = w.Write(productIDJSON)
-	if err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		fmt.Println("Error writing response:", err)
-		return
+	} else {
+		if _, err := w.Write(productIDJSON); utils.HandleError(w, r, http.StatusInternalServerError, err, "error writing response") {
+			return
+		}
 	}
 }
