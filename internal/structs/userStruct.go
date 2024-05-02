@@ -3,14 +3,16 @@ package structs
 import "database/sql"
 
 type ActiveUser struct {
-	Id        string         `json:"Id"`
+	ID        string         `json:"Id"`
 	Username  string         `json:"Username"`
 	Email     string         `json:"Email"`
 	FirstName string         `json:"FirstName"`
 	LastName  string         `json:"LastName"`
+	Phone     string         `json:"Phone"`
 	Address   sql.NullString `json:"Address,omitempty"`
 	PostCode  sql.NullString `json:"PostCode,omitempty"`
 	Password  string         `json:"Password"`
+	CartID    string         `json:"CartID"`
 }
 
 type User struct {
