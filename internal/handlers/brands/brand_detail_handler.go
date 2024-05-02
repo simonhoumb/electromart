@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 )
 
 var detailImplementedMethods = []string{
@@ -94,8 +95,12 @@ func handleDeleteDetailRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get the brand with the given ID
-	if err := db.DeleteBrandByID(id); utils.HandleError(w, r, http.StatusInternalServerError, err, "Error deleting brand from database") {
+	err = db.DeleteBrandByID(id)
+	if err != nil && strings.Contains(err.Error(), "Error 1451 (23000): Cannot delete or update a parent row: a foreign key constraint fails") {
+		// If error is "Error 1451 (23000): Cannot delete or update a parent row: a foreign key constraint fails"
+		utils.HandleError(w, r, http.StatusConflict, err, "product with this brand exists, cannot delete brand")
+		return
+	} else if utils.HandleError(w, r, http.StatusInternalServerError, err, "error deleting brand from database") {
 		return
 	}
 
