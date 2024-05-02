@@ -133,7 +133,7 @@ func UpdateProduct(product structs.Product) error {
 	}
 	if exists {
 		_, err2 := Client.Exec(
-			"UPDATE Product SET Name = ?, BrandID = ?, CategoryID = ?, Description = ?, QtyInStock = ?, Price = ? WHERE ID = ?",
+			`UPDATE Product SET Name = ?, BrandID = ?, CategoryID = ?, Description = ?, QtyInStock = ?, Price = ? WHERE ID = ?`,
 			product.Name,
 			product.BrandID,
 			product.CategoryID,
