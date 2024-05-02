@@ -1,4 +1,4 @@
-# Electro mart ⚡️🛒
+# ElectroMart ⚡️🛒
 
 ## Description 📜
 
