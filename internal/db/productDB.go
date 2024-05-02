@@ -32,7 +32,7 @@ func SearchProducts(query string) ([]structs.Product, error) {
 		}
 	}(rows)
 
-	products, err3 := rowsToSlice(rows)
+	products, err3 := rowsToProductSlice(rows)
 	if err3 != nil {
 		log.Println("Error when converting rows to slice: ", err3)
 		return nil, err3
@@ -50,7 +50,7 @@ func GetAllProducts() ([]structs.Product, error) {
 		return nil, err
 	}
 
-	foundProducts, err2 := rowsToSlice(rows)
+	foundProducts, err2 := rowsToProductSlice(rows)
 	if err2 != nil {
 		log.Println("Error when converting rows to slice: ", err2)
 		return nil, err2
@@ -177,9 +177,9 @@ func DeleteProductByID(id string) error {
 }
 
 /*
-rowsToSlice converts the rows from a SQL query to a slice of Product structs.
+rowsToProductSlice converts the rows from a SQL query to a slice of Product structs.
 */
-func rowsToSlice(rows *sql.Rows) ([]structs.Product, error) {
+func rowsToProductSlice(rows *sql.Rows) ([]structs.Product, error) {
 	var productSlice []structs.Product
 	for rows.Next() {
 		var product structs.Product
