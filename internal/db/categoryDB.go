@@ -5,39 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"strings"
 )
-
-/*
-SearchCategories retrieves rows from the Category table in the database based on the query string provided.
-The query string is used to search for categories by name and description.
-Returns a slice of Category structs if successful, or an error if not.
-*/
-func SearchCategories(query string) ([]structs.Category, error) {
-	lowerQuery := strings.ToLower(query) // Convert query to lowercase
-	rows, err := Client.Query(
-		`SELECT * FROM Category
-      WHERE LOWER(Name) LIKE ? OR Description LIKE ?;
-  `, "%"+lowerQuery+"%", "%"+lowerQuery+"%",
-	)
-	if err != nil {
-		log.Println("Error when querying for categories: ", err)
-		return nil, err
-	}
-	defer func(rows *sql.Rows) {
-		err2 := rows.Close()
-		if err2 != nil {
-			log.Println("Error when closing rows: ", err2)
-		}
-	}(rows)
-
-	categories, err3 := categoryRowsToSlice(rows)
-	if err3 != nil {
-		log.Println("Error when converting rows to slice: ", err3)
-		return nil, err3
-	}
-	return categories, nil
-}
 
 /*
 GetAllCategories retrieves all rows from the Category table in the database and returns them as a slice of Category structs.
