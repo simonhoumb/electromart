@@ -1,34 +1,15 @@
-package database_2024
+package db
 
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"github.com/go-sql-driver/mysql"
 	"log"
 	"os"
 	"time"
-
-	_ "github.com/go-sql-driver/mysql"
 )
 
-// Connect connects to the database and returns a pointer to the database.
-func Connect() *sql.DB {
-	// Open a database connection.
-	db := openDatabaseConnection()
-
-	// Set the maximum number of open and idle connections and the maximum connection lifetime.
-	db.SetMaxOpenConns(20)
-	db.SetMaxIdleConns(20)
-	db.SetConnMaxLifetime(time.Minute * 5)
-
-	// Ping the database to verify the connection.
-	pingDatabase(db)
-
-	// Print a message indicating that the connection was successful.
-	fmt.Println("Successfully connected to the database.")
-	return db
-}
+var Client *sql.DB
 
 // getDataSourceName returns a Data Source Name string for connecting to a MySQL database.
 func getDataSourceName() string {
@@ -50,13 +31,16 @@ func getDataSourceName() string {
 	return cfg.FormatDSN()
 }
 
-// openDatabaseConnection opens a connection to the database and returns a pointer to the database.
-func openDatabaseConnection() *sql.DB {
-	// Open a database connection.
+// OpenDatabaseConnection opens a connection to the database and returns a pointer to the database.
+func OpenDatabaseConnection() *sql.DB {
 	db, err := sql.Open("mysql", getDataSourceName())
 	if err != nil {
 		log.Fatal("Error when opening the database: ", err)
 	}
+
+	// Call the ping function to ensure the database is up and running
+	pingDatabase(db)
+
 	return db
 }
 
@@ -69,4 +53,17 @@ func pingDatabase(db *sql.DB) {
 	if err != nil {
 		log.Fatal("Error when pinging database: ", err)
 	}
+}
+
+/*
+GenerateUUID uses MySQL DB to generate a new UUID and returns it as a string.
+*/
+func GenerateUUID(db *sql.DB) (string, error) {
+	// Generate and retrieve new UUID
+	var uuid string
+	if err := db.QueryRow(`SELECT UUID();`).Scan(&uuid); err != nil {
+		log.Println("Error generating UUID: ", err)
+		return "", err
+	}
+	return uuid, nil
 }

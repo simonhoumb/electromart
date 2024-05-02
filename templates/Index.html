@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>EStore</title>
+    <link rel="stylesheet" href="../assets/css/Main.css">
+    <link rel="stylesheet" href="../assets/css/login.css">
+</head>
+
+<body>
+<!-- The Login Modal -->
+<div id="loginModal">
+    <div id="loginModalContent">
+        <span onclick="closeModal()" class="close">&times;</span>
+        <div class="form-container">
+            <form id="loginForm">
+                <label for="username">Username:</label><br>
+                <input type="text" id="username" name="username"><br>
+                <label for="password">Password:</label><br>
+                <input type="password" id="password" name="password"><br>
+                <input type="submit" value="Login">
+            </form>
+            <p>
+                Don't have an account? <a href="/registerPage">Register</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<header>
+    <h1>Welcome to EStore!</h1>
+    <div id="user-logged" style="display: none;">
+        <span id="logged-username"></span>
+        <button onclick="logoutUser()">Logout</button>
+    </div>
+    <div id="user-not-logged">
+        <button onclick="login()">Login</button>
+    </div>
+</header>
+
+<!-- Main navigation menu -->
+<nav>
+    <li><a href="/">Home</a></li>
+    <div class="dropdown">
+        <a href="#category">Category</a>
+        <div class="dropdown-content" id="categories">
+            <!-- Categories will be added here by JavaScript -->
+        </div>
+    </div>
+    <!-- Add more items as needed -->
+</nav>
+
+<section>
+    <div id="cart"><!-- Cart items will be added here --></div>
+
+    <h2>Our Products</h2>
+    <div id="product-filters"><!-- Filters will be added here --></div>
+
+    <div id="products"><!-- Products will be added here by JavaScript --></div>
+</section>
+
+<script src="../assets/javascript/login.js"></script>
+<script src="../assets/javascript/Main.js"></script>
+</body>
+</html>
