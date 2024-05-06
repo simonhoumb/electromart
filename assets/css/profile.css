@@ -126,6 +126,40 @@ html, body {
     background-color: #55acee;
 }
 
+/* New CSS for message container */
+.messages {
+    position: fixed;
+    bottom: 20px; /* Adjusted distance from bottom */
+    left: 50%; /* Center horizontally */
+    transform: translateX(-50%); /* Center horizontally */
+    z-index: 1000;
+    padding: 1rem;
+    background-color: #55acee; /* Background color for success and error messages */
+    color: #fff; /* Text color */
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    display: none; /* Hidden by default */
+}
+
+.success-message {
+    background-color: #27ae60; /* Success message background color */
+}
+
+.error-message {
+    background-color: #c0392b; /* Error message background color */
+}
+
+/* Adjusted modal styles for better appearance */
+.modal-content {
+    background-color: #fff; /* White background */
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Box shadow */
+    padding: 2rem 1.5rem; /* Adjusted padding */
+    max-width: 400px; /* Reduced max-width */
+    margin: 0 auto; /* Center horizontally */
+}
+
+
 /* Modal Content Styles */
 /* Modal Styles */
 .modal {

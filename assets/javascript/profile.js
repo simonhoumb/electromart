@@ -198,8 +198,15 @@ function showSuccessMessage(message) {
     var messagesContainer = document.getElementById('messages');
     messagesContainer.appendChild(successMessageElement);
 
+    // Show the messages container
+    messagesContainer.style.display = 'block';
+
     setTimeout(function () {
         successMessageElement.remove();
+        // Hide the messages container if it's empty
+        if (messagesContainer.childElementCount === 0) {
+            messagesContainer.style.display = 'none';
+        }
     }, 5000);
 }
 
@@ -211,7 +218,15 @@ function showErrorMessage(message) {
     var messagesContainer = document.getElementById('messages');
     messagesContainer.appendChild(errorMessageElement);
 
+    // Show the messages container
+    messagesContainer.style.display = 'block';
+
     setTimeout(function () {
         errorMessageElement.remove();
+        // Hide the messages container if it's empty
+        if (messagesContainer.childElementCount === 0) {
+            messagesContainer.style.display = 'none';
+        }
     }, 5000);
 }
+
