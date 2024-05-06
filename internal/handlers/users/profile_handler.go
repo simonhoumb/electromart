@@ -18,6 +18,8 @@ func ProfileHandler(userDB *db.UserDB) http.HandlerFunc {
 			handleProfileGetRequest(w, r, userDB)
 		case http.MethodPatch:
 			handleProfilePatchRequest(w, r, userDB)
+		case http.MethodDelete:
+			handleProfileDeleteRequest(w, r, userDB)
 		default:
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
@@ -26,84 +28,100 @@ func ProfileHandler(userDB *db.UserDB) http.HandlerFunc {
 
 // handleProfileGetRequest now uses the session to get the username
 func handleProfileGetRequest(w http.ResponseWriter, r *http.Request, userDB *db.UserDB) {
-	session, _ := session.Store.Get(r, "user-session")
-
-	// Check if the user is logged in by looking for username in session.
-	username, ok := session.Values["username"].(string)
-
-	if !ok {
+	username, err := getUsernameFromSession(r)
+	if err != nil {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
 
-	fmt.Println("Username from Session: ", username)
 	user, err := userDB.GetUser(username)
-
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	// Respond back with user details, make sure to not include sensitive details like password.
-	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(user); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-}
-
-// handleProfilePatchRequest handles the PATCH request to update user profile.
-// handleProfilePatchRequest handles the PATCH request to update user profile.
-func handleProfilePatchRequest(w http.ResponseWriter, r *http.Request, userDB *db.UserDB) {
-	var user structs.ActiveUser
-
-	// Retrieve user session
-	userSession, err := session.Store.Get(r, "user-session")
-	if err != nil {
-		log.Printf("Error retrieving user session: %v", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-
-	// Check if the user is logged in by looking for username in session.
-	username, ok := userSession.Values["username"].(string)
-	if !ok {
-		log.Println("No username found in session")
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
-
-	// Decode the user update request
-	err = json.NewDecoder(r.Body).Decode(&user)
-	if err != nil {
-		log.Printf("Error decoding JSON request: %v", err)
-		http.Error(w, "Bad Request", http.StatusBadRequest)
-		return
-	}
-
-	log.Println("User from request:", user.Username)
-	log.Println("User from session:", username)
-
-	// Ensure the user is updating their own profile
-	if username != user.Username {
-		log.Println("Permission Denied: Attempted to update another user's profile")
-		http.Error(w, "Permission Denied", http.StatusForbidden)
-		return
-	}
-
-	// Retrieve the existing user profile from the database
-	existingUser, err := userDB.GetUser(user.Username)
-	if err != nil {
-		log.Printf("Error retrieving user profile: %v", err)
 		http.Error(w, "Error retrieving user profile", http.StatusInternalServerError)
 		return
 	}
 
+	respondWithJSON(w, http.StatusOK, user)
+}
+
+// handleProfilePatchRequest handles the PATCH request to update user profile.
+func handleProfilePatchRequest(w http.ResponseWriter, r *http.Request, userDB *db.UserDB) {
+	username, err := getUsernameFromSession(r)
+	if err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	var user structs.ActiveUser
+	err = json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+
+	if username != user.Username {
+		http.Error(w, "Permission Denied", http.StatusForbidden)
+		return
+	}
+
+	existingUser, err := userDB.GetUser(username)
+	if err != nil {
+		http.Error(w, "Error retrieving user profile", http.StatusInternalServerError)
+		return
+	}
+
+	err = updateUserProfile(existingUser, user, userDB)
+	if err != nil {
+		http.Error(w, "Error updating user profile", http.StatusInternalServerError)
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, structs.MessageResponse{Message: "User profile updated successfully"})
+}
+
+// handleProfileDeleteRequest handles deleting a user.
+func handleProfileDeleteRequest(w http.ResponseWriter, r *http.Request, userDB *db.UserDB) {
+	username, err := getUsernameFromSession(r)
+	if err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	err = deleteUser(username, userDB)
+	if err != nil {
+		log.Printf("Error deleting user: %v", err) // Log the specific error
+		http.Error(w, "Error deleting user", http.StatusInternalServerError)
+		return
+	}
+
+	clearSession(w, r)
+	respondWithText(w, http.StatusNoContent, "User deleted successfully")
+}
+
+func getUsernameFromSession(r *http.Request) (string, error) {
+	session, err := session.Store.Get(r, "user-session")
+	if err != nil {
+		return "", err
+	}
+	username, ok := session.Values["username"].(string)
+	if !ok {
+		return "", fmt.Errorf("no username found in session")
+	}
+	return username, nil
+}
+
+func updateUserProfile(existingUser, user structs.ActiveUser, userDB *db.UserDB) error {
 	// Update the user profile with the provided fields
+	if user.Email != "" {
+		existingUser.Email = user.Email
+	}
 	if user.FirstName != "" {
 		existingUser.FirstName = user.FirstName
 	}
 	if user.LastName != "" {
 		existingUser.LastName = user.LastName
+	}
+	if user.Phone != "" {
+		existingUser.Phone = user.Phone
 	}
 	if user.Address.String != "" {
 		existingUser.Address = user.Address
@@ -112,16 +130,45 @@ func handleProfilePatchRequest(w http.ResponseWriter, r *http.Request, userDB *d
 		existingUser.PostCode = user.PostCode
 	}
 
-	// Update the user profile in the database
-	err = userDB.UpdateUserProfile(existingUser)
+	err := userDB.UpdateUserProfile(existingUser)
 	if err != nil {
-		log.Printf("Failed to update user profile: %v", err)
-		http.Error(w, "Error updating user profile", http.StatusInternalServerError)
+		return err
+	}
+	return nil
+}
+
+func deleteUser(username string, userDB *db.UserDB) error {
+	err := userDB.DeleteUser(username)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func clearSession(w http.ResponseWriter, r *http.Request) {
+	session, err := session.Store.Get(r, "user-session")
+	if err != nil {
+		log.Printf("Error retrieving user session: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
-	// Respond with a success message
+	session.Options.MaxAge = -1
+	err = session.Save(r, w)
+	if err != nil {
+		log.Printf("Error clearing user session: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+}
+
+func respondWithJSON(w http.ResponseWriter, statusCode int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(structs.MessageResponse{Message: "User profile updated successfully"})
+	w.WriteHeader(statusCode)
+	json.NewEncoder(w).Encode(data)
+}
+
+func respondWithText(w http.ResponseWriter, statusCode int, message string) {
+	w.WriteHeader(statusCode)
+	fmt.Fprintf(w, message)
 }

@@ -11,10 +11,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // Function to fetch user profile
 function fetchUserProfile() {
+    console.log("Fetching user profile..."); // Check if function is being called
     var xhr = new XMLHttpRequest();
     xhr.open('GET', '/api/profile', true);
     xhr.setRequestHeader('Content-type', 'application/json');
     xhr.onload = function () {
+        console.log("Received response:", xhr.responseText); // Check response from server
         if (xhr.status === 200) {
             var respJson = JSON.parse(xhr.responseText);
             fillUserProfileForm(respJson);
@@ -34,9 +36,12 @@ function fetchUserProfile() {
 
 // Function to fill user profile form fields
 function fillUserProfileForm(user) {
+    console.log("Filling user profile form..."); // Check if function is being called
     document.getElementById('username').value = user.Username;
+    document.getElementById('email').value = user.Email;
     document.getElementById('firstName').value = user.FirstName;
     document.getElementById('lastName').value = user.LastName;
+    document.getElementById('phone').value = user.Phone;
     if (user.Address && user.Address.Valid) {
         document.getElementById('address').value = user.Address.String;
     }
@@ -45,17 +50,21 @@ function fillUserProfileForm(user) {
     }
 }
 
+
+
 // Function to update user profile
 function updateUserProfile() {
     // Retrieve input values
     var username = document.getElementById('username').value.trim();
+    var email = document.getElementById('email').value.trim();
     var firstName = document.getElementById('firstName').value.trim();
     var lastName = document.getElementById('lastName').value.trim();
+    var phone = document.getElementById('phone').value.trim();
     var address = document.getElementById('address').value.trim();
     var postCode = document.getElementById('postCode').value.trim();
 
     // Check if required fields are empty
-    if (username === '' || firstName === '' || lastName === '' || address === '' || postCode === '') {
+    if (username === '' || email === '' || firstName === '' || lastName === '' || address === '' || postCode === '') {
         alert('Please fill in all required fields.');
         return;
     }
@@ -63,8 +72,10 @@ function updateUserProfile() {
     // Prepare data for PATCH request
     var data = {
         "Username": username,
+        "Email": email,
         "FirstName": firstName,
         "LastName": lastName,
+        "Phone": phone,
         "Address": {"String": address, "Valid": true},
         "PostCode": {"String": postCode, "Valid": true}
     };
@@ -102,3 +113,32 @@ function updateUserProfile() {
     }
     xhr.send(JSON.stringify(data));
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+    // Add event listener to the delete user button
+    document.getElementById('deleteUserBtn').addEventListener('click', function () {
+        deleteUser();
+    });
+});
+
+// Function to send DELETE request to delete user
+function deleteUser() {
+    var xhr = new XMLHttpRequest();
+    xhr.open('DELETE', '/api/profile', true);
+    xhr.setRequestHeader('Content-type', 'application/json');
+    xhr.onload = function () {
+        if (xhr.status === 204) {
+            alert('User deleted successfully');
+            // Redirect the user to the login page
+            window.location.href = '/';
+        } else {
+            alert('Failed to delete user. Please try again later.');
+        }
+    };
+    xhr.onerror = function () {
+        alert('Failed to delete user. Please check your internet connection and try again.');
+    };
+    xhr.send();
+}
+
+

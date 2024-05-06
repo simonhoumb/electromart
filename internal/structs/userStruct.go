@@ -15,7 +15,7 @@ type ActiveUser struct {
 	CartID    string         `json:"CartID"`
 }
 
-type User struct {
+type NewUser struct {
 	ID        string `json:"id"`
 	Username  string `json:"username"`
 	Email     string `json:"email"`

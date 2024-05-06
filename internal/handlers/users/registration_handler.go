@@ -30,7 +30,7 @@ func handleRegistrationPostRequest(w http.ResponseWriter, r *http.Request, userD
 		return
 	}
 
-	var creds structs.ActiveUser
+	var creds structs.NewUser
 
 	// Decoding the user registration request
 	err := json.NewDecoder(r.Body).Decode(&creds)
@@ -58,7 +58,7 @@ func handleRegistrationPostRequest(w http.ResponseWriter, r *http.Request, userD
 
 	// Inserting data into User
 	userID := uuid.New().String()
-	err = userDB.RegisterUser(userID, creds.Username, string(hashedPassword), creds.Email, creds.FirstName, creds.LastName, creds.Phone, cartID, creds.Address, creds.PostCode)
+	err = userDB.RegisterUser(userID, creds.Username, string(hashedPassword), creds.Email, creds.FirstName, creds.LastName, creds.Phone, cartID)
 	var mysqlErr *mysql.MySQLError
 	if errors.As(err, &mysqlErr) {
 		if mysqlErr.Number == 1062 {

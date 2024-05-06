@@ -3,7 +3,6 @@ package db
 import (
 	"Database_Project/internal/structs"
 	"database/sql"
-	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -67,13 +66,18 @@ func (db *UserDB) CreateUserCart() (string, error) {
 	return cartID, nil
 }
 
-// CreateUser creates a new user in the database.
-func (db *UserDB) RegisterUser(userID, username, hashedPassword, email, firstName, lastName string, phone string, cartID string, address sql.NullString, postCode sql.NullString) error {
-	query := `INSERT INTO User (ID, Username, Password, Email, FirstName, LastName, Phone, CartID, AddressID) VALUES (?, ?, ?, ?, ?, ?, ?, ?, (SELECT ID FROM Address WHERE Street=? AND PostalCode=?))`
-	_, err := db.Client.Exec(query, userID, username, hashedPassword, email, firstName, lastName, phone, cartID, address.String, postCode.String)
+// RegisterUser creates a new user in the database.
+func (db *UserDB) RegisterUser(userID, username, hashedPassword, email, firstName, lastName string, phone string, cartID string) error {
+	query := `
+        INSERT INTO User (ID, Username, Password, Email, FirstName, LastName, Phone, CartID)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `
+	_, err := db.Client.Exec(query, userID, username, hashedPassword, email, firstName, lastName, phone, cartID)
 	if err != nil {
+		log.Printf("Error inserting user into database: %v", err)
 		return err
 	}
+	log.Printf("User successfully inserted into database. UserID: %s", userID)
 	return nil
 }
 
@@ -109,13 +113,8 @@ func (db *UserDB) GetUser(username string) (structs.ActiveUser, error) {
 	return user, nil
 }
 
-// UpdateUserProfile updates the user profile in the database.
+// UpdateUserProfile updates the user's profile in the database, including their address.
 func (db *UserDB) UpdateUserProfile(user structs.ActiveUser) error {
-	// Validate user input
-	if !user.Address.Valid || !user.PostCode.Valid {
-		return errors.New("invalid info: both Address and PostCode must be set")
-	}
-
 	// Begin transaction
 	tx, err := db.Client.Begin()
 	if err != nil {
@@ -125,67 +124,117 @@ func (db *UserDB) UpdateUserProfile(user structs.ActiveUser) error {
 		if err != nil {
 			// Rollback the transaction if an error occurred
 			tx.Rollback()
+			log.Printf("Transaction rolled back: %v", err)
 			return
 		}
 		// Commit the transaction if everything is successful
 		err = tx.Commit()
+		if err != nil {
+			log.Printf("Error committing transaction: %v", err)
+		}
 	}()
 
 	// Update User table
 	_, err = tx.Exec(`
-        UPDATE User SET Email=?, FirstName=?, LastName=? WHERE ID=?
-    `, user.Email, user.FirstName, user.LastName, user.ID)
+        UPDATE User SET Email=?, FirstName=?, LastName=?, Phone=? WHERE ID=?
+    `, user.Email, user.FirstName, user.LastName, user.Phone, user.ID)
 	if err != nil {
 		return err
 	}
 
-	// Check if the user already has an address
+	// Check if an address already exists for the user
 	var existingAddressID string
-	err = tx.QueryRow("SELECT ID FROM Address WHERE UserID=? AND UserCartID=?", user.ID, user.CartID).Scan(&existingAddressID)
-	if err != nil {
-		if err != sql.ErrNoRows {
-			// Another error occurred, return it
-			return err
-		}
-		// If no address exists, insert a new address
-		addressID := uuid.New().String()
+	err = tx.QueryRow("SELECT ID FROM Address WHERE UserID = ? AND UserCartID = ?", user.ID, user.CartID).Scan(&existingAddressID)
+	if err != nil && err != sql.ErrNoRows {
+		return err
+	}
 
-		// Verify the uniqueness of the generated address ID
-		var count int
-		err := tx.QueryRow("SELECT COUNT(*) FROM Address WHERE ID=?", addressID).Scan(&count)
-		if err != nil {
-			return err
+	// If the user provided a new address, insert it
+	if user.Address.String != "" && user.PostCode.String != "" {
+		if existingAddressID != "" {
+			// Update existing address
+			_, err = tx.Exec(`
+				UPDATE Address
+				SET Street=?, PostalCode=?
+				WHERE UserID=? AND UserCartID=?
+			`, user.Address.String, user.PostCode.String, user.ID, user.CartID)
+			if err != nil {
+				return err
+			}
+		} else {
+			// Insert new address
+			_, err = tx.Exec(`
+				INSERT INTO Address (ID, Street, PostalCode, UserID, UserCartID)
+				VALUES (?, ?, ?, ?, ?)
+			`, uuid.New().String(), user.Address.String, user.PostCode.String, user.ID, user.CartID)
+			if err != nil {
+				return err
+			}
 		}
-		if count > 0 {
-			return errors.New("generated address ID is not unique")
-		}
-
-		// Check if the user exists
-		var userCount int
-		err = tx.QueryRow("SELECT COUNT(*) FROM User WHERE ID=? AND CartID=?", user.ID, user.CartID).Scan(&userCount)
-		if err != nil {
-			return err
-		}
-		if userCount == 0 {
-			return errors.New("user does not exist")
-		}
-
-		// Insert the new address
-		_, err = tx.Exec(`
-    INSERT INTO Address (ID, Street, PostalCode, UserID, UserCartID) VALUES (?, ?, ?, ?, ?)
-`, addressID, user.Address.String, user.PostCode.String, user.ID, user.CartID)
-		if err != nil {
-			return err
-		}
-
 	} else {
-		// If an address exists, update the existing address
-		_, err = tx.Exec(`
-            UPDATE Address SET Street=?, PostalCode=? WHERE ID=?
-        `, user.Address.String, user.PostCode.String, existingAddressID)
-		if err != nil {
-			return err
+		// If the user did not provide a new address, delete the existing one if it exists
+		if existingAddressID != "" {
+			_, err = tx.Exec("DELETE FROM Address WHERE ID = ?", existingAddressID)
+			if err != nil {
+				return err
+			}
 		}
+	}
+
+	return nil
+}
+
+// DeleteUser deletes a user from the database along with their associated address and cart.
+func (db *UserDB) DeleteUser(username string) error {
+	// Begin transaction
+	tx, err := db.Client.Begin()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err != nil {
+			// Rollback the transaction if an error occurred
+			tx.Rollback()
+			log.Printf("Transaction rolled back: %v", err)
+			return
+		}
+		// Commit the transaction if everything is successful
+		err = tx.Commit()
+		if err != nil {
+			log.Printf("Error committing transaction: %v", err)
+		}
+	}()
+
+	// Get the user's ID
+	var userID string
+	err = tx.QueryRow("SELECT ID FROM User WHERE Username = ?", username).Scan(&userID)
+	if err != nil {
+		return err
+	}
+
+	// Get the user's CartID
+	var cartID string
+	err = tx.QueryRow("SELECT CartID FROM User WHERE Username = ?", username).Scan(&cartID)
+	if err != nil {
+		return err
+	}
+
+	// Delete Address associated with the user
+	_, err = tx.Exec("DELETE FROM Address WHERE UserID = ?", userID)
+	if err != nil {
+		return err
+	}
+
+	// Delete User
+	_, err = tx.Exec("DELETE FROM User WHERE Username = ?", username)
+	if err != nil {
+		return err
+	}
+
+	// Delete Cart associated with the user
+	_, err = tx.Exec("DELETE FROM Cart WHERE ID = ?", cartID)
+	if err != nil {
+		return err
 	}
 
 	return nil
