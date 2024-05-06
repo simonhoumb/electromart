@@ -82,6 +82,20 @@ func GetOrderByID(orderID string) (*structs.ProductOrder, error) {
 	}
 }
 
+func GetAllOrderItemsByOrderID(orderID string) ([]structs.OrderItem, error) {
+	rows, err := Client.Query(`SELECT * FROM OrderItem WHERE OrderID = ?`, orderID)
+	if err != nil {
+		log.Println("Error when selecting all order items: ", err)
+		return nil, err
+	}
+	foundOrderItems, err2 := rowsToOrderItemSlice(rows)
+	if err2 != nil {
+		log.Println("Error when converting rows to slice: ", err2)
+		return nil, err2
+	}
+	return foundOrderItems, nil
+}
+
 /*
 UpdateProductOrder updates a single row in the ProductOrder table in the database based on the ID in the provided
 ProductOrder struct.
@@ -155,6 +169,27 @@ func rowsToProductOrderSlice(rows *sql.Rows) ([]structs.ProductOrder, error) {
 		orderSlice = append(orderSlice, order)
 	}
 	return orderSlice, nil
+}
+
+/*
+rowsToOrderItemSlice converts the rows from a SQL query to a slice of OrderItem struct.
+*/
+func rowsToOrderItemSlice(rows *sql.Rows) ([]structs.OrderItem, error) {
+	var orderItemSlice []structs.OrderItem
+	for rows.Next() {
+		var orderItem structs.OrderItem
+		err2 := rows.Scan(
+			&orderItem.ID,
+			&orderItem.OrderID,
+			&orderItem.ProductID,
+			&orderItem.Quantity,
+		)
+		if err2 != nil {
+			return nil, err2
+		}
+		orderItemSlice = append(orderItemSlice, orderItem)
+	}
+	return orderItemSlice, nil
 }
 
 /*
