@@ -30,6 +30,7 @@ func Start() {
 	mux.HandleFunc("/api/login", users.LoginHandler(userDB))
 	mux.HandleFunc("/api/register", users.RegistrationHandler(userDB))
 	mux.HandleFunc("/api/profile", session.CheckSession(users.ProfileHandler(userDB)))
+	mux.HandleFunc("/api/change_password", session.CheckSession(users.ChangePasswordHandler(userDB)))
 
 	mux.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("./assets"))))
 

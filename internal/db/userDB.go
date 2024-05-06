@@ -239,3 +239,13 @@ func (db *UserDB) DeleteUser(username string) error {
 
 	return nil
 }
+
+func (db *UserDB) UpdatePassword(username, newPassword string) error {
+	query := `UPDATE User SET Password = ? WHERE Username = ?`
+	_, err := db.Client.Exec(query, newPassword, username)
+	if err != nil {
+		log.Printf("Error updating password for user %s: %v", username, err)
+		return err
+	}
+	return nil
+}

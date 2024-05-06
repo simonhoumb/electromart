@@ -35,3 +35,8 @@ type DeleteRequest struct {
 	ID       string `json:"id"`
 	Password string `json:"password"`
 }
+
+type ChangePasswordRequest struct {
+	OldPassword string `json:"oldPassword"`
+	NewPassword string `json:"newPassword"`
+}

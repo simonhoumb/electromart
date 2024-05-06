@@ -6,6 +6,24 @@
     <link rel="stylesheet" href="../assets/css/profile.css">
 </head>
 <body>
+<!-- Change Password Modal -->
+<div id="changePasswordModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Change Password</h2>
+        <!-- Change Password Form -->
+        <form id="changePasswordForm">
+            <!-- Old Password Input -->
+            <label for="oldPassword">Old Password</label>
+            <input type="password" id="oldPassword" name="oldPassword" required>
+            <!-- New Password Input -->
+            <label for="newPassword">New Password</label>
+            <input type="password" id="newPassword" name="newPassword" required>
+            <!-- Submit Button -->
+            <button type="submit">Change Password</button>
+        </form>
+    </div>
+</div>
 <header class="header">
     <div class="container">
         <h1 class="logo">My Profile</h1>
@@ -14,6 +32,9 @@
         <a href="/" class="nav-link">Home</a>
     </nav>
 </header>
+
+<!-- Message Container -->
+<div id="messages" class="messages"></div>
 
 <section class="profile-section">
     <div class="profile-info">
@@ -36,7 +57,7 @@
         <label for="address">Address</label>
         <input type="text" id="address" name="address" required>
         <label for="postCode">Postcode</label>
-        <input type="number" id="postCode" name="postCode" required>
+        <input type="text" id="postCode" name="postCode" required>
     </div>
     <!-- New div for buttons -->
     <div class="action-buttons">
@@ -47,4 +68,5 @@
 
 <script src="../assets/javascript/profile.js"></script>
 </body>
+
 </html>

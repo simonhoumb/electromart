@@ -7,22 +7,55 @@ document.addEventListener('DOMContentLoaded', function () {
         event.preventDefault(); // Prevent default form submission behavior
         updateUserProfile();
     });
+
+    // Add event listeners for modal related functionality
+    setupModalEventListeners();
 });
 
-// Function to fetch user profile
+function setupModalEventListeners() {
+    // Add event listener to the delete user button
+    document.getElementById('deleteUserBtn').addEventListener('click', function () {
+        deleteUser();
+    });
+
+    // Add event listener to the change password button
+    document.getElementById('changePasswordBtn').addEventListener('click', function () {
+        // Display the change password modal
+        document.getElementById('changePasswordModal').style.display = "block";
+    });
+
+    // Add event listener to the close button in the change password modal
+    document.getElementsByClassName('close')[0].addEventListener('click', function () {
+        // Hide the change password modal
+        document.getElementById('changePasswordModal').style.display = "none";
+    });
+
+    // Add event listener to close the change password modal when pressing ESC key
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+            // Hide the change password modal
+            document.getElementById('changePasswordModal').style.display = "none";
+        }
+    });
+
+    // Add event listener to the form for changing password
+    document.getElementById('changePasswordForm').addEventListener('submit', function (event) {
+        event.preventDefault(); // Prevent default form submission behavior
+        changePassword();
+    });
+}
+
+
 function fetchUserProfile() {
-    console.log("Fetching user profile..."); // Check if function is being called
+    console.log("Fetching user profile...");
     var xhr = new XMLHttpRequest();
     xhr.open('GET', '/api/profile', true);
     xhr.setRequestHeader('Content-type', 'application/json');
     xhr.onload = function () {
-        console.log("Received response:", xhr.responseText); // Check response from server
         if (xhr.status === 200) {
             var respJson = JSON.parse(xhr.responseText);
             fillUserProfileForm(respJson);
         } else if (xhr.status === 401) {
-            alert('Please login to access your profile.');
-            // Redirect the user to the login page
             window.location.href = '/login';
         } else {
             showError('Failed to get profile information. Please try again later.');
@@ -34,9 +67,8 @@ function fetchUserProfile() {
     xhr.send();
 }
 
-// Function to fill user profile form fields
 function fillUserProfileForm(user) {
-    console.log("Filling user profile form..."); // Check if function is being called
+    console.log("Filling user profile form...");
     document.getElementById('username').value = user.Username;
     document.getElementById('email').value = user.Email;
     document.getElementById('firstName').value = user.FirstName;
@@ -50,11 +82,7 @@ function fillUserProfileForm(user) {
     }
 }
 
-
-
-// Function to update user profile
 function updateUserProfile() {
-    // Retrieve input values
     var username = document.getElementById('username').value.trim();
     var email = document.getElementById('email').value.trim();
     var firstName = document.getElementById('firstName').value.trim();
@@ -63,13 +91,11 @@ function updateUserProfile() {
     var address = document.getElementById('address').value.trim();
     var postCode = document.getElementById('postCode').value.trim();
 
-    // Check if required fields are empty
     if (username === '' || email === '' || firstName === '' || lastName === '' || address === '' || postCode === '') {
-        alert('Please fill in all required fields.');
+        showErrorMessage('Please fill in all required fields.');
         return;
     }
 
-    // Prepare data for PATCH request
     var data = {
         "Username": username,
         "Email": email,
@@ -80,65 +106,112 @@ function updateUserProfile() {
         "PostCode": {"String": postCode, "Valid": true}
     };
 
-    // Send PATCH request with console logging
     var xhr = new XMLHttpRequest();
     xhr.open('PATCH', '/api/profile', true);
     xhr.setRequestHeader('Content-type', 'application/json');
-    console.log("Sending PATCH request with data:", data);  // Log data before sending
     xhr.onload = function () {
-        console.log("PATCH request response:", xhr.responseText);  // Log response
-        console.log("Status code:", xhr.status);                     // Log status code
         if (this.status == 200) {
-            alert('Profile updated successfully');
-            // Fetch updated profile after successful update
+            showSuccessMessage('Profile updated successfully');
             fetchUserProfile();
         } else if (this.status == 400) {
-            alert('Bad request: The server could not understand the request due to invalid syntax.');
+            showErrorMessage('Bad request: The server could not understand the request due to invalid syntax.');
         } else if (this.status == 401) {
-            alert('Unauthorized: Please login to update your profile.');
-            // Redirect the user to the login page
             window.location.href = '/login';
         } else if (this.status == 403) {
-            alert('Forbidden: You are not allowed to update this profile.');
+            showErrorMessage('Forbidden: You are not allowed to update this profile.');
         } else if (this.status == 404) {
-            alert('Not found: The requested resource could not be found.');
+            showErrorMessage('Not found: The requested resource could not be found.');
         } else if (this.status == 500) {
-            alert('Internal Server Error: Failed to update profile. Please try again later.');
+            showErrorMessage('Internal Server Error: Failed to update profile. Please try again later.');
         } else {
-            alert('Unknown error occurred. Status code: ' + this.status);
+            showErrorMessage('Unknown error occurred. Status code: ' + this.status);
         }
     };
     xhr.onerror = function () {
-        alert('Failed to update profile. Please check your internet connection and try again.');
+        showErrorMessage('Failed to update profile. Please check your internet connection and try again.');
     }
     xhr.send(JSON.stringify(data));
 }
 
-document.addEventListener('DOMContentLoaded', function () {
-    // Add event listener to the delete user button
-    document.getElementById('deleteUserBtn').addEventListener('click', function () {
-        deleteUser();
-    });
-});
-
-// Function to send DELETE request to delete user
 function deleteUser() {
     var xhr = new XMLHttpRequest();
     xhr.open('DELETE', '/api/profile', true);
     xhr.setRequestHeader('Content-type', 'application/json');
     xhr.onload = function () {
         if (xhr.status === 204) {
-            alert('User deleted successfully');
-            // Redirect the user to the login page
+            showSuccessMessage('User deleted successfully');
             window.location.href = '/';
         } else {
-            alert('Failed to delete user. Please try again later.');
+            showErrorMessage('Failed to delete user. Please try again later.');
         }
     };
     xhr.onerror = function () {
-        alert('Failed to delete user. Please check your internet connection and try again.');
+        showErrorMessage('Failed to delete user. Please check your internet connection and try again.');
     };
     xhr.send();
 }
 
+function changePassword() {
+    var oldPassword = document.getElementById('oldPassword').value.trim();
+    var newPassword = document.getElementById('newPassword').value.trim();
 
+    if (oldPassword === '' || newPassword === '') {
+        showErrorMessage('Please fill in all required fields.');
+        return;
+    }
+
+    var data = {
+        "oldPassword": oldPassword,
+        "newPassword": newPassword
+    };
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('PATCH', '/api/change_password', true);
+    xhr.setRequestHeader('Content-type', 'application/json');
+    xhr.onload = function () {
+        if (xhr.status === 200) {
+            showSuccessMessage('Password changed successfully');
+            document.getElementById('changePasswordModal').style.display = "none";
+            location.reload();
+        } else if (xhr.status === 400) {
+            showErrorMessage('Bad request: The server could not understand the request due to invalid syntax.');
+        } else if (xhr.status === 401) {
+            showErrorMessage('Unauthorized: Please login to change your password.');
+            window.location.href = '/login';
+        } else if (xhr.status === 500) {
+            showErrorMessage('Internal Server Error: Failed to change password. Please try again later.');
+        } else {
+            showErrorMessage('Unknown error occurred. Status code: ' + xhr.status);
+        }
+    };
+    xhr.onerror = function () {
+        showErrorMessage('Failed to change password. Please check your internet connection and try again.');
+    }
+    xhr.send(JSON.stringify(data));
+}
+
+function showSuccessMessage(message) {
+    var successMessageElement = document.createElement('div');
+    successMessageElement.classList.add('success-message');
+    successMessageElement.textContent = message;
+
+    var messagesContainer = document.getElementById('messages');
+    messagesContainer.appendChild(successMessageElement);
+
+    setTimeout(function () {
+        successMessageElement.remove();
+    }, 5000);
+}
+
+function showErrorMessage(message) {
+    var errorMessageElement = document.createElement('div');
+    errorMessageElement.classList.add('error-message');
+    errorMessageElement.textContent = message;
+
+    var messagesContainer = document.getElementById('messages');
+    messagesContainer.appendChild(errorMessageElement);
+
+    setTimeout(function () {
+        errorMessageElement.remove();
+    }, 5000);
+}
