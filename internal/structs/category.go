@@ -7,10 +7,6 @@ type Category struct {
 	Description *string `json:"description"`
 }
 
-type CreateCategoryResponse struct {
-	ID string `json:"id"`
-}
-
 func (category Category) Validate() error {
 	if category.Name == "" {
 		return fmt.Errorf("field 'name' is required")

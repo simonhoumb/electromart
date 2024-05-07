@@ -7,10 +7,6 @@ type Brand struct {
 	Description *string `json:"description"`
 }
 
-type CreateBrandResponse struct {
-	ID string `json:"id"`
-}
-
 func (brand Brand) Validate() error {
 	if brand.Name == "" {
 		return fmt.Errorf("field 'name' is required")

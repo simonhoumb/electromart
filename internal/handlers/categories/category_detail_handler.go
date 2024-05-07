@@ -42,13 +42,13 @@ func HandleCategoryDetail(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleGetDetailRequest(w http.ResponseWriter, r *http.Request) {
-	id, err := utils.GetIDFromRequest(r)
-	if utils.HandleError(w, r, http.StatusBadRequest, err, "Error getting ID from request") {
+	name, err := utils.GetNameFromRequest(r)
+	if utils.HandleError(w, r, http.StatusBadRequest, err, "Error getting name from request") {
 		return
 	}
 
-	// Get the category with the given ID
-	category, err := db.GetCategoryByID(id)
+	// Get the category with the given name
+	category, err := db.GetCategoryByName(name)
 	if utils.HandleError(w, r, http.StatusInternalServerError, err, "Error getting categories from database") {
 		return
 	}
@@ -64,8 +64,8 @@ func handleGetDetailRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleUpdateDetailRequest(w http.ResponseWriter, r *http.Request) {
-	id, err := utils.GetIDFromRequest(r)
-	if utils.HandleError(w, r, http.StatusBadRequest, err, "Error getting ID from request") {
+	name, err := utils.GetNameFromRequest(r)
+	if utils.HandleError(w, r, http.StatusBadRequest, err, "Error getting name from request") {
 		return
 	}
 
@@ -75,12 +75,12 @@ func handleUpdateDetailRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if updatedCategory.ID != id {
-		utils.HandleError(w, r, http.StatusBadRequest, fmt.Errorf("ID in request body does not match ID in URL"), "ID in request body does not match ID in URL")
+	if updatedCategory.Name != name {
+		utils.HandleError(w, r, http.StatusBadRequest, fmt.Errorf("name in request body does not match name in URL"), "name in request body does not match name in URL")
 		return
 	}
 
-	// Update the category with the given ID
+	// Update the category with the given name
 	if err := db.UpdateCategory(updatedCategory); utils.HandleError(w, r, http.StatusInternalServerError, err, "Error updating category in database") {
 		return
 	}
@@ -90,12 +90,12 @@ func handleUpdateDetailRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleDeleteDetailRequest(w http.ResponseWriter, r *http.Request) {
-	id, err := utils.GetIDFromRequest(r)
-	if utils.HandleError(w, r, http.StatusBadRequest, err, "Error getting ID from request") {
+	name, err := utils.GetNameFromRequest(r)
+	if utils.HandleError(w, r, http.StatusBadRequest, err, "Error getting name from request") {
 		return
 	}
 
-	err = db.DeleteCategoryByID(id)
+	err = db.DeleteCategoryByName(name)
 	if err != nil && strings.Contains(err.Error(), "Error 1451 (23000): Cannot delete or update a parent row: a foreign key constraint fails") {
 		// If error is "Error 1451 (23000): Cannot delete or update a parent row: a foreign key constraint fails"
 		utils.HandleError(w, r, http.StatusConflict, err, "product of this category exists, cannot delete category")
