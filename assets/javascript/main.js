@@ -14,6 +14,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Event listener for the logout button
+    const logoutButton = document.getElementById('logoutButton');
+    logoutButton.addEventListener('click', logoutUser);
+
+    // Event listener for the login button
+    const loginButton = document.getElementById('loginButton');
+    loginButton.addEventListener('click', login);
+
+    // Event listener for the close button in the modal
+    const closeModalButton = document.querySelector('.close');
+    closeModalButton.addEventListener('click', closeModal);
     fetchProducts();
     checkLoginState();
 
