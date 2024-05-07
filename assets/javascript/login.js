@@ -1,3 +1,13 @@
+function login() {
+    var modal = document.getElementById("loginModal");
+    modal.style.display = "block";
+}
+
+function closeModal() {
+    var modal = document.getElementById("loginModal");
+    modal.style.display = "none";
+}
+
 document.getElementById('loginForm').addEventListener('submit', function (event) {
     event.preventDefault();
 
@@ -26,13 +36,3 @@ document.getElementById('loginForm').addEventListener('submit', function (event)
             console.error('Error:', error);
         });
 });
-
-function logoutUser() {
-    fetch('/api/logout', { credentials: 'include' })
-        .then(response => response.text())
-        .then(text => {
-            checkLoginState();
-            window.location.href = "/";
-        })
-        .catch(error => console.error('Error:', error));
-}
