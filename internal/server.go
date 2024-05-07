@@ -45,8 +45,10 @@ func Start() {
 	mux.HandleFunc("/api/check_login", users.CheckLoginHandler(userDB))
 	mux.HandleFunc("/api/logout", users.LogoutHandler())
 	mux.HandleFunc("/api/login", users.LoginHandler(userDB))
+	mux.HandleFunc("/api/register", users.RegistrationHandler(userDB))
+	mux.HandleFunc("/api/profile", session.CheckSession(users.ProfileHandler(userDB)))
+	mux.HandleFunc("/api/change_password", session.CheckSession(users.ChangePasswordHandler(userDB)))
 
-	mux.HandleFunc("/register", utils.RegisterUser(userDB.Client))
 	mux.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("./assets"))))
 
 	mux.HandleFunc("/loginPage", func(w http.ResponseWriter, r *http.Request) {
@@ -55,6 +57,10 @@ func Start() {
 
 	mux.HandleFunc("/registerPage", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "templates/register.html")
+	})
+
+	mux.HandleFunc("/profile", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "templates/profile.html")
 	})
 
 	port := utils.GetPort()

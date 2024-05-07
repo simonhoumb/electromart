@@ -3,6 +3,7 @@ package session
 import (
 	"fmt"
 	"github.com/gorilla/sessions"
+	"log"
 	"net/http"
 )
 
@@ -24,15 +25,15 @@ func CheckSession(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		session, err := Store.Get(r, "user-session")
 		if err != nil {
+			log.Println("Error getting session:", err)
 			http.Error(w, "Unable to get session", http.StatusInternalServerError)
 			return
 		}
 		if session.Values["username"] == nil {
-			// if session.Values["username"] is nil, the user is not authenticated
+			log.Println("Unauthorized access attempt")
 			fmt.Fprintln(w, "false")
 			return
 		}
-		// If we made it this far, the user is authenticated, so we can continue execution
 		next.ServeHTTP(w, r)
 	}
 }
