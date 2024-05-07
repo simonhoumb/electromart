@@ -62,22 +62,16 @@ func handleCreateRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := brand.ValidateNewBrandRequest(); utils.HandleError(w, r, http.StatusBadRequest, err, "invalid request json, check documentation") {
+	if err := brand.Validate(); utils.HandleError(w, r, http.StatusBadRequest, err, "invalid request json, check documentation") {
 		return
 	}
 
 	// Create the brand
-	brandID, err := db.AddBrand(brand)
+	err := db.AddBrand(brand)
 	if utils.HandleError(w, r, http.StatusInternalServerError, err, "error adding brand to database") {
 		return
 	}
 
-	// Two above in one if statement
-	if brandIDJSON, err := json.Marshal(structs.CreateBrandResponse{ID: brandID}); utils.HandleError(w, r, http.StatusInternalServerError, err, "error during encoding response") {
-		return
-	} else {
-		if _, err := w.Write(brandIDJSON); utils.HandleError(w, r, http.StatusInternalServerError, err, "error writing response") {
-			return
-		}
-	}
+	// No content to return
+	w.WriteHeader(http.StatusNoContent)
 }
