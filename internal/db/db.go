@@ -13,12 +13,14 @@ var Client *sql.DB
 
 // getDataSourceName returns a Data Source Name string for connecting to a MySQL database.
 func getDataSourceName() string {
+	// Get the database credentials from the environment variables.
 	dbUser := os.Getenv("DB_USER")
 	dbPassword := os.Getenv("DB_PASSWORD")
 	dbNet := os.Getenv("DB_NET")
 	dbIP := os.Getenv("DB_IP")
 	dbName := os.Getenv("DB_NAME")
 
+	// Create a Data Source Name string.
 	cfg := mysql.Config{
 		User:                 dbUser,
 		Passwd:               dbPassword,
@@ -53,4 +55,17 @@ func pingDatabase(db *sql.DB) {
 	if err != nil {
 		log.Fatal("Error when pinging database: ", err)
 	}
+}
+
+/*
+GenerateUUID uses MySQL DB to generate a new UUID and returns it as a string.
+*/
+func GenerateUUID(db *sql.DB) (string, error) {
+	// Generate and retrieve new UUID
+	var uuid string
+	if err := db.QueryRow(`SELECT UUID();`).Scan(&uuid); err != nil {
+		log.Println("Error generating UUID: ", err)
+		return "", err
+	}
+	return uuid, nil
 }

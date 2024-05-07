@@ -3,6 +3,8 @@ package server
 import (
 	"Database_Project/internal/constants"
 	"Database_Project/internal/db"
+	"Database_Project/internal/handlers/brands"
+	"Database_Project/internal/handlers/categories"
 	"Database_Project/internal/handlers/products"
 	"Database_Project/internal/handlers/users"
 	"Database_Project/internal/session"
@@ -19,7 +21,22 @@ func Start() {
 	userDB := &db.UserDB{Client: db.OpenDatabaseConnection()}
 	defer userDB.Client.Close()
 
-	mux.HandleFunc(constants.ProductsPath, products.Handler)
+	db.Client = db.OpenDatabaseConnection()
+	defer db.Client.Close()
+
+	// API endpoints
+	// Handle the products endpoint
+	mux.HandleFunc(constants.ProductsPath, products.HandleProducts)
+	mux.HandleFunc(constants.ProductsPath+"{id}", products.HandleProductDetail)
+	mux.HandleFunc(constants.ProductsPath+"search/{query}", products.HandleQueryProducts)
+
+	// Handle the categories endpoint
+	mux.HandleFunc(constants.CategoriesPath, categories.HandleCategories)
+	mux.HandleFunc(constants.CategoriesPath+"{name}", categories.HandleCategoryDetail)
+
+	// Handle the brands endpoint
+	mux.HandleFunc(constants.BrandsPath, brands.HandleBrands)
+	mux.HandleFunc(constants.BrandsPath+"{name}", brands.HandleBrandDetail)
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "templates/index.html")

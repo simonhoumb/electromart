@@ -1,10 +1,14 @@
-# Electro mart ⚡️🛒
+# ElectroMart ⚡️🛒
 
 ## Description 📜
+Electro mart is a web application that allows users to buy electronics.
+The application is built as a part of the course IDATG2204 Datamodellering og databasesystemer (2024 VÅR) at NTNU.
 
 ## How to run the app 🤨
 
+
 ## Usage 🤓
+
 
 ## Contact 📧
 
