@@ -13,12 +13,14 @@ var Client *sql.DB
 
 // getDataSourceName returns a Data Source Name string for connecting to a MySQL database.
 func getDataSourceName() string {
+	// Get the database credentials from the environment variables.
 	dbUser := os.Getenv("DB_USER")
 	dbPassword := os.Getenv("DB_PASSWORD")
 	dbNet := os.Getenv("DB_NET")
 	dbIP := os.Getenv("DB_IP")
 	dbName := os.Getenv("DB_NAME")
 
+	// Create a Data Source Name string.
 	cfg := mysql.Config{
 		User:                 dbUser,
 		Passwd:               dbPassword,

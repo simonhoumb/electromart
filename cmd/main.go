@@ -10,6 +10,7 @@ import (
 
 var Store *sessions.CookieStore
 
+// init loads the .env file when the program starts.
 func init() {
 	Store = sessions.NewCookieStore([]byte("your-very-secret-key"))
 	Store.Options = &sessions.Options{
