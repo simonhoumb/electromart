@@ -113,7 +113,7 @@ Returns nil if successful, or an error if not.
 */
 // TODO: Fix this:
 /*
-Error when deleting Brand:  Error 1451 (23000): Cannot delete or update a parent row: a foreign key constraint fails (`ElectroMart`.`Product`, CONSTRAINT `FKProduct960541` FOREIGN KEY (`BrandID`) REFERENCES `Brand` (`ID`))
+Error when deleting Brand:  Error 1451 (23000): Cannot delete or update a parent row: a foreign key constraint fails (`ElectroMart`.`Product`, CONSTRAINT `FKProduct960541` FOREIGN KEY (`BrandName`) REFERENCES `Brand` (`ID`))
 */
 func DeleteBrandByID(id string) error {
 	exists, err := BrandExists(id)
