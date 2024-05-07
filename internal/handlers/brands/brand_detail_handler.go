@@ -42,13 +42,13 @@ func HandleBrandDetail(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleGetDetailRequest(w http.ResponseWriter, r *http.Request) {
-	id, err := utils.GetIDFromRequest(r)
-	if utils.HandleError(w, r, http.StatusBadRequest, err, "Error getting ID from request") {
+	name, err := utils.GetNameFromRequest(r)
+	if utils.HandleError(w, r, http.StatusBadRequest, err, "Error getting name from request") {
 		return
 	}
 
-	// Get the brand with the given ID
-	brand, err := db.GetBrandByID(id)
+	// Get the brand with the given name
+	brand, err := db.GetBrandByName(name)
 	if utils.HandleError(w, r, http.StatusInternalServerError, err, "Error getting brands from database") {
 		return
 	}
@@ -64,8 +64,8 @@ func handleGetDetailRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleUpdateDetailRequest(w http.ResponseWriter, r *http.Request) {
-	id, err := utils.GetIDFromRequest(r)
-	if utils.HandleError(w, r, http.StatusBadRequest, err, "Error getting ID from request") {
+	name, err := utils.GetNameFromRequest(r)
+	if utils.HandleError(w, r, http.StatusBadRequest, err, "Error getting name from request") {
 		return
 	}
 
@@ -75,12 +75,12 @@ func handleUpdateDetailRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if updatedBrand.ID != id {
-		utils.HandleError(w, r, http.StatusBadRequest, fmt.Errorf("ID in request body does not match ID in URL"), "ID in request body does not match ID in URL")
+	if updatedBrand.Name != name {
+		utils.HandleError(w, r, http.StatusBadRequest, fmt.Errorf("name in request body does not match name in URL"), "Name in request body does not match name in URL")
 		return
 	}
 
-	// Update the brand with the given ID
+	// Update the brand with the given name
 	if err := db.UpdateBrand(updatedBrand); utils.HandleError(w, r, http.StatusInternalServerError, err, "Error updating brand in database") {
 		return
 	}
@@ -90,12 +90,12 @@ func handleUpdateDetailRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleDeleteDetailRequest(w http.ResponseWriter, r *http.Request) {
-	id, err := utils.GetIDFromRequest(r)
-	if utils.HandleError(w, r, http.StatusBadRequest, err, "Error getting ID from request") {
+	name, err := utils.GetNameFromRequest(r)
+	if utils.HandleError(w, r, http.StatusBadRequest, err, "Error getting name from request") {
 		return
 	}
 
-	err = db.DeleteBrandByID(id)
+	err = db.DeleteBrandByName(name)
 	if err != nil && strings.Contains(err.Error(), "Error 1451 (23000): Cannot delete or update a parent row: a foreign key constraint fails") {
 		// If error is "Error 1451 (23000): Cannot delete or update a parent row: a foreign key constraint fails"
 		utils.HandleError(w, r, http.StatusConflict, err, "product with this brand exists, cannot delete brand")

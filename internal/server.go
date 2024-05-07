@@ -32,11 +32,11 @@ func Start() {
 
 	// Handle the categories endpoint
 	mux.HandleFunc(constants.CategoriesPath, categories.HandleCategories)
-	mux.HandleFunc(constants.CategoriesPath+"{id}", categories.HandleCategoryDetail)
+	mux.HandleFunc(constants.CategoriesPath+"{name}", categories.HandleCategoryDetail)
 
 	// Handle the brands endpoint
 	mux.HandleFunc(constants.BrandsPath, brands.HandleBrands)
-	mux.HandleFunc(constants.BrandsPath+"{id}", brands.HandleBrandDetail)
+	mux.HandleFunc(constants.BrandsPath+"{name}", brands.HandleBrandDetail)
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "templates/index.html")

@@ -15,6 +15,17 @@ func GetIDFromRequest(r *http.Request) (string, error) {
 	return id, nil
 }
 
+// GetNameFromRequest Get the name from the mux request
+func GetNameFromRequest(r *http.Request) (string, error) {
+	name := r.PathValue("name")
+	if name == "" {
+		return "", errors.New("name not found in request")
+	}
+
+	return name, nil
+}
+
+// GetQueryFromRequest Get the query from the mux request
 func GetQueryFromRequest(r *http.Request) (string, error) {
 	query := r.PathValue("query")
 	if query == "" {

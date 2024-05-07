@@ -26,75 +26,65 @@ func GetAllCategories() ([]structs.Category, error) {
 }
 
 /*
-GetCategoryByID retrieves a single row from the Category table in the database based on the ID and returns it as a Category struct.
+GetCategoryByName retrieves a single row from the Category table in the database based on the name and returns it as a Category struct.
 */
-func GetCategoryByID(id string) (*structs.Category, error) {
-	exists, err := categoryExists(id)
+func GetCategoryByName(name string) (*structs.Category, error) {
+	exists, err := categoryExists(name)
 	if err != nil {
 		log.Println("Error when checking if category exists: ", err)
 		return nil, err
 	}
 	if exists {
 		var category structs.Category
-		err2 := Client.QueryRow("SELECT * FROM Category WHERE ID = ?", id).Scan(
-			&category.ID,
+		err2 := Client.QueryRow("SELECT * FROM Category WHERE Name = ?", name).Scan(
 			&category.Name,
 			&category.Description,
 		)
 		if err2 != nil {
-			log.Println("Error when selecting category by ID: ", err2)
+			log.Println("Error when selecting category by name: ", err2)
 			return nil, err2
 		}
 		return &category, nil
 	} else {
 		log.Println("Category does not exist")
-		return nil, fmt.Errorf("category ID does not match any categories in DB")
+		return nil, fmt.Errorf("category name does not match any categories in DB")
 	}
 }
 
 /*
-AddCategory adds a single row to the Category table in the database. Returns the ID if successful, or an error if not.
+AddCategory adds a single row to the Category table in the database. Returns the name if successful, or an error if not.
 */
-func AddCategory(category structs.Category) (string, error) {
-	// Generate and retrieve new UUID
-	id, err := GenerateUUID(Client)
-	if err != nil {
-		log.Println("Error generating UUID: ", err)
-		return "", err
-	}
-
+func AddCategory(category structs.Category) error {
 	// Insert category
 	_, err2 := Client.Exec(
-		`INSERT INTO Category (ID, Name, Description) VALUES (?, ?, ?)`,
-		id,
+		`INSERT INTO Category (Name, Description) VALUES (?, ?)`,
 		category.Name,
 		category.Description,
 	)
 	if err2 != nil {
 		log.Println("Error inserting category: ", err2)
-		return "", err2
+		return err2
 	}
 
-	return id, nil // Return the UUID
+	return nil
 }
 
 /*
-UpdateCategory updates a single row in the Category table in the database based on the ID in the provided Category struct.
+UpdateCategory updates a single row in the Category table in the database based on the name in the provided Category struct.
 Returns nil if successful, or an error if not.
 */
 func UpdateCategory(category structs.Category) error {
 	// Check if category exists
-	exists, err := categoryExists(category.ID)
+	exists, err := categoryExists(category.Name)
 	if err != nil {
 		log.Println("Error when checking if category exists: ", err)
 		return err
 	}
 	if exists {
 		_, err2 := Client.Exec(
-			"UPDATE Category SET Name = ?, Description = ? WHERE ID = ?",
-			category.Name,
+			"UPDATE Category SET Description = ? WHERE Name = ?",
 			category.Description,
-			category.ID,
+			category.Name,
 		)
 		if err2 != nil {
 			log.Println("Error when updating category: ", err2)
@@ -102,30 +92,30 @@ func UpdateCategory(category structs.Category) error {
 		}
 	} else {
 		log.Println("Category does not exist")
-		return fmt.Errorf("category ID does not match any categories in DB")
+		return fmt.Errorf("category name does not match any categories in DB")
 	}
 	return nil
 }
 
 /*
-DeleteCategoryByID deletes a single row from the Category table in the database based on the ID.
+DeleteCategoryByName deletes a single row from the Category table in the database based on the name.
 Returns nil if successful, or an error if not.
 */
-func DeleteCategoryByID(id string) error {
-	exists, err := categoryExists(id)
+func DeleteCategoryByName(name string) error {
+	exists, err := categoryExists(name)
 	if err != nil {
 		log.Println("Error when checking if category exists: ", err)
 		return err
 	}
 	if exists {
-		_, err2 := Client.Exec("DELETE FROM Category WHERE ID = ?", id)
+		_, err2 := Client.Exec("DELETE FROM Category WHERE Name = ?", name)
 		if err2 != nil {
 			log.Println("Error when deleting category: ", err2)
 			return err2
 		}
 	} else {
 		log.Println("Category does not exist")
-		return fmt.Errorf("category ID does not match any categories in DB")
+		return fmt.Errorf("category name does not match any categories in DB")
 	}
 	return nil
 }
@@ -138,7 +128,6 @@ func categoryRowsToSlice(rows *sql.Rows) ([]structs.Category, error) {
 	for rows.Next() {
 		var category structs.Category
 		err2 := rows.Scan(
-			&category.ID,
 			&category.Name,
 			&category.Description,
 		)
@@ -151,11 +140,11 @@ func categoryRowsToSlice(rows *sql.Rows) ([]structs.Category, error) {
 }
 
 /*
-CategoryExists checks if a category with the provided ID exists in the database.
+CategoryExists checks if a category with the provided name exists in the database.
 */
-func categoryExists(id string) (bool, error) {
+func categoryExists(name string) (bool, error) {
 	var exists bool
-	err := Client.QueryRow(`SELECT EXISTS(SELECT * FROM Category WHERE ID = ?)`, id).Scan(&exists)
+	err := Client.QueryRow(`SELECT EXISTS(SELECT * FROM Category WHERE Name = ?)`, name).Scan(&exists)
 	if err != nil {
 		return false, err
 	}
