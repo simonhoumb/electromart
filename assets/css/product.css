@@ -77,3 +77,105 @@ header h1 {
 .add-to-cart:hover {
     background-color: #ff6600;
 }
+
+/* ... (Your existing styles) */
+
+.product-details {
+    display: grid;
+    grid-template-columns: 1fr 2fr; /* Image and info side-by-side */
+    gap: 20px;
+}
+
+.product-image img {
+    max-width: 100%;
+    height: auto;
+    margin: 0 auto;
+    display: block;
+    border-radius: 5px; /* Add a little rounding to the image */
+}
+
+.related-products {
+    margin-top: 40px;
+}
+
+/* Basic Styling - you'll enhance this */
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.product-details {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 30px;
+}
+
+.product-image img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+.price-action {
+    display: flex;
+    align-items: center;
+}
+
+.add-to-cart {
+    background-color: #3498db; /* Example button color */
+    color: white;
+    /* ... other button styles ... */
+}
+
+/* Add styles for related products */
+
+/* ... Your existing styles ... */
+
+.product-details {
+    display: flex;
+    grid-template-columns: 1fr 2fr; /* Image and info side-by-side */
+    gap: 30px;
+}
+
+.product-image img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 5px;
+}
+
+.price-action {
+    display: flex;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.add-to-cart {
+    background-color: #FF9900;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+/* Breadcrumbs */
+.breadcrumbs {
+    margin-top: 10px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    color: #666666;
+}
+
+/* Availability */
+.availability {
+    margin-top: 10px;
+}
+
+.in-stock { /* For in-stock items  */
+    color: green;
+}
+
+.out-of-stock { /* For out-of-stock items */
+    color: red;
+}

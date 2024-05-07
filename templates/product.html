@@ -1,50 +1,30 @@
-<!-- product.html -->
-
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product Page</title>
-    <link rel="stylesheet" href="../assets/css/product.css">
-</head>
 <body>
-<header>
-    <div class="container">
-        <h1 id="product-title">Product Name</h1>
-    </div>
-</header>
-
-<nav class="breadcrumbs">
-    <div class="container">
-        <a href="#">Forsiden</a> &raquo;
-        <a href="#">Datautstyr</a> &raquo;
-        <a href="#">Streaming</a> &raquo;
-        <a href="#">Mikrofon</a> &raquo;
-        <span id="product-category">Elgato Wave 3 Mikrofon og Mixer</span>
-    </div>
-</nav>
-
 <div class="container">
-    <div class="product-details">
+    <nav class="breadcrumbs">
+        <a href="/">Home</a> &raquo; <span id="product-category"></span> &raquo; <span id="product-brand"></span>
+    </nav>
+
+    <section class="product-details">
+        <div class="product-info">
+            <p class="availability" id="product-availability"></p>
+        </div>
+    </section>
+    <section class="product-details">
         <div class="product-image">
-            <img src="../assets/images/product.jpg" alt="Product Image">
+            <img src="" alt="Product Image" id="product-image">
         </div>
         <div class="product-info">
-            <h2 id="product-name">Product Name</h2>
-            <p class="description" id="product-description">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod blandit velit, ac ultrices leo convallis nec. Quisque tincidunt fermentum nisi, at tincidunt arcu dictum sit amet.</p>
-            <p class="brand" id="product-brand">Brand: XYZ</p>
-            <p class="category" id="product-category">Category: Electronics</p>
-            <p class="price" id="product-price">$99.99</p>
-            <div class="quantity">
-                <label for="quantity">Quantity:</label>
-                <input type="number" id="quantity" name="quantity" min="1" value="1">
+            <h1 id="product-title"></h1>
+            <p class="description" id="product-description"></p>
+            <div class="price-action">
+                <h2 id="product-price"></h2>
+                <button class="add-to-cart">Add to Cart</button>
             </div>
-            <button class="add-to-cart">Add to Cart</button>
         </div>
-    </div>
+    </section>
 </div>
-
 <script src="../assets/javascript/product.js"></script>
 </body>
 </html>

@@ -17,11 +17,10 @@ body {
     padding: 0 20px;
 }
 
-header {
+header, nav {
     background-color: #333;
-    padding: 20px 0;
-    text-align: center;
     color: white;
+    padding: 20px 0;
 }
 
 #user-controls {
@@ -31,7 +30,7 @@ header {
 }
 
 #user-logged {
-    position: relative; /* Add this line to set the position */
+    position: relative;
     display: flex;
     align-items: center;
     margin-right: 20px;
@@ -40,18 +39,11 @@ header {
 #logged-username {
     margin-right: 10px;
     cursor: pointer;
-    color: #fff;
     font-weight: bold;
 }
 
 #logged-username:hover {
     text-decoration: underline;
-}
-
-nav {
-    background-color: #333;
-    padding: 10px 0;
-    color: white;
 }
 
 nav ul {
@@ -184,14 +176,6 @@ nav ul li a:hover {
     color: #444;
 }
 
-#user-logged {
-    position: relative;
-    display: flex;
-    align-items: center;
-    margin-right: 20px;
-}
-
-
 /* Dropdown menu styles */
 #user-menu {
     display: none;
@@ -201,7 +185,7 @@ nav ul li a:hover {
     background-color: white;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
     z-index: 1;
-    width: auto; /* Change width to auto */
+    width: auto;
     border-radius: 4px;
 }
 
@@ -240,4 +224,34 @@ nav ul li a:hover {
     display: block;
 }
 
+/* Add a search bar to the header */
+nav {
+    position: relative;
+}
 
+nav #search-bar {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+/* Add a sorting option to the header */
+nav #sort-dropdown {
+    position: absolute;
+    top: 10px;
+    right: 50px;
+}
+
+/* Add a link to the brand name in the breadcrumbs */
+.breadcrumbs {
+    position: relative;
+    margin-top: 10px; /* Adjust margin as needed */
+}
+
+.breadcrumbs a {
+    text-decoration: none;
+}
+
+.breadcrumbs a:hover {
+    text-decoration: underline;
+}

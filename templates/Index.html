@@ -10,20 +10,22 @@
 <header>
     <div class="container">
         <h1>Welcome to EStore!</h1>
+        <form id="search-form">
+            <input type="text" id="search-query" placeholder="Search products">
+            <button id="searchSubmit" type="submit">Search</button>
+        </form>
         <div id="user-controls">
             <div id="user-logged" style="display: none;">
-                <span id="logged-username" onclick="openUserMenu()">Username</span>
+                <span id="logged-username">Username</span>
                 <div id="user-menu">
                     <a href="/profile">Profile</a>
-                    <button id="logoutButton" onclick="logoutUser()">Logout</button>
+                    <button id="logoutButton">Logout</button>
                 </div>
-
             </div>
             <div id="user-not-logged">
-                <button id="loginButton" onclick="login()">Login</button>
+                <button id="loginButton">Login</button>
             </div>
         </div>
-
     </div>
 </header>
 
@@ -37,27 +39,40 @@
                     <!-- Categories will be added here by JavaScript -->
                 </div>
             </li>
-            <!-- Add more items as needed -->
         </ul>
     </div>
 </nav>
 
 <section class="container">
     <div id="cart"><!-- Cart items will be added here --></div>
-    <form id="search-form">
-        <input type="text" id="search-query" placeholder="Search products">
-        <button id=searchSubmit type="submit">Search</button>
-    </form>
-    <h2>Our Products</h2>
-    <div id="product-filters"><!-- Filters will be added here --></div>
+    <div id="sort-dropdown">
+        <select>
+            <option value="price-asc">Price (low to high)</option>
+            <option value="price-desc">Price (high to low)</option>
+            <option value="quantity-asc">Quantity (low to high)</option>
+            <option value="quantity-desc">Quantity (high to low)</option>
+        </select>
+    </div>
 
-    <div id="products" data-product-id="1" class="product-grid"><!-- Products will be added here by JavaScript --></div>
+    <h2>Our Products</h2>
+    <div class="breadcrumbs"></div> <!-- Breadcrumbs container -->
+    <div id="product-filters"><!-- Filters will be added here --></div>
+    <div id="products" data-product-id="1" class="product-grid">
+        <!-- Default product element -->
+        <div class="product" style="display: none;">
+            <span class="product-name"></span><br>
+            <span class="product-description"></span><br>
+            <span class="product-price-label">Price: </span>
+            <span class="product-price"></span><br>
+            <span class="product-quantity-label">In Stock: </span>
+            <span class="product-quantity"></span>
+        </div>
+    </div>
 </section>
 
-<!-- The Login Modal -->
 <div id="loginModal">
     <div id="loginModalContent">
-        <span onclick="closeModal()" class="close">&times;</span>
+        <span class="close">&times;</span>
         <div class="form-container">
             <form id="loginForm">
                 <label for="username">Username:</label><br>
@@ -66,9 +81,7 @@
                 <input type="password" id="password" name="password"><br>
                 <input type="submit" value="Login">
             </form>
-            <p>
-                Don't have an account? <a href="/registerPage">Register</a>
-            </p>
+            <p>Don't have an account? <a href="/registerPage">Register</a></p>
         </div>
     </div>
 </div>
