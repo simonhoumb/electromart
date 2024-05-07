@@ -31,20 +31,29 @@ function fetchProducts(query="") {
                 const productName = document.createElement('span');
                 productName.textContent = product.name;
 
-                const productDescription = document.createElement('p');
+                const productDescription = document.createElement('span');
                 productDescription.textContent = product.description;
+
+                // Container for price label and value
+                const priceContainer = document.createElement('span');
 
                 const productPriceLabel = document.createElement('span');
                 productPriceLabel.className = 'product-label'; // Add class for styling
                 productPriceLabel.textContent = 'Kr ';
 
-                const productPrice = document.createElement('p');
+                const productPrice = document.createElement('span');
                 productPrice.textContent = product.price;
+
+                priceContainer.appendChild(productPriceLabel);
+                priceContainer.appendChild(productPrice);
+
+                // Container for quantity label and value
+                const quantityContainer = document.createElement('span');
 
                 const productQuantityLabel = document.createElement('span');
                 productQuantityLabel.className = 'product-label'; // Add class for styling
 
-                const productQuantity = document.createElement('p');
+                const productQuantity = document.createElement('span');
                 if (product.hasOwnProperty('qtyInStock') && product.qtyInStock > 0) {
                     productQuantityLabel.textContent = 'In Stock: ';
                     productQuantity.textContent = product.qtyInStock;
@@ -52,12 +61,16 @@ function fetchProducts(query="") {
                     productQuantity.textContent = 'Product not in stock';
                 }
 
+                quantityContainer.appendChild(productQuantityLabel);
+                quantityContainer.appendChild(productQuantity);
+
                 productElement.appendChild(productName);
+                productElement.appendChild(document.createElement('br')); // Add line break
                 productElement.appendChild(productDescription);
-                productElement.appendChild(productPriceLabel);
-                productElement.appendChild(productPrice);
-                productElement.appendChild(productQuantityLabel);
-                productElement.appendChild(productQuantity);
+                productElement.appendChild(document.createElement('br')); // Add line break
+                productElement.appendChild(priceContainer);
+                productElement.appendChild(document.createElement('br')); // Add line break
+                productElement.appendChild(quantityContainer);
 
                 productsContainer.appendChild(productElement);
             });
