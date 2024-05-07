@@ -33,6 +33,42 @@ header h1 {
     text-decoration: none;
 }
 
+
+.product {
+    border: 1px solid #ddd;
+    padding: 20px;
+    background-color: white;
+    text-align: center;
+    flex: 1;
+}
+
+.product h3 {
+    color: #444;
+}
+
+.product .product-price-label {
+    color: #666;
+}
+
+.product .product-quantity-label {
+    color: #666;
+}
+
+.show-details-button {
+    background-color: #333;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.show-details-button:hover {
+    background-color: #555;
+}
+
+
 /* Product Details Styles */
 .product-details {
     display: flex;

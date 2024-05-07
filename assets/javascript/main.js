@@ -1,351 +1,273 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const productsContainer = document.getElementById('products');
-    const searchForm = document.getElementById('search-form');
-    const searchQueryInput = document.getElementById('search-query');
+class EStore {
+    constructor() {
+        this.productsContainer = document.getElementById('products');
+        this.searchForm = document.getElementById('search-form');
+        this.searchQueryInput = document.getElementById('search-query');
+        this.logoutButton = document.getElementById('logoutButton');
+        this.loginButton = document.getElementById('loginButton');
+        this.closeModalButton = document.querySelector('.close');
+        this.sortDropdown = document.getElementById('sort-dropdown');
 
-    searchForm.addEventListener('submit', (event) => {
+        this.searchForm.addEventListener('submit', this.handleSearch.bind(this));
+        this.logoutButton.addEventListener('click', this.logoutUser.bind(this));
+        this.loginButton.addEventListener('click', this.openLoginModal.bind(this));
+        this.closeModalButton.addEventListener('click', this.closeModal.bind(this));
+        this.sortDropdown.addEventListener('change', this.handleSort.bind(this));
+
+        this.checkLoginState();
+        this.fetchProducts();
+        this.fetchCategories();
+    }
+
+    handleSearch(event) {
         event.preventDefault();
-        const query = searchQueryInput.value.trim();
-        if (query !== "") { // Check if the query is not empty
-            fetchProducts(query);
+        const query = this.searchQueryInput.value.trim();
+        if (query !== "") {
+            this.fetchProducts(query);
+            this.updateBreadcrumbs('Search Results'); // Update breadcrumbs for search
         } else {
-            // Optionally, you can provide feedback to the user about the empty search query
             alert("Please enter a search query.");
         }
-    });
+    }
 
-    // Event listener for the logout button
-    const logoutButton = document.getElementById('logoutButton');
-    logoutButton.addEventListener('click', logoutUser);
 
-    // Event listener for the login button
-    const loginButton = document.getElementById('loginButton');
-    loginButton.addEventListener('click', login);
-
-    // Event listener for the close button in the modal
-    const closeModalButton = document.querySelector('.close');
-    closeModalButton.addEventListener('click', closeModal);
-    fetchProducts();
-    checkLoginState();
-
-    fetchCategories();
-
-    const sortDropdown = document.getElementById('sort-dropdown');
-    sortDropdown.addEventListener('change', (e) => {
-        const sortingOption = e.target.value;
-        // Get the products currently displayed
+    handleSort(event) {
+        const sortingOption = event.target.value;
         const products = document.querySelectorAll('.product');
-
-        // Convert NodeList to Array
         const productsArray = Array.from(products);
 
-        // Apply sorting logic based on the selected option
         switch (sortingOption) {
             case 'price-asc':
-                productsArray.sort((a, b) => {
-                    const priceA = parseFloat(a.querySelector('.product-price').textContent);
-                    const priceB = parseFloat(b.querySelector('.product-price').textContent);
-                    return priceA - priceB;
-                });
+                productsArray.sort((a, b) => this.getProductPrice(a) - this.getProductPrice(b));
                 break;
             case 'price-desc':
-                productsArray.sort((a, b) => {
-                    const priceA = parseFloat(a.querySelector('.product-price').textContent);
-                    const priceB = parseFloat(b.querySelector('.product-price').textContent);
-                    return priceB - priceA;
-                });
+                productsArray.sort((a, b) => this.getProductPrice(b) - this.getProductPrice(a));
                 break;
             case 'quantity-asc':
-                productsArray.sort((a, b) => {
-                    const quantityA = a.querySelector('.product-quantity').textContent === 'Product not in stock' ? Infinity : parseInt(a.querySelector('.product-quantity').textContent);
-                    const quantityB = b.querySelector('.product-quantity').textContent === 'Product not in stock' ? Infinity : parseInt(b.querySelector('.product-quantity').textContent);
-                    // If both products are out of stock, or both are in stock, sort them based on their quantities
-                    if (isNaN(quantityA) === isNaN(quantityB)) {
-                        return quantityA - quantityB;
-                    } else {
-                        // If one product is out of stock, it should be considered greater (placed after) than the other
-                        // Product with quantity (in stock) should be considered less (placed before) than the out of stock product
-                        return isNaN(quantityA) ? 1 : -1;
-                    }
-                });
+                productsArray.sort((a, b) => this.getProductQuantity(a) - this.getProductQuantity(b));
                 break;
             case 'quantity-desc':
-                productsArray.sort((a, b) => {
-                    const quantityA = a.querySelector('.product-quantity').textContent === 'Product not in stock' ? -Infinity : parseInt(a.querySelector('.product-quantity').textContent);
-                    const quantityB = b.querySelector('.product-quantity').textContent === 'Product not in stock' ? -Infinity : parseInt(b.querySelector('.product-quantity').textContent);
-                    // If both products are out of stock, or both are in stock, sort them based on their quantities
-                    if (isNaN(quantityA) === isNaN(quantityB)) {
-                        return quantityB - quantityA;
-                    } else {
-                        // If one product is out of stock, it should be considered greater (placed after) than the other
-                        // Product with quantity (in stock) should be considered less (placed before) than the out of stock product
-                        return isNaN(quantityA) ? 1 : -1;
-                    }
-                });
+                productsArray.sort((a, b) => this.getProductQuantity(b) - this.getProductQuantity(a));
                 break;
             default:
                 break;
         }
 
+        // Clear products container
+        this.productsContainer.innerHTML = '';
 
-        // Clear the products container
-        productsContainer.innerHTML = '';
-
-        // Append sorted products to the products container
+        // Append sorted products
         productsArray.forEach(product => {
-            productsContainer.appendChild(product);
-        });
-    });
-});
-
-function createProductElement(product) {
-    const productElement = document.createElement('div');
-    productElement.className = 'product';
-    productElement.dataset.productId = product.id;
-
-    const productName = document.createElement('span');
-    productName.textContent = product.name;
-
-    const productDescription = document.createElement('span');
-    productDescription.textContent = product.description;
-
-    const priceContainer = document.createElement('span');
-    const productPriceLabel = document.createElement('span');
-    productPriceLabel.className = 'product-label';
-    productPriceLabel.textContent = 'Kr ';
-
-    const productPrice = document.createElement('span');
-    productPrice.textContent = product.price;
-    productPrice.className = 'product-price';
-
-    priceContainer.appendChild(productPriceLabel);
-    priceContainer.appendChild(productPrice);
-
-    const quantityContainer = document.createElement('span');
-    const productQuantityLabel = document.createElement('span');
-    productQuantityLabel.className = 'product-label';
-
-    const productQuantity = document.createElement('span');
-    if (product.hasOwnProperty('qtyInStock') && product.qtyInStock > 0) {
-        productQuantityLabel.textContent = 'In Stock: ';
-        productQuantity.textContent = product.qtyInStock;
-    } else {
-        productQuantity.textContent = 'Product not in stock';
-    }
-    productQuantity.className = 'product-quantity'; // Add class for quantity
-
-    quantityContainer.appendChild(productQuantityLabel);
-    quantityContainer.appendChild(productQuantity);
-
-    productElement.appendChild(productName);
-    productElement.appendChild(document.createElement('br'));
-    productElement.appendChild(productDescription);
-    productElement.appendChild(document.createElement('br'));
-    productElement.appendChild(priceContainer);
-    productElement.appendChild(document.createElement('br'));
-    productElement.appendChild(quantityContainer);
-
-    return productElement;
-}
-
-function updateProductDisplay(products) {
-    const productsContainer = document.getElementById('products');
-    productsContainer.innerHTML = '';
-
-    if (products.length === 0) {
-        const noResults = document.createElement('p');
-        noResults.textContent = 'No results found.';
-        productsContainer.appendChild(noResults);
-    } else {
-        products.forEach(product => {
-            const productElement = createProductElement(product);
-            productsContainer.appendChild(productElement);
+            this.productsContainer.appendChild(product);
         });
     }
-}
 
-function fetchProducts(query = "") {
-    fetch(`/api/v1/products/search/${query}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            const productsContainer = document.getElementById('products');
-            productsContainer.innerHTML = ''; // Clear previous content
+    getProductPrice(productElement) {
+        const priceString = productElement.querySelector('.product-price').textContent;
+        // Extract the numeric part of the price string
+        const priceNumeric = parseFloat(priceString.replace(/[^\d.-]/g, ''));
+        return isNaN(priceNumeric) ? -1 : priceNumeric;
+    }
 
-            if (data && data.length > 0) { // Check if data is not null and has at least one element
-                updateProductDisplay(data);
-                // Update breadcrumbs with search query
-                updateBreadcrumbsBySearch(query);
-            } else {
-                const noResults = document.createElement('p');
-                noResults.textContent = `Could not find anything with "${query}"`;
-                productsContainer.appendChild(noResults);
-            }
-        })
-        .catch(error => console.error('Error fetching products:', error));
-}
 
-function fetchCategories() {
-    fetch('/api/v1/categories/')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Failed to fetch categories');
-            }
-            return response.json();
-        })
-        .then(categories => {
-            const dropdown = document.querySelector('#categories');
-            dropdown.innerHTML = '';
-            categories.forEach(category => {
-                const a = document.createElement('a');
-                a.text = category.name;
-                const categoryName = encodeURIComponent(category.name); // Encode category name
-                a.href = '/products/' + categoryName; // Set the URL
-                a.dataset.categoryName = category.name; // Store the category name
-                a.addEventListener('click', (event) => {
-                    event.preventDefault();
-                    const categoryName = event.target.dataset.categoryName; // Get category name
-                    fetchProductsByCategory(categoryName);
-                    history.pushState(null, null, `/products/${categoryName}`); // Update URL
-                });
-                dropdown.appendChild(a); // Append the created <a> element to the dropdown
+    getProductQuantity(productElement) {
+        const stockString = productElement.querySelector('.product-stock').textContent;
+        const quantity = parseInt(stockString.split(': ')[1]);
+        return isNaN(quantity) ? -1 : quantity;
+    }
+
+    fetchCategories() {
+        fetch('/api/v1/categories/')
+            .then(this.handleFetchResponse)
+            .then(this.renderCategories.bind(this))
+            .catch(error => console.error('Error fetching categories:', error));
+    }
+
+    renderCategories(categories) {
+        const dropdown = document.querySelector('#categories');
+        dropdown.innerHTML = '';
+        categories.forEach(category => {
+            const a = document.createElement('a');
+            a.textContent = category.name;
+            const categoryName = encodeURIComponent(category.name);
+            a.href = '/products/' + categoryName;
+            a.dataset.categoryName = category.name;
+            a.addEventListener('click', this.handleCategoryClick.bind(this));
+            dropdown.appendChild(a);
+        });
+    }
+
+    handleCategoryClick(event) {
+        event.preventDefault();
+        const categoryName = event.target.dataset.categoryName;
+        this.fetchProductsByCategory(categoryName);
+        this.updateBreadcrumbs(categoryName); // Update breadcrumbs
+        history.pushState(null, null, `/products/${categoryName}`);
+    }
+
+    fetchProductsByCategory(categoryName) {
+        fetch(`/api/v1/products/search/${categoryName}`)
+            .then(this.handleFetchResponse)
+            .then(this.updateProductDisplay.bind(this))
+            .catch(error => console.error('Error fetching products:', error));
+    }
+
+    handleFetchResponse(response) {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    }
+
+    updateProductDisplay(products) {
+        this.productsContainer.innerHTML = '';
+        if (products.length === 0) {
+            const noResults = document.createElement('p');
+            noResults.textContent = 'No results found.';
+            this.productsContainer.appendChild(noResults);
+        } else {
+            products.forEach(product => {
+                const productElement = this.createProductElement(product);
+                this.productsContainer.appendChild(productElement);
             });
-        })
-        .catch(error => console.error('Error fetching categories:', error));
-}
-
-function fetchProductsByCategory(categoryName) {
-    // Fetch products based on the category name
-    fetch(`http://localhost:8000/api/v1/products/search/${categoryName}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(products => {
-            updateProductDisplay(products); // Update display with products received from backend
-            updateBreadcrumbs(categoryName); // Update breadcrumbs after fetching products
-        })
-        .catch(error => {
-            console.error('Error fetching products:', error);
-            displayErrorMessage('Sorry, there was an error loading products.');
-        });
-}
-
-function updateBreadcrumbsBySearch(query) {
-    const breadcrumbs = document.querySelector('.breadcrumbs');
-    breadcrumbs.innerHTML = ''; // Clear existing breadcrumbs
-    const homeLink = document.createElement('a');
-    homeLink.textContent = 'Home';
-    homeLink.href = '/';
-    breadcrumbs.appendChild(homeLink);
-
-    // Add separator if there are more breadcrumbs
-    if (query !== "") {
-        breadcrumbs.appendChild(document.createTextNode(' * '));
-
-        // Add search query
-        const searchLink = document.createElement('span');
-        searchLink.textContent = `Search: ${query}`;
-        breadcrumbs.appendChild(searchLink);
-    }
-}
-
-
-
-
-function updateBreadcrumbs(categoryId) {
-    const breadcrumbs = document.querySelector('.breadcrumbs');
-    breadcrumbs.innerHTML = ''; // Clear existing breadcrumbs
-    const homeLink = document.createElement('a');
-    homeLink.textContent = 'Home';
-    homeLink.href = '/';
-    breadcrumbs.appendChild(homeLink);
-
-    // Fetch category details
-    fetch(`http://localhost:8000/api/v1/categories/${categoryId}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Failed to fetch category details');
-            }
-            return response.json();
-        })
-        .then(category => {
-            const categoryLink = document.createElement('a');
-            categoryLink.textContent = category.name;
-            categoryLink.href = `#${categoryId}`;
-            categoryLink.addEventListener('click', (event) => {
-                event.preventDefault();
-                fetchProductsByCategory(categoryId);
-            });
-            breadcrumbs.appendChild(document.createTextNode(' * '));
-            breadcrumbs.appendChild(categoryLink);
-        })
-        .catch(error => console.error('Error fetching category details:', error));
-}
-
-
-function checkLoginState() {
-    fetch('/api/check_login', { credentials: 'include' })
-        .then(response => response.json())
-        .then(respJson => {
-            const userNotLogged = document.getElementById('user-not-logged');
-            const userLogged = document.getElementById('user-logged');
-            const logoutButton = document.getElementById('logoutButton');
-            if (respJson.logged_in) {
-                document.getElementById('logged-username').textContent = respJson.username;
-                userNotLogged.style.display = 'none';
-                userLogged.style.display = 'block';
-                logoutButton.style.display = 'block';
-            } else {
-                userNotLogged.style.display = 'block';
-                userLogged.style.display = 'none';
-                logoutButton.style.display = 'none';
-            }
-        })
-        .catch(error => console.error('Error checking login:', error));
-}
-
-
-function logoutUser() {
-    fetch('/api/logout', { credentials: 'include' })
-        .then(response => response.text())
-        .then(text => {
-            checkLoginState();
-            window.location.href = "/";
-        })
-        .catch(error => console.error('Error:', error));
-}
-
-function openUserMenu() {
-    const userMenu = document.getElementById("user-menu");
-    userMenu.classList.toggle("show");
-}
-
-document.getElementById("logged-username").addEventListener("click", () => {
-    openUserMenu();
-});
-
-window.onclick = function(event) {
-    if (!event.target.matches('#logged-username')) {
-        const userMenu = document.getElementById("user-menu");
-        if (userMenu.classList.contains('show')) {
-            userMenu.classList.remove('show');
         }
     }
-};
 
-function login() {
-    const modal = document.getElementById("loginModal");
-    modal.style.display = "block";
+    updateBreadcrumbs(categoryName) {
+        const breadcrumbsContainer = document.querySelector('.breadcrumbs');
+        breadcrumbsContainer.innerHTML = ''; // Clear previous breadcrumbs
+
+        // Create a link to the home page
+        const homeLink = document.createElement('a');
+        homeLink.textContent = 'Home';
+        homeLink.href = '/';
+        breadcrumbsContainer.appendChild(homeLink);
+
+        // Create a separator
+        const separator = document.createElement('span');
+        separator.textContent = ' > ';
+        breadcrumbsContainer.appendChild(separator);
+
+        // Create a link to the category page
+        const categoryLink = document.createElement('a');
+        categoryLink.textContent = categoryName; // Use the name of the category
+        categoryLink.href = `/products/${categoryName}`;
+        breadcrumbsContainer.appendChild(categoryLink);
+    }
+
+
+    createProductElement(product) {
+        // Create the product container
+        const productElement = document.createElement('div');
+        productElement.className = 'product';
+        productElement.dataset.productId = product.id;
+
+        // Create the left column for name, description, and stock
+        const leftColumn = document.createElement('div');
+        leftColumn.className = 'product-left-column';
+
+        // Create the name element
+        const nameElement = document.createElement('div');
+        nameElement.className = 'product-name';
+        nameElement.textContent = 'Name: ' + product.name;
+
+        // Create the description element
+        const descriptionElement = document.createElement('div');
+        descriptionElement.className = 'product-description';
+        descriptionElement.textContent = 'Description: ' + product.description;
+
+        // Create the stock element
+        const stockElement = document.createElement('div');
+        stockElement.className = 'product-stock';
+        if (product.hasOwnProperty('qtyInStock') && product.qtyInStock > 0) {
+            stockElement.textContent = 'In Stock: ' + product.qtyInStock;
+        } else {
+            stockElement.textContent = 'Product not in stock';
+        }
+
+        // Append name, description, and stock to the left column
+        leftColumn.appendChild(nameElement);
+        leftColumn.appendChild(descriptionElement);
+        leftColumn.appendChild(stockElement);
+
+        // Create the right column for price and button
+        const rightColumn = document.createElement('div');
+        rightColumn.className = 'product-right-column';
+
+        // Create the price element
+        const priceElement = document.createElement('div');
+        priceElement.className = 'product-price';
+        priceElement.textContent = 'Price: Kr ' + product.price;
+
+        // Create the button element
+        const buttonElement = document.createElement('button');
+        buttonElement.className = 'add-to-cart-button';
+        buttonElement.dataset.productId = product.id;
+        buttonElement.textContent = 'Add to Cart';
+
+        // Append price and button to the right column
+        rightColumn.appendChild(priceElement);
+        rightColumn.appendChild(buttonElement);
+
+        // Append left column to the product container
+        productElement.appendChild(leftColumn);
+
+        // Append right column to the product container
+        productElement.appendChild(rightColumn);
+
+        return productElement;
+    }
+
+
+
+    fetchProducts(query = "") {
+        fetch(`/api/v1/products/search/${query}`)
+            .then(this.handleFetchResponse)
+            .then(this.updateProductDisplay.bind(this))
+            .catch(error => console.error('Error fetching products:', error));
+    }
+
+    checkLoginState() {
+        fetch('/api/check_login', { credentials: 'include' })
+            .then(response => response.json())
+            .then(respJson => {
+                const userNotLogged = document.getElementById('user-not-logged');
+                const userLogged = document.getElementById('user-logged');
+                const logoutButton = document.getElementById('logoutButton');
+                if (respJson.logged_in) {
+                    document.getElementById('logged-username').textContent = respJson.username;
+                    userNotLogged.style.display = 'none';
+                    userLogged.style.display = 'block';
+                    logoutButton.style.display = 'block';
+                } else {
+                    userNotLogged.style.display = 'block';
+                    userLogged.style.display = 'none';
+                    logoutButton.style.display = 'none';
+                }
+            })
+            .catch(error => console.error('Error checking login:', error));
+    }
+
+    logoutUser() {
+        fetch('/api/logout', { credentials: 'include' })
+            .then(response => response.text())
+            .then(text => {
+                this.checkLoginState();
+                window.location.href = "/";
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    openLoginModal() {
+        const modal = document.getElementById("loginModal");
+        modal.style.display = "block";
+    }
+
+    closeModal() {
+        const modal = document.getElementById("loginModal");
+        modal.style.display = "none";
+    }
 }
 
-function closeModal() {
-    const modal = document.getElementById("loginModal");
-    modal.style.display = "none";
-}
+// Instantiate the EStore class
+new EStore();
