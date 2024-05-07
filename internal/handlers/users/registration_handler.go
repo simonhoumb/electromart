@@ -40,6 +40,9 @@ func handleRegistrationPostRequest(w http.ResponseWriter, r *http.Request, userD
 		return
 	}
 
+	// Inserting data into Cart
+	userID := uuid.New().String()
+
 	// Hashing the password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(creds.Password), 10)
 	if err != nil {
@@ -48,17 +51,8 @@ func handleRegistrationPostRequest(w http.ResponseWriter, r *http.Request, userD
 		return
 	}
 
-	// Inserting data into Cart
-	cartID, err := userDB.CreateUserCart()
-	if err != nil {
-		log.Printf("Failed to create cart: %v", err)
-		respondWithError(w, http.StatusInternalServerError, "Error creating user cart")
-		return
-	}
-
 	// Inserting data into User
-	userID := uuid.New().String()
-	err = userDB.RegisterUser(userID, creds.Username, string(hashedPassword), creds.Email, creds.FirstName, creds.LastName, creds.Phone, cartID)
+	err = userDB.RegisterUser(userID, creds.Username, string(hashedPassword), creds.Email, creds.FirstName, creds.LastName, creds.Phone)
 	var mysqlErr *mysql.MySQLError
 	if errors.As(err, &mysqlErr) {
 		if mysqlErr.Number == 1062 {

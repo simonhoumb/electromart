@@ -15,7 +15,28 @@ document.addEventListener('DOMContentLoaded', function () {
 function setupModalEventListeners() {
     // Add event listener to the delete user button
     document.getElementById('deleteUserBtn').addEventListener('click', function () {
-        deleteUser();
+        // Display the password confirmation modal
+        document.getElementById('passwordConfirmationModal').style.display = "block";
+    });
+
+    // Add event listener to the close button in the password confirmation modal
+    document.getElementById('passwordConfirmationModal').getElementsByClassName('close')[0].addEventListener('click', function () {
+        // Hide the password confirmation modal
+        document.getElementById('passwordConfirmationModal').style.display = "none";
+    });
+
+    // Add event listener to the form for password confirmation
+    document.getElementById('passwordConfirmationForm').addEventListener('submit', function (event) {
+        event.preventDefault(); // Prevent default form submission behavior
+        confirmDeleteUser();
+    });
+
+    // Add event listener to close the password confirmation modal when pressing ESC key
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+            // Hide the password confirmation modal
+            document.getElementById('passwordConfirmationModal').style.display = "none";
+        }
     });
 
     // Add event listener to the change password button
@@ -66,6 +87,40 @@ function fetchUserProfile() {
     };
     xhr.send();
 }
+
+function confirmDeleteUser() {
+    var password = document.getElementById('confirmPassword').value.trim();
+
+    // Send the plaintext password securely to the server for validation
+    var data = {
+        "passwordConfirmation": password
+    };
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('DELETE', '/api/profile', true);
+    xhr.setRequestHeader('Content-type', 'application/json');
+    xhr.onload = function () {
+        if (xhr.status === 204) {
+            showSuccessMessage('User deleted successfully');
+            window.location.href = '/';
+        } else if (xhr.status === 401) {
+            // Incorrect password
+            showErrorMessage('Incorrect password. Please try again.');
+        } else {
+            // Other error
+            showErrorMessage('Failed to delete user. Please try again later.');
+        }
+        // Hide the password confirmation modal
+        document.getElementById('passwordConfirmationModal').style.display = "none";
+    };
+    xhr.onerror = function () {
+        // Error
+        showErrorMessage('Failed to delete user. Please check your internet connection and try again.');
+    }
+    xhr.send(JSON.stringify(data));
+}
+
+
 
 function fillUserProfileForm(user) {
     console.log("Filling user profile form...");
@@ -133,23 +188,11 @@ function updateUserProfile() {
     xhr.send(JSON.stringify(data));
 }
 
-function deleteUser() {
-    var xhr = new XMLHttpRequest();
-    xhr.open('DELETE', '/api/profile', true);
-    xhr.setRequestHeader('Content-type', 'application/json');
-    xhr.onload = function () {
-        if (xhr.status === 204) {
-            showSuccessMessage('User deleted successfully');
-            window.location.href = '/';
-        } else {
-            showErrorMessage('Failed to delete user. Please try again later.');
-        }
-    };
-    xhr.onerror = function () {
-        showErrorMessage('Failed to delete user. Please check your internet connection and try again.');
-    };
-    xhr.send();
+function deleteUserJS() {
+    // Display the password confirmation modal
+    document.getElementById('passwordConfirmationModal').style.display = "block";
 }
+
 
 function changePassword() {
     var oldPassword = document.getElementById('oldPassword').value.trim();

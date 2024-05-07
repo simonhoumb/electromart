@@ -6,6 +6,7 @@ import (
 	"Database_Project/internal/structs"
 	"encoding/json"
 	"fmt"
+	"golang.org/x/crypto/bcrypt"
 	"log"
 	"net/http"
 )
@@ -78,7 +79,7 @@ func handleProfilePatchRequest(w http.ResponseWriter, r *http.Request, userDB *d
 	respondWithJSON(w, http.StatusOK, structs.MessageResponse{Message: "User profile updated successfully"})
 }
 
-// handleProfileDeleteRequest handles deleting a user.
+// handleProfileDeleteRequest handles deleting a user after password confirmation.
 func handleProfileDeleteRequest(w http.ResponseWriter, r *http.Request, userDB *db.UserDB) {
 	username, err := getUsernameFromSession(r)
 	if err != nil {
@@ -86,15 +87,51 @@ func handleProfileDeleteRequest(w http.ResponseWriter, r *http.Request, userDB *
 		return
 	}
 
+	// Decode the request body to get the password confirmation
+	var requestBody map[string]string
+	if err := json.NewDecoder(r.Body).Decode(&requestBody); err != nil {
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+
+	// Check if password confirmation is provided in the request body
+	passwordConfirmation, ok := requestBody["passwordConfirmation"]
+	if !ok || passwordConfirmation == "" {
+		http.Error(w, "Password confirmation is required", http.StatusBadRequest)
+		return
+	}
+
+	// Retrieve user information from the database
+	user, err := userDB.GetUser(username)
+	if err != nil {
+		http.Error(w, "User not found", http.StatusNotFound)
+		return
+	}
+
+	fmt.Println(user.Password)
+	fmt.Println(passwordConfirmation)
+	// Verify password confirmation
+	if !verifyPasswordHash(passwordConfirmation, user.Password) {
+		http.Error(w, "Incorrect password", http.StatusUnauthorized)
+		return
+	}
+
+	// Password confirmed, proceed with deleting the user
 	err = deleteUser(username, userDB)
 	if err != nil {
-		log.Printf("Error deleting user: %v", err) // Log the specific error
+		log.Printf("Error deleting user: %v", err)
 		http.Error(w, "Error deleting user", http.StatusInternalServerError)
 		return
 	}
 
 	clearSession(w, r)
-	respondWithText(w, http.StatusNoContent, "User deleted successfully")
+	w.WriteHeader(http.StatusNoContent)
+}
+
+// verifyPasswordHash verifies if the provided password matches the hashed password stored in the database.
+func verifyPasswordHash(password, hashedPassword string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+	return err == nil
 }
 
 func getUsernameFromSession(r *http.Request) (string, error) {

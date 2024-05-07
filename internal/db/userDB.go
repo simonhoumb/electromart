@@ -16,7 +16,7 @@ type UserDB struct {
 // UserExists checks if a user with given username and password exists in the database.
 func (db *UserDB) UserExists(username string, password string) (bool, error) {
 	// Query to check if the user exists
-	queryStmt := `SELECT COUNT(1) FROM User WHERE username=?`
+	queryStmt := `SELECT COUNT(1) FROM UserAccount WHERE Username=? AND Password=?`
 
 	// Use QueryRow to return a row and scan the returned id into the User struct
 	var exists bool
@@ -32,7 +32,7 @@ func (db *UserDB) UserExists(username string, password string) (bool, error) {
 
 // CheckLogin checks if the given username and password match a record in the database.
 func (db *UserDB) CheckLogin(username string, password string) (bool, error) {
-	queryStmt := `SELECT password FROM User WHERE username=?`
+	queryStmt := `SELECT Password FROM UserAccount WHERE Username=?`
 
 	var hashedPassword string
 	err := db.Client.QueryRow(queryStmt, username).Scan(&hashedPassword)
@@ -56,23 +56,13 @@ func (db *UserDB) CheckLogin(username string, password string) (bool, error) {
 	return true, nil
 }
 
-func (db *UserDB) CreateUserCart() (string, error) {
-	cartID := uuid.New().String()
-	query := `INSERT INTO Cart (ID, TotalAmount) VALUES (?, ?)`
-	_, err := db.Client.Exec(query, cartID, 0)
-	if err != nil {
-		return "", err
-	}
-	return cartID, nil
-}
-
 // RegisterUser creates a new user in the database.
-func (db *UserDB) RegisterUser(userID, username, hashedPassword, email, firstName, lastName string, phone string, cartID string) error {
+func (db *UserDB) RegisterUser(userID, username, hashedPassword, email, firstName, lastName string, phone string) error {
 	query := `
-        INSERT INTO User (ID, Username, Password, Email, FirstName, LastName, Phone, CartID)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO UserAccount (ID, Username, Password, Email, FirstName, LastName, Phone)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
     `
-	_, err := db.Client.Exec(query, userID, username, hashedPassword, email, firstName, lastName, phone, cartID)
+	_, err := db.Client.Exec(query, userID, username, hashedPassword, email, firstName, lastName, phone)
 	if err != nil {
 		log.Printf("Error inserting user into database: %v", err)
 		return err
@@ -85,12 +75,13 @@ func (db *UserDB) RegisterUser(userID, username, hashedPassword, email, firstNam
 func (db *UserDB) GetUser(username string) (structs.ActiveUser, error) {
 	var user structs.ActiveUser
 
-	query := `SELECT User.ID, User.Username, User.Email, User.Password, User.FirstName, User.LastName, User.Phone, User.CartID,
-       	   Address.Street, PostalCode.PostalCode 
-              FROM User 
-              LEFT JOIN Address ON User.ID = Address.UserID
-              LEFT JOIN PostalCode ON Address.PostalCode = PostalCode.PostalCode
-              WHERE User.Username = ?`
+	query := `SELECT UserAccount.ID, UserAccount.Username, UserAccount.Email, UserAccount.Password, UserAccount.FirstName, UserAccount.LastName, UserAccount.Phone,
+       UserAddress.Street, PostalCode.PostalCode 
+		FROM UserAccount 
+		LEFT JOIN UserAddress ON UserAccount.ID = UserAddress.UserAccountID
+		LEFT JOIN PostalCode ON UserAddress.PostalCode = PostalCode.PostalCode
+			WHERE UserAccount.Username = ?
+`
 
 	err := db.Client.QueryRow(query, username).Scan(
 		&user.ID,
@@ -100,7 +91,6 @@ func (db *UserDB) GetUser(username string) (structs.ActiveUser, error) {
 		&user.FirstName,
 		&user.LastName,
 		&user.Phone,
-		&user.CartID,
 		&user.Address,
 		&user.PostCode,
 	)
@@ -134,9 +124,9 @@ func (db *UserDB) UpdateUserProfile(user structs.ActiveUser) error {
 		}
 	}()
 
-	// Update User table
+	// Update UserAccount table
 	_, err = tx.Exec(`
-        UPDATE User SET Email=?, FirstName=?, LastName=?, Phone=? WHERE ID=?
+        UPDATE UserAccount SET Email=?, FirstName=?, LastName=?, Phone=? WHERE ID=?
     `, user.Email, user.FirstName, user.LastName, user.Phone, user.ID)
 	if err != nil {
 		return err
@@ -144,7 +134,7 @@ func (db *UserDB) UpdateUserProfile(user structs.ActiveUser) error {
 
 	// Check if an address already exists for the user
 	var existingAddressID string
-	err = tx.QueryRow("SELECT ID FROM Address WHERE UserID = ? AND UserCartID = ?", user.ID, user.CartID).Scan(&existingAddressID)
+	err = tx.QueryRow("SELECT ID FROM UserAddress WHERE UserAccountID = ?", user.ID).Scan(&existingAddressID)
 	if err != nil && err != sql.ErrNoRows {
 		return err
 	}
@@ -154,19 +144,19 @@ func (db *UserDB) UpdateUserProfile(user structs.ActiveUser) error {
 		if existingAddressID != "" {
 			// Update existing address
 			_, err = tx.Exec(`
-				UPDATE Address
+				UPDATE UserAddress
 				SET Street=?, PostalCode=?
-				WHERE UserID=? AND UserCartID=?
-			`, user.Address.String, user.PostCode.String, user.ID, user.CartID)
+				WHERE UserAccountID=?
+			`, user.Address.String, user.PostCode.String, user.ID)
 			if err != nil {
 				return err
 			}
 		} else {
 			// Insert new address
 			_, err = tx.Exec(`
-				INSERT INTO Address (ID, Street, PostalCode, UserID, UserCartID)
-				VALUES (?, ?, ?, ?, ?)
-			`, uuid.New().String(), user.Address.String, user.PostCode.String, user.ID, user.CartID)
+				INSERT INTO UserAddress (ID, Street, PostalCode, UserAccountID)
+				VALUES (?, ?, ?, ?)
+			`, uuid.New().String(), user.Address.String, user.PostCode.String, user.ID)
 			if err != nil {
 				return err
 			}
@@ -174,7 +164,7 @@ func (db *UserDB) UpdateUserProfile(user structs.ActiveUser) error {
 	} else {
 		// If the user did not provide a new address, delete the existing one if it exists
 		if existingAddressID != "" {
-			_, err = tx.Exec("DELETE FROM Address WHERE ID = ?", existingAddressID)
+			_, err = tx.Exec("DELETE FROM UserAddress WHERE ID = ?", existingAddressID)
 			if err != nil {
 				return err
 			}
@@ -207,32 +197,19 @@ func (db *UserDB) DeleteUser(username string) error {
 
 	// Get the user's ID
 	var userID string
-	err = tx.QueryRow("SELECT ID FROM User WHERE Username = ?", username).Scan(&userID)
-	if err != nil {
-		return err
-	}
-
-	// Get the user's CartID
-	var cartID string
-	err = tx.QueryRow("SELECT CartID FROM User WHERE Username = ?", username).Scan(&cartID)
+	err = tx.QueryRow("SELECT ID FROM UserAccount WHERE Username = ?", username).Scan(&userID)
 	if err != nil {
 		return err
 	}
 
 	// Delete Address associated with the user
-	_, err = tx.Exec("DELETE FROM Address WHERE UserID = ?", userID)
+	_, err = tx.Exec("DELETE FROM UserAddress WHERE UserAccountID = ?", userID)
 	if err != nil {
 		return err
 	}
 
 	// Delete User
-	_, err = tx.Exec("DELETE FROM User WHERE Username = ?", username)
-	if err != nil {
-		return err
-	}
-
-	// Delete Cart associated with the user
-	_, err = tx.Exec("DELETE FROM Cart WHERE ID = ?", cartID)
+	_, err = tx.Exec("DELETE FROM UserAccount WHERE Username = ?", username)
 	if err != nil {
 		return err
 	}
@@ -241,7 +218,7 @@ func (db *UserDB) DeleteUser(username string) error {
 }
 
 func (db *UserDB) UpdatePassword(username, newPassword string) error {
-	query := `UPDATE User SET Password = ? WHERE Username = ?`
+	query := `UPDATE UserAccount SET Password = ? WHERE Username = ?`
 	_, err := db.Client.Exec(query, newPassword, username)
 	if err != nil {
 		log.Printf("Error updating password for user %s: %v", username, err)
