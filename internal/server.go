@@ -63,6 +63,10 @@ func Start() {
 		http.ServeFile(w, r, "templates/profile.html")
 	})
 
+	mux.HandleFunc("/product", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "templates/product.html")
+	})
+
 	port := utils.GetPort()
 
 	log.Println("Starting server on port " + port + " ...")
