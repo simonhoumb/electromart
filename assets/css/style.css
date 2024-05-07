@@ -7,7 +7,7 @@
 
 /* Global styles */
 body {
-    font-family: 'Roboto', sans-serif;
+    font-family: Arial, sans-serif;
     background-color: #f5f7fa;
 }
 
@@ -18,10 +18,21 @@ body {
 }
 
 header, nav {
-    background-color: #333;
-    color: white;
+    background-color: #232f3e;
+    color: #ffffff;
     padding: 20px 0;
 }
+
+#cart {
+    margin-right: 10px; /* Adjust as needed */
+}
+
+#cart img {
+    width: 20px; /* Adjust the size of the cart icon */
+    height: auto;
+    cursor: pointer;
+}
+
 
 #user-controls {
     display: flex;
@@ -58,13 +69,13 @@ nav ul li {
 }
 
 nav ul li a {
-    color: white;
+    color: #ffffff;
     text-decoration: none;
     font-size: 16px;
 }
 
 nav ul li a:hover {
-    color: #ddd;
+    color: #dddddd;
 }
 
 .dropdown-content {
@@ -76,7 +87,7 @@ nav ul li a:hover {
 }
 
 .dropdown-content a {
-    color: black;
+    color: #000000;
     padding: 12px 16px;
     text-decoration: none;
     display: block;
@@ -98,7 +109,7 @@ nav ul li a:hover {
     box-shadow: 0 0 30px rgba(0,0,0,0.1);
     padding: 40px;
     border-radius: 10px;
-    background-color: white;
+    background-color: #ffffff;
     position: absolute;
     top: 50%;
     left: 50%;
@@ -109,31 +120,31 @@ nav ul li a:hover {
     margin-top: 10px;
     padding: 12px;
     border-radius: 5px;
-    border: 1px solid #ccc;
+    border: 1px solid #cccccc;
     width: 100%;
     box-sizing: border-box;
 }
 
 #loginModalContent input[type="submit"] {
-    background-color: #333;
-    color: white;
+    background-color: #333333;
+    color: #ffffff;
     cursor: pointer;
     transition: background-color 0.3s;
 }
 
 #loginModalContent input[type="submit"]:hover {
-    background-color: #555;
+    background-color: #555555;
 }
 
 #loginModalContent p {
     margin-top: 25px;
     text-align: center;
-    color: #333;
+    color: #333333;
     font-size: 16px;
 }
 
 #loginModalContent p a {
-    color: #007BFF;
+    color: #007bff;
     text-decoration: none;
 }
 
@@ -154,7 +165,7 @@ nav ul li a:hover {
 
 #loginModalContent .close:hover,
 #loginModalContent .close:focus {
-    color: #000;
+    color: #000000;
     text-decoration: none;
 }
 
@@ -165,7 +176,7 @@ nav ul li a:hover {
     margin-top: 20px;
     padding: 20px;
     background-color: #f2f2f2;
-    border: 1px solid #ddd;
+    border: 1px solid #dddddd;
 }
 
 .product {
@@ -173,9 +184,9 @@ nav ul li a:hover {
     grid-template-columns: 1fr 1fr;
     grid-template-rows: auto auto auto;
     gap: 10px;
-    border: 1px solid #ddd;
+    border: 1px solid #dddddd;
     padding: 20px;
-    background-color: white;
+    background-color: #ffffff;
     margin-bottom: 20px;
 }
 
@@ -204,8 +215,8 @@ nav ul li a:hover {
 
 .show-details-button {
     align-self: flex-end;
-    background-color: #333;
-    color: white;
+    background-color: #333333;
+    color: #ffffff;
     padding: 10px 15px;
     border: none;
     border-radius: 5px;
@@ -216,7 +227,7 @@ nav ul li a:hover {
 }
 
 .show-details-button:hover {
-    background-color: #555;
+    background-color: #555555;
 }
 
 /* Product text styles */
@@ -245,7 +256,7 @@ nav ul li a:hover {
 }
 
 .product-stock {
-    color: #888;
+    color: #888888;
 }
 
 .product-price {
@@ -254,8 +265,8 @@ nav ul li a:hover {
 }
 
 .add-to-cart-button {
-    background-color: #333;
-    color: white;
+    background-color: #333333;
+    color: #ffffff;
     border: none;
     border-radius: 5px;
     padding: 10px 15px;
@@ -264,9 +275,8 @@ nav ul li a:hover {
 }
 
 .add-to-cart-button:hover {
-    background-color: #555;
+    background-color: #555555;
 }
-
 
 /* Dropdown menu styles */
 #user-menu {
@@ -274,7 +284,7 @@ nav ul li a:hover {
     position: absolute;
     top: calc(100%);
     right: 0;
-    background-color: white;
+    background-color: #ffffff;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
     z-index: 1;
     width: auto;
@@ -282,7 +292,7 @@ nav ul li a:hover {
 }
 
 #user-menu a, #logoutButton {
-    color: black;
+    color: #000000;
     padding: 12px 16px;
     text-decoration: none;
     display: block;
@@ -295,7 +305,7 @@ nav ul li a:hover {
 
 /* Profile and logout button styles */
 #user-menu .user-menu-item {
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid #dddddd;
 }
 
 #user-menu .user-menu-item:last-child {
@@ -334,7 +344,7 @@ nav {
     width: 100%;
     padding: 10px;
     border-radius: 5px;
-    border: 1px solid #ccc;
+    border: 1px solid #cccccc;
 }
 
 nav #search-bar {
@@ -354,7 +364,7 @@ nav #search-bar {
 
 #search-query {
     padding: 10px;
-    border: 1px solid #ccc;
+    border: 1px solid #cccccc;
     border-radius: 5px;
     font-size: 14px;
     flex: 1;
@@ -364,7 +374,7 @@ nav #search-bar {
 
 #searchSubmit {
     background-color: #007bff;
-    color: white;
+    color: #ffffff;
     border: none;
     border-radius: 5px;
     padding: 8px 16px;
@@ -378,21 +388,18 @@ nav #search-bar {
     background-color: #0056b3;
 }
 
-
-
-
 #sort-dropdown {
     position: absolute;
     right: 20px; /* Adjust as needed */
     padding: 10px;
-    border: 1px solid #ccc;
+    border: 1px solid #cccccc;
     border-radius: 5px;
     font-size: 16px;
 }
 
 .container {
     position: relative;
-    top:10px;
+    top: 10px;
 }
 
 .breadcrumbs {
