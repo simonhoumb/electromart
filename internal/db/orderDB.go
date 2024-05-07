@@ -20,13 +20,14 @@ func AddOrder(order structs.ProductOrder) (string, error) {
 
 	// Insert product
 	_, err2 := Client.Exec(
-		`INSERT INTO ProductOrder (ID, UserID, TotalAmount, OrderDate, ShippedDate, EstimatedDelivery, Status, 
+		`INSERT INTO ProductOrder (ID, UserAccountID, OrderDate, ShippedDate, EstimatedDelivery, DeliveryFee ,Status, 
 Comments) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
 		id,
-		order.TotalAmount,
+		order.UserAccountID,
 		order.OrderDate,
 		order.ShippedDate,
 		order.EstimatedDelivery,
+		order.DeliveryFee,
 		order.Status,
 		order.Comments,
 	)
@@ -38,8 +39,8 @@ Comments) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
 	return id, nil // Return the UUID
 }
 
-func GetAllOrdersByUserID(userID string) ([]structs.ProductOrder, error) {
-	rows, err := Client.Query(`SELECT * FROM ProductOrder WHERE UserID = ?`, userID)
+func GetAllOrdersByUserAccountID(userAccountID string) ([]structs.ProductOrder, error) {
+	rows, err := Client.Query(`SELECT * FROM ProductOrder WHERE UserAccountID = ?`, userAccountID)
 	if err != nil {
 		log.Println("Error when selecting all orders: ", err)
 		return nil, err
@@ -53,21 +54,21 @@ func GetAllOrdersByUserID(userID string) ([]structs.ProductOrder, error) {
 	return foundOrders, nil
 }
 
-func GetOrderByID(orderID string) (*structs.ProductOrder, error) {
-	exists, err := productOrderExists(orderID)
+func GetProductOrderByID(productOrderID string) (*structs.ProductOrder, error) {
+	exists, err := productOrderExists(productOrderID)
 	if err != nil {
 		log.Println("Error when checking if order exists: ", err)
 		return nil, err
 	}
 	if exists {
 		var order structs.ProductOrder
-		err2 := Client.QueryRow(`SELECT * FROM ProductOrder WHERE ID = ?`, orderID).Scan(
+		err2 := Client.QueryRow(`SELECT * FROM ProductOrder WHERE ID = ?`, productOrderID).Scan(
 			&order.ID,
-			&order.UserID,
-			&order.TotalAmount,
+			&order.UserAccountID,
 			&order.OrderDate,
 			&order.ShippedDate,
 			&order.EstimatedDelivery,
+			&order.DeliveryFee,
 			&order.Status,
 			&order.Comments,
 		)
@@ -82,8 +83,8 @@ func GetOrderByID(orderID string) (*structs.ProductOrder, error) {
 	}
 }
 
-func GetAllOrderItemsByOrderID(orderID string) ([]structs.OrderItem, error) {
-	rows, err := Client.Query(`SELECT * FROM OrderItem WHERE OrderID = ?`, orderID)
+func GetAllOrderItemsByProductOrderID(productOrderID string) ([]structs.OrderItem, error) {
+	rows, err := Client.Query(`SELECT * FROM OrderItem WHERE ProductOrderID = ?`, productOrderID)
 	if err != nil {
 		log.Println("Error when selecting all order items: ", err)
 		return nil, err
@@ -110,7 +111,17 @@ func UpdateProductOrder(productOrder structs.ProductOrder) error {
 	}
 	if exists {
 		_, err2 := Client.Exec(
-			`UPDATE ProductOrder SET Name = ?, BrandID = ?, CategoryID = ?, Description = ?, QtyInStock = ?, Price = ? WHERE ID = ?`,
+			`UPDATE ProductOrder SET UserAccountID = ?, OrderDate = ?, ShippedDate = ?, EstimatedDelivery = ?, 
+DeliveryFee = ?, 
+Status = ?, Comments = ? WHERE ID = ?`,
+			productOrder.UserAccountID,
+			productOrder.OrderDate,
+			productOrder.ShippedDate,
+			productOrder.EstimatedDelivery,
+			productOrder.DeliveryFee,
+			productOrder.Status,
+			productOrder.Comments,
+			productOrder.ID,
 		)
 		if err2 != nil {
 			log.Println("Error when updating order: ", err2)
@@ -155,11 +166,11 @@ func rowsToProductOrderSlice(rows *sql.Rows) ([]structs.ProductOrder, error) {
 		var order structs.ProductOrder
 		err2 := rows.Scan(
 			&order.ID,
-			&order.UserID,
-			&order.TotalAmount,
+			&order.UserAccountID,
 			&order.OrderDate,
 			&order.ShippedDate,
 			&order.EstimatedDelivery,
+			&order.DeliveryFee,
 			&order.Status,
 			&order.Comments,
 		)
@@ -179,10 +190,10 @@ func rowsToOrderItemSlice(rows *sql.Rows) ([]structs.OrderItem, error) {
 	for rows.Next() {
 		var orderItem structs.OrderItem
 		err2 := rows.Scan(
-			&orderItem.ID,
-			&orderItem.OrderID,
 			&orderItem.ProductID,
+			&orderItem.ProductOrderID,
 			&orderItem.Quantity,
+			&orderItem.SubTotal,
 		)
 		if err2 != nil {
 			return nil, err2
