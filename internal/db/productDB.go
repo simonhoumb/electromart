@@ -17,9 +17,11 @@ func SearchProducts(query string) ([]structs.Product, error) {
 	lowerQuery := strings.ToLower(query) // Convert query to lowercase
 	rows, err := Client.Query(
 		`SELECT * FROM Product
-      WHERE LOWER(Name) LIKE ? OR Description LIKE ? OR BrandName IN (SELECT ID FROM Brand WHERE LOWER(Name) LIKE ?)
-        AND CategoryName IN (SELECT ID FROM Category WHERE LOWER(Name) LIKE ?);
-  `, "%"+lowerQuery+"%", "%"+lowerQuery+"%", "%"+lowerQuery+"%", "%"+lowerQuery+"%",
+WHERE LOWER(Name) LIKE ? 
+   OR LOWER(Description) LIKE ? 
+   OR LOWER(BrandName) LIKE ? 
+   OR LOWER(CategoryName) LIKE ?`,
+		"%"+lowerQuery+"%", "%"+lowerQuery+"%", "%"+lowerQuery+"%", "%"+lowerQuery+"%",
 	)
 	if err != nil {
 		log.Println("Error when querying for products: ", err)
