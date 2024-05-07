@@ -27,6 +27,7 @@ function fetchProducts(query="") {
             data.forEach(product => {
                 const productElement = document.createElement('div');
                 productElement.className = 'product';
+                productElement.dataset.productId = product.id;
 
                 const productName = document.createElement('span');
                 productName.textContent = product.name;
@@ -74,6 +75,18 @@ function fetchProducts(query="") {
 
                 productsContainer.appendChild(productElement);
             });
+
+            // Add event listener for product clicks
+            productsContainer.addEventListener('click', function(event) {
+                const productElement = event.target.closest('.product');
+                if (!productElement) return;
+
+                const productId = productElement.dataset.productId;
+                if (productId) {
+                    window.location.href = '/product?id=' + productId;
+                }
+            });
+
             if (productsContainer.children.length === 0) {
                 const noResults = document.createElement('p');
                 noResults.textContent = 'No results found.';
@@ -84,10 +97,16 @@ function fetchProducts(query="") {
 }
 
 function fetchCategories() {
-    fetch('/api/categories')
-        .then(response => response.json())
+    fetch('/api/v1/categories/')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to fetch categories');
+            }
+            return response.json();
+        })
         .then(categories => {
             const dropdown = document.querySelector('#categories');
+            dropdown.innerHTML = ''; // Clear previous categories
             categories.forEach(category => {
                 const a = document.createElement('a');
                 a.text = category.name;
@@ -97,6 +116,7 @@ function fetchCategories() {
         })
         .catch(error => console.error('Error fetching categories:', error));
 }
+
 
 function checkLoginState() {
     fetch('/api/check_login', { credentials: 'include' })
