@@ -2,12 +2,58 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EStore</title>
-    <link rel="stylesheet" href="../assets/css/Main.css">
-    <link rel="stylesheet" href="../assets/css/login.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
 </head>
-
 <body>
+<header>
+    <div class="container">
+        <h1>Welcome to EStore!</h1>
+        <div id="user-controls">
+            <div id="user-logged" style="display: none;">
+                <span id="logged-username" onclick="openUserMenu()">Username</span>
+                <div id="user-menu">
+                    <a href="/profile">Profile</a>
+                    <button id="logoutButton" onclick="logoutUser()">Logout</button>
+                </div>
+
+            </div>
+            <div id="user-not-logged">
+                <button id="loginButton" onclick="login()">Login</button>
+            </div>
+        </div>
+
+    </div>
+</header>
+
+<nav>
+    <div class="container">
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li class="dropdown">
+                <a href="#">Category</a>
+                <div class="dropdown-content" id="categories">
+                    <!-- Categories will be added here by JavaScript -->
+                </div>
+            </li>
+            <!-- Add more items as needed -->
+        </ul>
+    </div>
+</nav>
+
+<section class="container">
+    <div id="cart"><!-- Cart items will be added here --></div>
+    <form id="search-form">
+        <input type="text" id="search-query" placeholder="Search products">
+        <button type="submit">Search</button>
+    </form>
+    <h2>Our Products</h2>
+    <div id="product-filters"><!-- Filters will be added here --></div>
+
+    <div id="products" class="product-grid"><!-- Products will be added here by JavaScript --></div>
+</section>
+
 <!-- The Login Modal -->
 <div id="loginModal">
     <div id="loginModalContent">
@@ -27,42 +73,7 @@
     </div>
 </div>
 
-<header>
-    <h1>Welcome to EStore!</h1>
-    <div id="user-logged" style="display: none;">
-        <a id="logged-username" href="/profile"></a>
-        <button onclick="logoutUser()">Logout</button>
-    </div>
-    <div id="user-not-logged">
-        <button onclick="login()">Login</button>
-    </div>
-</header>
-
-<!-- Main navigation menu -->
-<nav>
-    <li><a href="/">Home</a></li>
-    <div class="dropdown">
-        <a href="#category">Category</a>
-        <div class="dropdown-content" id="categories">
-            <!-- Categories will be added here by JavaScript -->
-        </div>
-    </div>
-    <!-- Add more items as needed -->
-</nav>
-
-<section>
-    <div id="cart"><!-- Cart items will be added here --></div>
-    <form id="search-form">
-        <input type="text" id="search-query" placeholder="Search products">
-        <button type="submit">Search</button>
-    </form>
-    <h2>Our Products</h2>
-    <div id="product-filters"><!-- Filters will be added here --></div>
-
-    <div id="products"><!-- Products will be added here by JavaScript --></div>
-</section>
-
 <script src="../assets/javascript/login.js"></script>
-<script src="../assets/javascript/Main.js"></script>
+<script src="../assets/javascript/main.js"></script>
 </body>
 </html>

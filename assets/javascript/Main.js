@@ -1,58 +1,12 @@
+// main.js
 document.addEventListener('DOMContentLoaded', (event) => {
-    const products = [
-        {name: 'Product 1', description: 'This is product 1', price: '$100'},
-        {name: 'Product 2', description: 'This is product 2', price: '$200'},
-    ];
-
-    const productsContainer = document.querySelector('#products');
-
-    products.forEach(product => {
-        const productElement = document.createElement('div');
-        productElement.className = 'product';
-
-        const productName = document.createElement('h3');
-        productName.textContent = product.name;
-
-        const productDescription = document.createElement('p');
-        productDescription.textContent = product.description;
-
-        const productPrice = document.createElement('p');
-        productPrice.textContent = product.price;
-
-        productElement.appendChild(productName);
-        productElement.appendChild(productDescription);
-        productElement.appendChild(productPrice);
-
-        productsContainer.appendChild(productElement);
-    });
+    // Fetch products and categories, and check login state
+    fetchProducts();
+    fetchCategories();
+    checkLoginState();
 });
 
-function login() {
-    var modal = document.getElementById("loginModal");
-    modal.style.display = "block";
-}
-
-function closeModal() {
-    var modal = document.getElementById("loginModal");
-    modal.style.display = "none";
-}
-
-function checkLoginState() {
-    fetch('/api/check_login', { credentials: 'include' })
-        .then(response => response.json())
-        .then(respJson => {
-            if (respJson.logged_in) {
-                document.getElementById('logged-username').textContent = respJson.username;
-                document.getElementById('user-not-logged').style.display = 'none';
-                document.getElementById('user-logged').style.display = 'block';
-            } else {
-                document.getElementById('user-not-logged').style.display = 'block';
-                document.getElementById('user-logged').style.display = 'none';
-            }
-        }).catch(error => console.error('Error checking login:', error));
-}
-
-window.onload = function() {
+function fetchProducts() {
     fetch('/products')
         .then(response => response.json())
         .then(data => {
@@ -76,15 +30,14 @@ window.onload = function() {
 
                 productsContainer.appendChild(productElement);
             });
-        });
-
-    fetch('/api/categories')
-        .then(response => {
-            console.log('fetch response:', response);
-            return response.json();
         })
+        .catch(error => console.error('Error fetching products:', error));
+}
+
+function fetchCategories() {
+    fetch('/api/categories')
+        .then(response => response.json())
         .then(categories => {
-            console.log('fetch data:', categories);
             const dropdown = document.querySelector('#categories');
             categories.forEach(category => {
                 const a = document.createElement('a');
@@ -94,13 +47,68 @@ window.onload = function() {
             });
         })
         .catch(error => console.error('Error fetching categories:', error));
-
-    checkLoginState();
 }
 
+function checkLoginState() {
+    fetch('/api/check_login', { credentials: 'include' })
+        .then(response => response.json())
+        .then(respJson => {
+            const userNotLogged = document.getElementById('user-not-logged');
+            const userLogged = document.getElementById('user-logged');
+            const logoutButton = document.getElementById('logoutButton');
+
+            if (respJson.logged_in) {
+                document.getElementById('logged-username').textContent = respJson.username;
+                userNotLogged.style.display = 'none';
+                userLogged.style.display = 'block';
+                logoutButton.style.display = 'block'; // Show logout button
+            } else {
+                userNotLogged.style.display = 'block';
+                userLogged.style.display = 'none';
+                logoutButton.style.display = 'none'; // Hide logout button
+            }
+        })
+        .catch(error => console.error('Error checking login:', error));
+}
+
+
+function logoutUser() {
+    fetch('/api/logout', { credentials: 'include' })
+        .then(response => response.text())
+        .then(text => {
+            checkLoginState();
+            window.location.href = "/";
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+function openUserMenu() {
+    var userMenu = document.getElementById("user-menu");
+    userMenu.classList.toggle("show");
+}
+
+// Add event listener to the username to open user menu
+document.getElementById("logged-username").addEventListener("click", function() {
+    openUserMenu();
+});
+
+// Close the user menu if the user clicks outside of it
 window.onclick = function(event) {
-    var modal = document.getElementById("loginModal");
-    if (event.target == modal) {
-        modal.style.display = "none";
+    if (!event.target.matches('#logged-username')) {
+        var userMenu = document.getElementById("user-menu");
+        if (userMenu.classList.contains('show')) {
+            userMenu.classList.remove('show');
+        }
     }
 }
+
+function login() {
+    var modal = document.getElementById("loginModal");
+    modal.style.display = "block"; // Display the modal when login button is clicked
+}
+
+function closeModal() {
+    var modal = document.getElementById("loginModal");
+    modal.style.display = "none"; // Hide the modal when close button is clicked
+}
+
