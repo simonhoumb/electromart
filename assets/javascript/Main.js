@@ -1,35 +1,71 @@
 // main.js
+const productsContainer = document.querySelector('#products');
+
 document.addEventListener('DOMContentLoaded', (event) => {
-    // Fetch products and categories, and check login state
+    const searchForm = document.getElementById('search-form');
+    const searchQueryInput = document.getElementById('search-query');
+    let query = "";
+
+    searchForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        query = searchQueryInput.value.trim(); // Update query with trimmed input value
+        fetchProducts(query); // Fetch products with the updated query
+    });
+
+    // Fetch all products when the page loads
     fetchProducts();
+
     fetchCategories();
     checkLoginState();
 });
 
-function fetchProducts() {
-    fetch('/products')
+function fetchProducts(query="") {
+    fetch('http://localhost:8000/api/v1/products/search/'+query)
         .then(response => response.json())
         .then(data => {
-            const productsContainer = document.querySelector('#products');
+            productsContainer.innerHTML = ''; // Clear products container
             data.forEach(product => {
                 const productElement = document.createElement('div');
                 productElement.className = 'product';
 
-                const productName = document.createElement('h3');
+                const productName = document.createElement('span');
                 productName.textContent = product.name;
 
                 const productDescription = document.createElement('p');
                 productDescription.textContent = product.description;
 
+                const productPriceLabel = document.createElement('span');
+                productPriceLabel.className = 'product-label'; // Add class for styling
+                productPriceLabel.textContent = 'Kr ';
+
                 const productPrice = document.createElement('p');
                 productPrice.textContent = product.price;
 
+                const productQuantityLabel = document.createElement('span');
+                productQuantityLabel.className = 'product-label'; // Add class for styling
+
+                const productQuantity = document.createElement('p');
+                if (product.hasOwnProperty('qtyInStock') && product.qtyInStock > 0) {
+                    productQuantityLabel.textContent = 'In Stock: ';
+                    productQuantity.textContent = product.qtyInStock;
+                } else {
+                    productQuantity.textContent = 'Product not in stock';
+                }
+
                 productElement.appendChild(productName);
                 productElement.appendChild(productDescription);
+                productElement.appendChild(productPriceLabel);
                 productElement.appendChild(productPrice);
+                productElement.appendChild(productQuantityLabel);
+                productElement.appendChild(productQuantity);
 
                 productsContainer.appendChild(productElement);
             });
+            if (productsContainer.children.length === 0) {
+                const noResults = document.createElement('p');
+                noResults.textContent = 'No results found.';
+                productsContainer.appendChild(noResults);
+            }
         })
         .catch(error => console.error('Error fetching products:', error));
 }
