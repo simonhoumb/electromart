@@ -17,9 +17,11 @@ func SearchProducts(query string) ([]structs.Product, error) {
 	lowerQuery := strings.ToLower(query) // Convert query to lowercase
 	rows, err := Client.Query(
 		`SELECT * FROM Product
-      WHERE LOWER(Name) LIKE ? OR Description LIKE ? OR BrandID IN (SELECT ID FROM Brand WHERE LOWER(Name) LIKE ?)
-        AND CategoryID IN (SELECT ID FROM Category WHERE LOWER(Name) LIKE ?);
-  `, "%"+lowerQuery+"%", "%"+lowerQuery+"%", "%"+lowerQuery+"%", "%"+lowerQuery+"%",
+WHERE LOWER(Name) LIKE ? 
+   OR LOWER(Description) LIKE ? 
+   OR LOWER(BrandName) LIKE ? 
+   OR LOWER(CategoryName) LIKE ?`,
+		"%"+lowerQuery+"%", "%"+lowerQuery+"%", "%"+lowerQuery+"%", "%"+lowerQuery+"%",
 	)
 	if err != nil {
 		log.Println("Error when querying for products: ", err)
@@ -32,7 +34,7 @@ func SearchProducts(query string) ([]structs.Product, error) {
 		}
 	}(rows)
 
-	products, err3 := rowsToSlice(rows)
+	products, err3 := rowsToProductSlice(rows)
 	if err3 != nil {
 		log.Println("Error when converting rows to slice: ", err3)
 		return nil, err3
@@ -50,7 +52,7 @@ func GetAllProducts() ([]structs.Product, error) {
 		return nil, err
 	}
 
-	foundProducts, err2 := rowsToSlice(rows)
+	foundProducts, err2 := rowsToProductSlice(rows)
 	if err2 != nil {
 		log.Println("Error when converting rows to slice: ", err2)
 		return nil, err2
@@ -72,8 +74,8 @@ func GetProductByID(id string) (*structs.Product, error) {
 		err2 := Client.QueryRow("SELECT * FROM Product WHERE ID = ?", id).Scan(
 			&product.ID,
 			&product.Name,
-			&product.BrandID,
-			&product.CategoryID,
+			&product.BrandName,
+			&product.CategoryName,
 			&product.Description,
 			&product.QtyInStock,
 			&product.Price,
@@ -102,12 +104,12 @@ func AddProduct(product structs.Product) (string, error) {
 
 	// Insert product
 	_, err2 := Client.Exec(
-		`INSERT INTO Product (ID, Name, BrandID, CategoryID, Description, QtyInStock, 
+		`INSERT INTO Product (ID, Name, BrandName, CategoryName, Description, QtyInStock, 
 Price) VALUES (?, ?, ?, ?, ?, ?, ?)`,
 		id,
 		product.Name,
-		product.BrandID,
-		product.CategoryID,
+		product.BrandName,
+		product.CategoryName,
 		product.Description,
 		product.QtyInStock,
 		product.Price,
@@ -133,10 +135,11 @@ func UpdateProduct(product structs.Product) error {
 	}
 	if exists {
 		_, err2 := Client.Exec(
-			"UPDATE Product SET Name = ?, BrandID = ?, CategoryID = ?, Description = ?, QtyInStock = ?, Price = ? WHERE ID = ?",
+			`UPDATE Product SET Name = ?, BrandName = ?, CategoryName = ?, Description = ?, QtyInStock = ?, 
+Price = ? WHERE ID = ?`,
 			product.Name,
-			product.BrandID,
-			product.CategoryID,
+			product.BrandName,
+			product.CategoryName,
 			product.Description,
 			product.QtyInStock,
 			product.Price,
@@ -177,17 +180,17 @@ func DeleteProductByID(id string) error {
 }
 
 /*
-rowsToSlice converts the rows from a SQL query to a slice of Product structs.
+rowsToProductSlice converts the rows from a SQL query to a slice of Product structs.
 */
-func rowsToSlice(rows *sql.Rows) ([]structs.Product, error) {
+func rowsToProductSlice(rows *sql.Rows) ([]structs.Product, error) {
 	var productSlice []structs.Product
 	for rows.Next() {
 		var product structs.Product
 		err2 := rows.Scan(
 			&product.ID,
 			&product.Name,
-			&product.BrandID,
-			&product.CategoryID,
+			&product.BrandName,
+			&product.CategoryName,
 			&product.Description,
 			&product.QtyInStock,
 			&product.Price,

@@ -28,7 +28,7 @@ See products_handler.go for an example of how to use this function. TODO: Remove
 func HandleError(w http.ResponseWriter, r *http.Request, status int, err error, errorMessage string) bool {
 	if err != nil {
 		http.Error(w, errorMessage, status)
-		log.Printf("Error handled by HandleError:\n\tError: %v\n\tRequest: %v", err, r)
+		log.Printf("Error handled by HandleError:\n\tError: %v\n\tReturned to user: %d %v\n\tRequest: %v", err, status, errorMessage, r)
 		return true
 	}
 	return false

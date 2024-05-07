@@ -1,6 +1,10 @@
 package categories
 
 import (
+	"Database_Project/internal/db"
+	"Database_Project/internal/structs"
+	"Database_Project/internal/utils"
+	"encoding/json"
 	"fmt"
 	"net/http"
 )
@@ -37,45 +41,39 @@ func HandleCategories(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleGetAllRequest(w http.ResponseWriter, r *http.Request) {
-	//// Get all categories
-	//categories, err := db.GetAllCategories()
-	//if utils.HandleError(w, r, http.StatusInternalServerError, err, "error getting categories from database") {
-	//	return
-	//}
-	//
-	//// Return the categories
-	//if categoriesJSON, err := json.Marshal(categories); utils.HandleError(w, r, http.StatusInternalServerError, err, "error during encoding response") {
-	//	return
-	//} else {
-	//	if _, err := w.Write(categoriesJSON); utils.HandleError(w, r, http.StatusInternalServerError, err, "error writing response") {
-	//		return
-	//	}
-	//}
+	// Get all categories
+	categories, err := db.GetAllCategories()
+	if utils.HandleError(w, r, http.StatusInternalServerError, err, "error getting categories from database") {
+		return
+	}
+
+	// Return the categories
+	if categoriesJSON, err := json.Marshal(categories); utils.HandleError(w, r, http.StatusInternalServerError, err, "error during encoding response") {
+		return
+	} else {
+		if _, err := w.Write(categoriesJSON); utils.HandleError(w, r, http.StatusInternalServerError, err, "error writing response") {
+			return
+		}
+	}
 }
 
 func handleCreateRequest(w http.ResponseWriter, r *http.Request) {
-	//var category structs.Category
-	//
-	//if err := json.NewDecoder(r.Body).Decode(&category); utils.HandleError(w, r, http.StatusBadRequest, err, "error during decoding request") {
-	//	return
-	//}
-	//
-	//if err := category.ValidateNewCategoryRequest(); utils.HandleError(w, r, http.StatusBadRequest, err, "invalid request json, check documentation") {
-	//	return
-	//}
-	//
-	//// Create the category
-	//categoryID, err := db.AddCategory(category)
-	//if utils.HandleError(w, r, http.StatusInternalServerError, err, "error adding category to database") {
-	//	return
-	//}
-	//
-	//// Two above in one if statement
-	//if categoryIDJSON, err := json.Marshal(structs.CreateCategoryResponse{ID: categoryID}); utils.HandleError(w, r, http.StatusInternalServerError, err, "error during encoding response") {
-	//	return
-	//} else {
-	//	if _, err := w.Write(categoryIDJSON); utils.HandleError(w, r, http.StatusInternalServerError, err, "error writing response") {
-	//		return
-	//	}
-	//}
+	var category structs.Category
+
+	if err := json.NewDecoder(r.Body).Decode(&category); utils.HandleError(w, r, http.StatusBadRequest, err, "error during decoding request") {
+		return
+	}
+
+	if err := category.Validate(); utils.HandleError(w, r, http.StatusBadRequest, err, "invalid request json, check documentation") {
+		return
+	}
+
+	// Create the category
+	err := db.AddCategory(category)
+	if utils.HandleError(w, r, http.StatusInternalServerError, err, "error adding category to database") {
+		return
+	}
+
+	// No content to return
+	w.WriteHeader(http.StatusNoContent)
 }
