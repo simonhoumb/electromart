@@ -24,7 +24,7 @@ class EStore {
         const query = this.searchQueryInput.value.trim();
         if (query !== "") {
             this.fetchProducts(query);
-            this.updateBreadcrumbs('Search Results'); // Update breadcrumbs for search
+            this.updateBreadcrumbs('Search Results: '); // Update breadcrumbs for search
         } else {
             alert("Please enter a search query.");
         }
