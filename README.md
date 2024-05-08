@@ -31,7 +31,7 @@ Manages the registration of new product and its details. This includes brand, ca
 ```http
 Method: POST
 Path: /api/v1/products/
-Content type: application/json
+Content-Type: application/json
 ```
 
 Body example:
