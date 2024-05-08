@@ -51,16 +51,20 @@ func Start() {
 
 	mux.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("./assets"))))
 
-	mux.HandleFunc("/loginPage", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "templates/Login.html")
 	})
 
-	mux.HandleFunc("/registerPage", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/register", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "templates/register.html")
 	})
 
 	mux.HandleFunc("/profile", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "templates/profile.html")
+	})
+
+	mux.HandleFunc("/product", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "templates/product.html")
 	})
 
 	port := utils.GetPort()
