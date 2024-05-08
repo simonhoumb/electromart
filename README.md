@@ -1,7 +1,7 @@
 # ElectroMart ⚡️🛒
 
 ## Description 📜
-Electro mart is a web application that allows users to buy electronics.
+ElectroMart is a web application that allows users to buy electronic products.
 The application is built as a part of the course IDATG2204 Datamodellering og databasesystemer (2024 VÅR) at NTNU.
 
 ## How to run the app 🤨
@@ -17,7 +17,7 @@ The service provides the following endpoints:
 /api/v1/categories/
 /api/v1/brands/
 ```
-Note: where the user needs to provide an ID, it can be found using the `View all` endpoint. or the `Search` endpoints.
+Note: where the user needs to provide an ID, it can be found using the `View all` endpoints or the `Search` endpoints.
 
 #### Products
 The initial endpoint focuses on the management products stored in the database.
@@ -98,6 +98,58 @@ Body (exemplary code):
     "price": 999
 }
 ```
+##### Search for products
+
+Lets the user search for products using a query. The query is used to find a match in either product name, brand name, category name or description. The search is not case-sensitive.
+
+###### Request
+
+A `GET` request to the endpoint should return all products in the search result.
+
+```text
+Method: GET
+Path: /api/v1/products/search/{query}
+```
+
+###### Response
+
+* Content type: `application/json`
+
+Body (exemplary code):
+
+```json lines
+[
+    {
+        "id": "ca868913-0d16-11ef-96c4-fa163ecc81b6",
+        "name": "iPhone 13",
+        "brandName": "Apple",
+        "categoryName": "Smartphones",
+        "description": "Latest iPhone model",
+        "qtyInStock": 100,
+        "price": 9999.99
+    },
+    {
+        "id": "ca86c85d-0d16-11ef-96c4-fa163ecc81b6",
+        "name": "MacBook Pro",
+        "brandName": "Apple",
+        "categoryName": "Laptops",
+        "description": "Latest MacBook model",
+        "qtyInStock": 100,
+        "price": 1299.99
+    },
+    {
+        "id": "ca86d4fc-0d16-11ef-96c4-fa163ecc81b6",
+        "name": "AirPods Pro",
+        "brandName": "Apple",
+        "categoryName": "Audio",
+        "description": "Wireless earbuds with noise cancellation",
+        "qtyInStock": 50,
+        "price": 2499.99
+    }
+]
+```
+
+The response above is the result from the request url `/api/v1/products/search/apple` 
 
 ##### View all registered products
 
@@ -177,7 +229,7 @@ Body (exemplary code):
 
 This is the response to the change request.
 
-* Status code: `204 No Content` if the update was succsessful.
+* Status code: `204 No Content` if the update was successful.
 * Body: empty
 
 ##### Delete a specific registered dashboard configuration
@@ -210,7 +262,6 @@ This is the response to the delete request.
 * Body: empty
 
 ---
-
 
 #### Categories
 
