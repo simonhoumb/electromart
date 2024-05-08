@@ -20,11 +20,11 @@ The service provides the following endpoints:
 Note: where the user needs to provide an ID, it can be found using the `View all` endpoints or the `Search` endpoints.
 
 #### Products
-The initial endpoint focuses on the management products stored in the database.
+The initial endpoint focuses on the management of products stored in the database.
 
 ##### Add new product to database
 
-Manages the registration of new product and its details. This includes brand, category, quantity in stock, price name and description. Before adding the user has to make sure that both the category and brand already exists in the database.
+Manages the registration of new product and its details. This includes brand, category, quantity in stock, price name and description. Before adding the user has to make sure that both the category and brand that is referenced already exists in the database.
 
 ###### Request
 
@@ -53,7 +53,7 @@ The response to the POST request on the endpoint stores the product on the serve
 
 * Content type: application/json
 
-Body (exemplary code for registered configuration):
+Body (exemplary code for registered product):
 
 ```json
 {
@@ -66,7 +66,7 @@ Body (exemplary code for registered configuration):
 Enables retrieval of a specific product stored in the database.
 ###### Request
 
-The following shows a request for an individual configuration identified by its ID.
+The following shows a request for an individual product identified by its ID.
 
 ```text
 Method: GET
@@ -77,7 +77,7 @@ Path: /api/v1/products/{id}
 
 Example request:
 
-```http request
+```text
 /api/v1/product/7acef38c-0d18-11ef-96c4-fa163ecc81b6
 ```
 
@@ -232,9 +232,9 @@ This is the response to the change request.
 * Status code: `204 No Content` if the update was successful.
 * Body: empty
 
-##### Delete a specific registered dashboard configuration
+##### Delete a specific product
 
-Enabling the deletion of a specific product.
+Enables the deletion of a specific product.
 
 ###### Request
 
@@ -250,7 +250,7 @@ Path: /api/v1/products/{id}
 
 Example request:
 
-```http request
+```text
 /api/v1/products/ca86bc9b-0d16-11ef-96c4-fa163ecc81b6
 ```
 
@@ -265,7 +265,336 @@ This is the response to the delete request.
 
 #### Categories
 
+This endpoint focuses on the management of categories stored in the database.
+
+##### Add new category to database
+
+Manages the registration of new category and its details. This includes name and description.
+
+###### Request
+
+```http
+Method: POST
+Path: /api/v1/categories/
+Content-Type: application/json
+```
+
+Body example:
+
+```json lines
+{
+    "name": "Supacategory",
+    "description": "Supa supa supa"
+}
+```
+
+###### Response
+
+The response to the POST request on the endpoint stores the category on the server and returns the associated ID. 
+
+* Status Code: `204 No Content`
+* Body: empty
+
+##### View a specific category
+
+Enables retrieval of a specific category stored in the database.
+
+###### Request
+
+The following shows a request for an individual category identified by its ID.
+
+```text
+Method: GET
+Path: /api/v1/categories/{name}
+```
+
+* `name` is the name associated with the specific category. This is not case-sensitive.
+
+Example request:
+
+```text
+/api/v1/category/smartphones
+```
+
+###### Response
+
+* Content type: `application/json`
+
+Body (exemplary code):
+
+```json
+{
+    "name": "Smartphones",
+    "description": "Mobile devices with advanced computing capabilities"
+}
+```
+
+##### View all registered categories
+
+Enables retrieval of all categories.
+
+###### Request
+
+A `GET` request to the endpoint should return all categories.
+
+```text
+Method: GET
+Path: /api/v1/categories/
+```
+
+###### Response
+
+* Content type: `application/json`
+
+Body (exemplary code):
+
+```json lines
+[
+    {
+        "name": "Accessories",
+        "description": "Additional items that complement electronic devices"
+    },
+    {
+        "name": "Appliances",
+        "description": "Electrical devices used for performing household tasks"
+    },
+    {
+        "name": "Audio",
+        "description": "Electronic devices for reproducing sound"
+    },
+]
+```
+
+The response should return a collection of all stored categories.
+
+##### Update a specific category
+Enables the replacing of specific category.
+
+###### Request
+
+The following shows a request for an updated category.
+
+```
+Method: PUT
+Path: /api/v1/categories/{name}
+```
+
+* `name` is the name associated with the specific category and must match in the provided url and body.
+
+Example request: ```/api/v1/categories/smartphones```
+
+Body (exemplary code):
+
+```json lines
+{
+    "name": "Smartphones",
+    "description": "Mobile devices with advanced computing capabilities"
+}
+```
+
+###### Response
+
+This is the response to the change request.
+
+* Status code: `204 No Content` if the update was successful.
+* Body: empty
+
+##### Delete a specific category
+
+Enabling the deletion of a specific category.
+
+###### Request
+
+The following shows a request for deletion of an individual category identified by its name.
+
+```text
+Method: DELETE
+Path: /api/v1/categories/{name}
+```
+
+* `name` is the name associated with the specific category.
+
+Example request:
+
+```text
+/api/v1/categories/smartphones
+```
+
+###### Response
+
+This is the response to the delete request.
+
+* Status code: `204 No Content`.
+* Body: empty
+
+---
+
 #### Brands
+
+This endpoint focuses on the management of brands stored in the database.
+
+##### Add new brand to database
+
+Manages the registration of new brand and its details. This includes name and description.
+
+###### Request
+
+```http
+Method: POST
+Path: /api/v1/brands/
+Content-Type: application/json
+```
+
+Body example:
+
+```json lines
+{
+    "name": "Supabrand",
+    "description": "Hes insane :D"
+}
+```
+
+###### Response
+
+The response to the POST request on the endpoint stores the brand on the server. 
+
+* Status Code: `204 No Content`
+* Body: empty
+
+##### View a specific brand
+
+Enables retrieval of a specific brand stored in the database.
+
+###### Request
+
+The following shows a request for an individual brand identified by its name.
+
+```text
+Method: GET
+Path: /api/v1/brands/{name}
+```
+
+* `name` is the name associated with the specific brand. This is not case-sensitive.
+
+Example request:
+
+```text
+/api/v1/brands/apple
+```
+
+###### Response
+
+* Content type: `application/json`
+
+Body (exemplary code):
+
+```json
+{
+    "name": "Apple",
+    "description": "American multinational technology company"
+}
+```
+
+##### View all registered brands
+
+Enables retrieval of all brands.
+
+###### Request
+
+A `GET` request to the endpoint should return all brands.
+
+```text
+Method: GET
+Path: /api/v1/brands/
+```
+
+###### Response
+
+* Content type: `application/json`
+
+Body (exemplary code):
+
+```json lines
+[
+    {
+        "name": "Acer",
+        "description": "Taiwanese multinational electronics company"
+    },
+    {
+        "name": "Apple",
+        "description": "American multinational technology company"
+    },
+    {
+        "name": "Asus",
+        "description": "Taiwanese multinational computer hardware and consumer electronics company"
+    }
+]
+```
+
+The response should return a collection of all stored brands.
+
+##### Update a specific brand
+Enables the replacing of specific brand.
+
+###### Request
+
+The following shows a request for an updated brand.
+
+```
+Method: PUT
+Path: /api/v1/brands/{name}
+```
+
+* `name` is the name associated with the specific brand and must match in the provided url and body.
+
+Example request: ```/api/v1/brands/Apple```
+
+Body (exemplary code):
+
+```json lines
+{
+        "name": "Apple",
+        "description": "This is apple company"
+}
+```
+
+###### Response
+
+This is the response to the change request.
+
+* Status code: `204 No Content` if the update was successful.
+* Body: empty
+
+##### Delete a specific brand
+
+Enabling the deletion of a specific brand.
+
+###### Request
+
+The following shows a request for deletion of an individual brand identified by its name. This update should lead
+to a deletion of the brand from the database.
+
+```text
+Method: DELETE
+Path: /api/v1/brands/{name}
+```
+
+* `name` is the name associated with the specific brand.
+
+Example request:
+
+```text
+/api/v1/brands/apple
+```
+
+###### Response
+
+This is the response to the delete request.
+
+* Status code: `204 No Content` if deletion is successful
+* Body: empty
+
+---
 
 
 ## Contact 📧
