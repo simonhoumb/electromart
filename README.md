@@ -8,7 +8,19 @@ The application is built as a part of the course IDATG2204 Datamodellering og da
 
 ## Usage 🤓
 
-### Endpoints
+### Website 🌐 
+```plaintext
+In the current version the user is able to do the following:
+ - Create a user account
+ - Update user information (e.g. name, address, email)
+ - View all products
+ - View products by category
+ - Search for products
+ - Add items to cart
+ ```
+
+---
+### API Endpoints 🛠️
 
 The service provides the following endpoints:
 
@@ -258,7 +270,7 @@ Example request:
 
 This is the response to the delete request.
 
-* Status code: `204 No Content`.
+* Status code: `204 No Content` if deletion is successful
 * Body: empty
 
 ---
