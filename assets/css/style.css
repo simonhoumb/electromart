@@ -40,12 +40,30 @@ header, nav {
     justify-content: flex-end;
 }
 
+/* Placement of username and cart */
 #user-logged {
-    position: relative;
-    display: flex;
-    align-items: center;
-    margin-right: 20px;
+    display: flex; /* Use flexbox for layout */
+    align-items: center; /* Centers items vertically */
+    justify-content: space-between;
 }
+
+#user-logged > span { /* Target direct span children for username */
+    margin-right: 10px; /* Space between username and cart */
+}
+
+/* Cart hover dropdown */
+#cart-dropdown {
+    display: none;
+    position: absolute;
+    top: 30px;            /* Adjust as needed */
+    right: 0;             /* Adjust as needed */
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 10px;
+    width: 250px;
+}
+
+
 
 #logged-username {
     margin-right: 10px;
@@ -408,6 +426,7 @@ h2 {
     grid-column: 2; /* Occupies the second column */
 }
 
+
 .breadcrumbs {
     margin-left: 12px;
     margin-top: 10px;
@@ -444,4 +463,26 @@ h2 {
 
 .breadcrumbs a:hover {
     text-decoration: underline;
+}
+
+/* Style the brand dropdown */
+nav ul li.dropdown {
+    display: inline-block; /* Make them display side-by-side */
+    position: relative;    /* For positioning dropdown content */
+}
+
+nav ul li.dropdown .dropdown-content {
+    display: none;        /* Initially hidden */
+    position: absolute;
+    background-color: #fff; /* Example styling */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Show dropdown content on hover (you might already have something similar) */
+nav ul li.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+#cart-summary, #cart-summary * {
+    visibility: visible;
 }

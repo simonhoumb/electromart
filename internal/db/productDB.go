@@ -289,3 +289,28 @@ func productExists(id string) (bool, error) {
 
 	return exists, nil
 }
+
+/*
+GetAllProductsByBrandAndCategory retrieves all rows from the Product table in the database by Brand and Category and returns them as a
+*/
+func GetAllProductsByBrandAndCategory(db *sql.DB, brand string, category string) ([]structs.Product, error) {
+	stmt, err := db.Prepare(`SELECT * FROM Product WHERE BrandName = ? AND CategoryName = ?`)
+	if err != nil {
+		return nil, fmt.Errorf("error preparing statement: %v", err)
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(brand, category)
+	if err != nil {
+		return nil, fmt.Errorf("error executing query: %v", err)
+	}
+	defer rows.Close()
+
+	// Use your rowsToProductSlice function
+	products, err := rowsToProductSlice(rows)
+	if err != nil {
+		return nil, fmt.Errorf("error converting rows to slice: %v", err)
+	}
+
+	return products, nil
+}

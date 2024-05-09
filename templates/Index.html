@@ -21,13 +21,14 @@
         <div id="user-controls">
             <div id="user-logged">
                 <span id="logged-username">Username</span>
-                <div id="cart">
-                    <img src="../assets/images/cart_icon.jpg" alt="Cart Icon"> <!-- Placeholder for cart icon -->
-                </div>
                 <div id="user-menu">
                     <a href="/profile">Profile</a>
                     <button id="logoutButton">Logout</button>
                 </div>
+            </div>
+            <div id="cart">
+                <img src="../assets/images/cart_icon.jpg" alt="Cart Icon">
+                <div id="cart-dropdown" style="display: none;"> </div>
             </div>
             <div id="user-not-logged">
                 <button id="loginButton">Login</button>
@@ -44,7 +45,10 @@
             <li class="dropdown">
                 <a href="#">Category</a>
                 <div class="dropdown-content" id="categories">
-                    <!-- Categories will be added here by JavaScript -->
+                </div>
+            </li>
+            <li class="dropdown"> <a href="#">Brand</a>
+                <div class="dropdown-content" id="brands">
                 </div>
             </li>
         </ul>
