@@ -14,6 +14,7 @@ type Product struct {
 	Description  *string `json:"description"`
 	QtyInStock   int     `json:"qtyInStock"`
 	Price        float64 `json:"price"`
+	Active       bool    `json:"active"`
 }
 
 type ProductDiscount struct {
