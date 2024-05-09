@@ -102,8 +102,12 @@ class EStore {
     handleCategoryClick(event) {
         event.preventDefault();
         const categoryName = event.target.dataset.categoryName;
+        this.categoryClicked = categoryName; // store the clicked category
         this.fetchProductsByCategory(categoryName);
-        this.updateBreadcrumbs([{ text: 'Home', href: '/' }, { text: categoryName, href: `/products/${categoryName}` }]);
+        this.updateBreadcrumbs([
+            { text: 'Home', href: '/' },
+            { text: categoryName, href: `/products/${categoryName}` }
+        ]);
         history.pushState(null, null, `/products/${categoryName}`);
     }
 
@@ -128,10 +132,11 @@ class EStore {
             const productData = await dataResponse.json();
             console.log("Product Data:", productData);
 
+            const categoryName = this.categoryClicked; // use the stored category
             this.updateBreadcrumbs([
-                { text: 'Home', href: '/' },
-                { text: productData.categoryName, href: `/products/${productData.categoryName}` },
-                { text: productData.brandName, href: `#` }
+                { text: 'Home', href: '/', isCategory: false },
+                { text: categoryName, href: `/products/${categoryName}`, isCategory: true },
+                { text: productData.brandName, href: `/products/${categoryName}/${productData.brandName}`, isCategory: false }
             ]);
 
             const populatedHtml = await this.populateProductTemplate(productData);
@@ -199,6 +204,19 @@ class EStore {
             const link = document.createElement('a');
             link.textContent = component.text;
             link.href = component.href;
+            if (component.isCategory) {
+                link.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    this.fetchProductsByCategory(component.text);
+                    history.pushState(null, null, `/products/${component.text}`);
+                });
+            } else if (component.text != 'Home') {
+                link.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    this.fetchProductsByCategoryAndBrand(this.categoryClicked, component.text);
+                    history.pushState(null, null, `/products/${this.categoryClicked}/${component.text}`);
+                });
+            }
             breadcrumbsContainer.appendChild(link);
 
             if (index < pathComponents.length - 1) { // Don't add arrow on last component
@@ -299,6 +317,36 @@ class EStore {
         });
 //...
         return productElement;
+    }
+
+    fetchProductsByCategoryAndBrand(categoryName, brandName) {
+        fetch(`/api/v1/products/${categoryName}/${brandName}`)
+            .then(response => response.json())
+            .then(data => {
+                this.updateProductView(data);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+    }
+
+    updateProductView(products) {
+
+        // Select the product container from the DOM. Adjust this selector to match your HTML structure.
+        const productContainer = document.querySelector('.product-container');
+
+        // Empty the container
+        productContainer.innerHTML = '';
+
+        // Iterate over the products and create HTML elements for each product
+        products.forEach(product => {
+
+            // This is a simple example and needs to be adjusted to match the structure of your product and your application
+            const productElement = document.createElement('div');
+            productElement.textContent = product.name; // Adjust this line to include more product details as needed
+
+            productContainer.appendChild(productElement);
+        });
     }
 
     fetchProducts(query = "") {
