@@ -56,14 +56,14 @@ AddBrand adds a single row to the Brand table in the database. Returns the ID if
 */
 func AddBrand(Brand structs.Brand) error {
 	// Insert Brand
-	_, err2 := Client.Exec(
+	_, err := Client.Exec(
 		`INSERT INTO Brand (Name, Description) VALUES (?, ?)`,
 		Brand.Name,
 		Brand.Description,
 	)
-	if err2 != nil {
-		log.Println("Error inserting Brand: ", err2)
-		return err2
+	if err != nil {
+		log.Println("Error inserting Brand: ", err)
+		return err
 	}
 
 	return nil

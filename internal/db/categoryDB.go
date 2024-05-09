@@ -11,7 +11,7 @@ import (
 GetAllCategories retrieves all rows from the Category table in the database and returns them as a slice of Category structs.
 */
 func GetAllCategories() ([]structs.Category, error) {
-	rows, err := Client.Query(`SELECT * FROM Category`)
+	rows, err := Client.Query(`SELECT * FROM ElectroMartDB.Category`)
 	if err != nil {
 		log.Println("Error when selecting all categories: ", err)
 		return nil, err
@@ -36,7 +36,7 @@ func GetCategoryByName(name string) (*structs.Category, error) {
 	}
 	if exists {
 		var category structs.Category
-		err2 := Client.QueryRow("SELECT * FROM Category WHERE Name = ?", name).Scan(
+		err2 := Client.QueryRow("SELECT * FROM ElectroMartDB.Category WHERE Name = ?", name).Scan(
 			&category.Name,
 			&category.Description,
 		)
@@ -57,7 +57,7 @@ AddCategory adds a single row to the Category table in the database. Returns the
 func AddCategory(category structs.Category) error {
 	// Insert category
 	_, err2 := Client.Exec(
-		`INSERT INTO Category (Name, Description) VALUES (?, ?)`,
+		`INSERT INTO ElectroMartDB.Category (Name, Description) VALUES (?, ?)`,
 		category.Name,
 		category.Description,
 	)
@@ -82,7 +82,7 @@ func UpdateCategory(category structs.Category) error {
 	}
 	if exists {
 		_, err2 := Client.Exec(
-			"UPDATE Category SET Description = ? WHERE Name = ?",
+			"UPDATE ElectroMartDB.Category SET Description = ? WHERE Name = ?",
 			category.Description,
 			category.Name,
 		)
@@ -108,7 +108,7 @@ func DeleteCategoryByName(name string) error {
 		return err
 	}
 	if exists {
-		_, err2 := Client.Exec("DELETE FROM Category WHERE Name = ?", name)
+		_, err2 := Client.Exec("DELETE FROM ElectroMartDB.Category WHERE Name = ?", name)
 		if err2 != nil {
 			log.Println("Error when deleting category: ", err2)
 			return err2
@@ -144,7 +144,7 @@ CategoryExists checks if a category with the provided name exists in the databas
 */
 func categoryExists(name string) (bool, error) {
 	var exists bool
-	err := Client.QueryRow(`SELECT EXISTS(SELECT * FROM Category WHERE Name = ?)`, name).Scan(&exists)
+	err := Client.QueryRow(`SELECT EXISTS(SELECT * FROM ElectroMartDB.Category WHERE Name = ?)`, name).Scan(&exists)
 	if err != nil {
 		return false, err
 	}

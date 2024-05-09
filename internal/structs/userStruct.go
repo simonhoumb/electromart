@@ -1,13 +1,28 @@
 package structs
 
-type User struct {
+import "database/sql"
+
+type ActiveUser struct {
+	ID        string         `json:"Id"`
+	Username  string         `json:"Username"`
+	Email     string         `json:"Email"`
+	FirstName string         `json:"FirstName"`
+	LastName  string         `json:"LastName"`
+	Phone     string         `json:"Phone"`
+	Address   sql.NullString `json:"Address,omitempty"`
+	PostCode  sql.NullString `json:"PostCode,omitempty"`
+	Password  string         `json:"Password"`
+	CartID    string         `json:"CartID"`
+}
+
+type NewUser struct {
 	ID        string `json:"id"`
 	Username  string `json:"username"`
 	Email     string `json:"email"`
 	Password  string `json:"password"`
 	FirstName string `json:"firstName"`
 	LastName  string `json:"lastName"`
-	Phone     int64  `json:"phone"`
+	Phone     string `json:"phone"`
 	CartID    string `json:"cartID"`
 }
 
@@ -19,4 +34,9 @@ type LoginRequest struct {
 type DeleteRequest struct {
 	ID       string `json:"id"`
 	Password string `json:"password"`
+}
+
+type ChangePasswordRequest struct {
+	OldPassword string `json:"oldPassword"`
+	NewPassword string `json:"newPassword"`
 }
