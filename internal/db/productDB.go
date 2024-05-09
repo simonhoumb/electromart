@@ -43,6 +43,38 @@ WHERE LOWER(Name) LIKE CONCAT('%', ?, '%')
 }
 
 /*
+SearchProductsByCategoryAndBrand retrieves rows from the Product table in the database based on the category and brand names provided.
+*/
+func SearchProductsByCategoryAndBrand(categoryName, brandName string) ([]structs.Product, error) {
+	lowerCategory := strings.ToLower(categoryName)
+	lowerBrand := strings.ToLower(brandName)
+
+	rows, err := Client.Query(
+		`SELECT * FROM Product
+        WHERE LOWER(CategoryName) LIKE ?
+        AND LOWER(BrandName) LIKE ?`,
+		"%"+lowerCategory+"%", "%"+lowerBrand+"%",
+	)
+	if err != nil {
+		log.Println("Error when querying for products: ", err)
+		return nil, err
+	}
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			log.Println("Error when closing rows: ", err)
+		}
+	}(rows)
+
+	products, err := rowsToProductSlice(rows)
+	if err != nil {
+		log.Println("Error when converting rows to slice: ", err)
+		return nil, err
+	}
+	return products, nil
+}
+
+/*
 GetAllProducts retrieves all rows from the Product table in the database and returns them as a slice of Product structs.
 */
 func GetAllProducts() ([]structs.Product, error) {

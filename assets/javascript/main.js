@@ -1,35 +1,38 @@
 class EStore {
     constructor() {
-        this.productsContainer = document.getElementById('products');
-        this.searchForm = document.getElementById('search-form');
-        this.searchQueryInput = document.getElementById('search-query');
-        this.logoutButton = document.getElementById('logoutButton');
-        this.loginButton = document.getElementById('loginButton');
-        this.closeModalButton = document.querySelector('.close');
-        this.sortDropdown = document.getElementById('sort-dropdown');
-
-        this.searchForm.addEventListener('submit', this.handleSearch.bind(this));
-        this.logoutButton.addEventListener('click', this.logoutUser.bind(this));
-        this.loginButton.addEventListener('click', this.openLoginModal.bind(this));
-        this.closeModalButton.addEventListener('click', this.closeModal.bind(this));
-        this.sortDropdown.addEventListener('change', this.handleSort.bind(this));
-
+        this.elements = {
+            productsContainer: document.getElementById('products'),
+            searchForm: document.getElementById('search-form'),
+            searchQueryInput: document.getElementById('search-query'),
+            logoutButton: document.getElementById('logoutButton'),
+            loginButton: document.getElementById('loginButton'),
+            closeModalButton: document.querySelector('.close'),
+            sortDropdown: document.getElementById('sort-dropdown')
+        }
+        this.addEventListeners();
         this.checkLoginState();
         this.fetchProducts();
         this.fetchCategories();
     }
 
+    addEventListeners() {
+        this.elements.searchForm.addEventListener('submit', this.handleSearch.bind(this));
+        this.elements.logoutButton.addEventListener('click', this.logoutUser.bind(this));
+        this.elements.loginButton.addEventListener('click', this.openLoginModal.bind(this));
+        this.elements.closeModalButton.addEventListener('click', this.closeModal.bind(this));
+        this.elements.sortDropdown.addEventListener('change', this.handleSort.bind(this));
+    }
+
     handleSearch(event) {
         event.preventDefault();
-        const query = this.searchQueryInput.value.trim();
+        const query = this.elements.searchQueryInput.value.trim();
         if (query !== "") {
             this.fetchProducts(query);
-            this.updateBreadcrumbs('Search Results: '); // Update breadcrumbs for search
+            this.updateBreadcrumbs([{ text: 'Home', href: '/' }, { text: 'Search Results: ' + query, href: '#' }]);
         } else {
             alert("Please enter a search query.");
         }
     }
-
 
     handleSort(event) {
         const sortingOption = event.target.value;
@@ -54,11 +57,11 @@ class EStore {
         }
 
         // Clear products container
-        this.productsContainer.innerHTML = '';
+        this.elements.productsContainer.innerHTML = '';
 
         // Append sorted products
         productsArray.forEach(product => {
-            this.productsContainer.appendChild(product);
+            this.elements.productsContainer.appendChild(product);
         });
     }
 
@@ -68,7 +71,6 @@ class EStore {
         const priceNumeric = parseFloat(priceString.replace(/[^\d.-]/g, ''));
         return isNaN(priceNumeric) ? -1 : priceNumeric;
     }
-
 
     getProductQuantity(productElement) {
         const stockString = productElement.querySelector('.product-stock').textContent;
@@ -100,8 +102,12 @@ class EStore {
     handleCategoryClick(event) {
         event.preventDefault();
         const categoryName = event.target.dataset.categoryName;
+        this.categoryClicked = categoryName; // store the clicked category
         this.fetchProductsByCategory(categoryName);
-        this.updateBreadcrumbs(categoryName); // Update breadcrumbs
+        this.updateBreadcrumbs([
+            { text: 'Home', href: '/' },
+            { text: categoryName, href: `/products/${categoryName}` }
+        ]);
         history.pushState(null, null, `/products/${categoryName}`);
     }
 
@@ -119,64 +125,128 @@ class EStore {
         return response.json();
     }
 
+    // Inside the EStore class
+    async fetchProductDetails(productId) {
+        try {
+            const dataResponse = await fetch(`/api/v1/products/${productId}`);
+            const productData = await dataResponse.json();
+            console.log("Product Data:", productData);
+
+            const categoryName = this.categoryClicked; // use the stored category
+            this.updateBreadcrumbs([
+                { text: 'Home', href: '/', isCategory: false },
+                { text: categoryName, href: `/products/${categoryName}`, isCategory: true },
+                { text: productData.brandName, href: `/products/${categoryName}/${productData.brandName}`, isCategory: false }
+            ]);
+
+            const populatedHtml = await this.populateProductTemplate(productData);
+            this.insertProductDetails(populatedHtml);
+            return productData;
+        } catch (error) {
+            console.error('Error fetching product details:', error);
+            // Handle the error
+            return Promise.reject(error);
+        }
+    }
+
+    // Helper function to insert content
+    insertProductDetails(content) {
+        const container = document.getElementById('product-details-container');
+        container.innerHTML = content;
+        container.style.display = 'block'; // Show the product details container
+    }
+
+    async populateProductTemplate(productData) {
+        try {
+            const templateResponse = await fetch('http://localhost:8000/product', {credentials: 'include'});
+            console.log("HTML fetch response status:", templateResponse.status);
+            let newHtml = await templateResponse.text();
+            console.log("HTML response text:", newHtml);
+
+            const name = productData.name ?? 'No Name';
+            const description = productData.description ?? 'No Description';
+            const price = productData.price ?? 0;
+            const inStock = productData.qtyInStock > 0 ? 'In Stock' : 'Out of Stock';
+
+            // Populate the template with product data
+            newHtml = newHtml.replace(/\{\{product\.name}}/g, name);
+            newHtml = newHtml.replace(/\{\{product\.description}}/g, description);
+            newHtml = newHtml.replace(/\{\{product\.price}}/g, price);
+            newHtml = newHtml.replace(/\{\{product\.inStock}}/g, inStock);
+
+            console.log('Final HTML:', newHtml);
+            return newHtml;
+        } catch (error) {
+            console.error('Error populating product template:', error);
+            return 'Error loading product details.';
+        }
+    }
+
     updateProductDisplay(products) {
-        this.productsContainer.innerHTML = '';
+        this.elements.productsContainer.innerHTML = '';
         if (products.length === 0) {
             const noResults = document.createElement('p');
             noResults.textContent = 'No results found.';
-            this.productsContainer.appendChild(noResults);
+            this.elements.productsContainer.appendChild(noResults);
         } else {
             products.forEach(product => {
                 const productElement = this.createProductElement(product);
-                this.productsContainer.appendChild(productElement);
+                this.elements.productsContainer.appendChild(productElement);
             });
         }
     }
 
-    updateBreadcrumbs(categoryName) {
+    updateBreadcrumbs(pathComponents) {
         const breadcrumbsContainer = document.querySelector('.breadcrumbs');
         breadcrumbsContainer.innerHTML = ''; // Clear previous breadcrumbs
 
-        // Create a link to the home page
-        const homeLink = document.createElement('a');
-        homeLink.textContent = 'Home';
-        homeLink.href = '/';
-        breadcrumbsContainer.appendChild(homeLink);
+        pathComponents.forEach((component, index) => {
+            const link = document.createElement('a');
+            link.textContent = component.text;
+            link.href = component.href;
+            if (component.isCategory) {
+                link.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    this.fetchProductsByCategory(component.text);
+                    history.pushState(null, null, `/products/${component.text}`);
+                });
+            } else if (component.text != 'Home') {
+                link.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    this.fetchProductsByCategoryAndBrand(this.categoryClicked, component.text);
+                    history.pushState(null, null, `/products/${this.categoryClicked}/${component.text}`);
+                });
+            }
+            breadcrumbsContainer.appendChild(link);
 
-        // Create a separator
-        const separator = document.createElement('span');
-        separator.textContent = ' > ';
-        breadcrumbsContainer.appendChild(separator);
-
-        // Create a link to the category page
-        const categoryLink = document.createElement('a');
-        categoryLink.textContent = categoryName; // Use the name of the category
-        categoryLink.href = `/products/${categoryName}`;
-        breadcrumbsContainer.appendChild(categoryLink);
+            if (index < pathComponents.length - 1) { // Don't add arrow on last component
+                const separator = document.createTextNode(' > ');
+                breadcrumbsContainer.appendChild(separator);
+            }
+        });
     }
 
-
     createProductElement(product) {
-        // Create the product container
+        // Creates the product container
         const productElement = document.createElement('div');
         productElement.className = 'product';
         productElement.dataset.productId = product.id;
 
-        // Create the left column for name, description, and stock
+        // Creates the left column for name, description, and stock
         const leftColumn = document.createElement('div');
         leftColumn.className = 'product-left-column';
 
-        // Create the name element
+        // Creates the name element
         const nameElement = document.createElement('div');
         nameElement.className = 'product-name';
         nameElement.textContent = 'Name: ' + product.name;
 
-        // Create the description element
+        // Creates the description element
         const descriptionElement = document.createElement('div');
         descriptionElement.className = 'product-description';
         descriptionElement.textContent = 'Description: ' + product.description;
 
-        // Create the stock element
+        // Creates the stock element
         const stockElement = document.createElement('div');
         stockElement.className = 'product-stock';
         if (product.hasOwnProperty('qtyInStock') && product.qtyInStock > 0) {
@@ -209,21 +279,80 @@ class EStore {
         rightColumn.appendChild(priceElement);
         rightColumn.appendChild(buttonElement);
 
-        // Append left column to the product container
         productElement.appendChild(leftColumn);
-
-        // Append right column to the product container
         productElement.appendChild(rightColumn);
 
+        // The click event listener implementation starts here
+        productElement.addEventListener('click', async (event) => {
+            event.preventDefault();
+            const productId = productElement.dataset.productId;
+            console.log("ProductId clicked:", productId);
+
+            try {
+                const productData = await this.fetchProductDetails(productId);
+                console.log("ProductData:", productData); // Check Product Data
+
+                // Hide the main product list and show the product detail container
+                this.elements.productsContainer.style.display = 'none';
+                const productDetailsContainer = document.getElementById('product-details-container');
+                productDetailsContainer.innerHTML = "";
+                productDetailsContainer.style.display = 'block';
+
+                // Add a back button to the product details container
+                const backButton = document.createElement('button');
+                backButton.textContent = 'Back to product list';
+                backButton.addEventListener('click', () => {
+                    productDetailsContainer.style.display = 'none'; // Hide the product details container
+                    this.elements.productsContainer.style.display = ''; // Show the main product list
+                });
+                productDetailsContainer.appendChild(backButton);
+
+                const populatedHtml = await this.populateProductTemplate(productData);
+                console.log("PopulatedHTML", populatedHtml); // Check Populated HTML
+                this.insertProductDetails(populatedHtml);
+            } catch (error) {
+                console.error('Error fetching and displaying product details:', error);
+                // Display an error message to the user.
+            }
+        });
+//...
         return productElement;
     }
 
+    fetchProductsByCategoryAndBrand(categoryName, brandName) {
+        fetch(`/api/v1/products/${categoryName}/${brandName}`)
+            .then(response => response.json())
+            .then(data => {
+                this.updateProductView(data);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+    }
 
+    updateProductView(products) {
+
+        // Select the product container from the DOM. Adjust this selector to match your HTML structure.
+        const productContainer = document.querySelector('.product-container');
+
+        // Empty the container
+        productContainer.innerHTML = '';
+
+        // Iterate over the products and create HTML elements for each product
+        products.forEach(product => {
+
+            // This is a simple example and needs to be adjusted to match the structure of your product and your application
+            const productElement = document.createElement('div');
+            productElement.textContent = product.name; // Adjust this line to include more product details as needed
+
+            productContainer.appendChild(productElement);
+        });
+    }
 
     fetchProducts(query = "") {
         fetch(`/api/v1/products/search/${query}`)
-            .then(this.handleFetchResponse)
-            .then(this.updateProductDisplay.bind(this))
+            .then(response => this.handleFetchResponse(response))
+            .then(data => this.updateProductDisplay(data))
             .catch(error => console.error('Error fetching products:', error));
     }
 

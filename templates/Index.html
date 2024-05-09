@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EStore</title>
     <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/product.css">
 </head>
 <body>
 <header>
@@ -50,21 +51,25 @@
     </div>
 </nav>
 
-<section class="container">
+<section class="products-header">
     <div id="sort-dropdown">
-        <select>
+        <label for="sort-products">Sort Products:</label>
+        <select id="sort-products">
             <option value="price-asc">Price (low to high)</option>
             <option value="price-desc">Price (high to low)</option>
             <option value="quantity-asc">Quantity (low to high)</option>
             <option value="quantity-desc">Quantity (high to low)</option>
         </select>
     </div>
-
     <h2>Our Products</h2>
-    <div class="breadcrumbs"></div> <!-- Breadcrumbs container -->
-    <div id="product-filters"><!-- Filters will be added here --></div>
+    <div class="breadcrumbs"></div>
+</section>
+
+
+<section class="container">
+    <section id="product-details-container" style="display: none;"></section>
+    <div id="product-filters"></div>
     <div id="products" class="product-grid">
-        <!-- Product elements will be added here by JavaScript -->
     </div>
 </section>
 

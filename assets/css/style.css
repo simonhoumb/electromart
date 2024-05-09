@@ -388,14 +388,45 @@ nav #search-bar {
     background-color: #0056b3;
 }
 
-#sort-dropdown {
-    position: absolute;
-    right: 20px; /* Adjust as needed */
-    padding: 10px;
-    border: 1px solid #cccccc;
-    border-radius: 5px;
-    font-size: 16px;
+.products-header {
+    display: grid;
+    padding-top: 20px; /* Add padding to the top */
+    grid-template-columns: 1fr auto; /* Two columns: flexible, auto-sized */
+    grid-gap: 10px; /* Adjust the gap between elements */
+    align-items: center; /* Vertically centers elements in their grid cells */
 }
+
+h2 {
+    margin-left: 10px;
+    grid-column: 1; /* Occupies the first column */
+    grid-row: 1;
+}
+
+#sort-dropdown {
+    margin-right: 10px;
+    margin-bottom: 0; /* Reset margin for better spacing control */
+    grid-column: 2; /* Occupies the second column */
+}
+
+.breadcrumbs {
+    margin-left: 12px;
+    margin-top: 10px;
+    grid-column: 1; /* Occupies the first column */
+    grid-row: 2;  /* Places it in the second row */
+}
+
+
+.products-header > * {
+    margin-bottom: 10px;
+}
+
+
+#sort-products {
+    padding: 8px; /* Add some padding to the dropdown */
+    border: 1px solid #ccc;  /* A simple border */
+    border-radius: 4px; /* Soften the corners */
+}
+
 
 .container {
     position: relative;
@@ -403,23 +434,8 @@ nav #search-bar {
 }
 
 .breadcrumbs {
-    position: relative;
     margin-top: 10px;
-    z-index: 10; /* Adjust z-index to ensure it's above other elements */
-}
-
-/* Add a sorting option to the header */
-nav #sort-dropdown {
-    position: absolute;
-    top: 10px;
-    right: 50px;
-}
-
-/* Add a link to the brand name in the breadcrumbs */
-.breadcrumbs {
-    position: relative;
-    margin-top: 10px;
-    z-index: 5;
+    z-index: 5; /* Adjust z-index to ensure it's above other elements */
 }
 
 .breadcrumbs a {

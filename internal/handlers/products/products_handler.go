@@ -9,12 +9,6 @@ import (
 	"net/http"
 )
 
-// Implemented methods for the endpoint
-var productsImplementedMethods = []string{
-	http.MethodGet,
-	http.MethodPost,
-}
-
 /*
 HandleProducts for the /products endpoint.
 */
