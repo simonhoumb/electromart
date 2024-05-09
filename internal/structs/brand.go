@@ -2,6 +2,10 @@ package structs
 
 import "fmt"
 
+type BrandName struct {
+	Name string `json:"name"`
+}
+
 type Brand struct {
 	Name        string  `json:"name"`
 	Description *string `json:"description"`

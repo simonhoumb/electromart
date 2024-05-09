@@ -9,6 +9,8 @@ import (
 	"net/http"
 )
 
+var productsImplementedMethods = []string{http.MethodGet, http.MethodPost}
+
 /*
 HandleProducts for the /products endpoint.
 */
@@ -20,7 +22,9 @@ func HandleProducts(w http.ResponseWriter, r *http.Request) {
 	// Switch on the HTTP request method
 	switch r.Method {
 	case http.MethodGet:
-		if category != "" {
+		if brand != "" && category != "" {
+			handleGetAllByBrandAndCategoryRequest(w, r) // Handle by brand and category
+		} else if category != "" {
 			handleGetAllByCategoryRequest(w, r) // Handle by category
 		} else if brand != "" {
 			handleGetAllByBrandRequest(w, r) // Handle by brand
@@ -178,6 +182,48 @@ func handleCreateRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	} else {
 		if _, err := w.Write(productIDJSON); utils.HandleError(
+			w,
+			r,
+			http.StatusInternalServerError,
+			err,
+			"error writing response",
+		) {
+			return
+		}
+	}
+}
+
+/*
+HandleProductDetail for the /products/{id} endpoint.
+*/
+func handleGetAllByBrandAndCategoryRequest(w http.ResponseWriter, r *http.Request) {
+	brand, err := utils.GetBrandFromRequest(r)
+	if utils.HandleError(w, r, http.StatusBadRequest, err, "Error getting brand from request") {
+		return
+	}
+
+	category, err := utils.GetCategoryFromRequest(r)
+	if utils.HandleError(w, r, http.StatusBadRequest, err, "Error getting category from request") {
+		return
+	}
+
+	// Get all products by brand and category
+	products, err := db.GetAllProductsByBrandAndCategory(db.Client, brand, category)
+	if utils.HandleError(w, r, http.StatusInternalServerError, err, "error getting products from database") {
+		return
+	}
+
+	// Return the products
+	if productsJSON, err := json.Marshal(products); utils.HandleError(
+		w,
+		r,
+		http.StatusInternalServerError,
+		err,
+		"error during encoding response",
+	) {
+		return
+	} else {
+		if _, err := w.Write(productsJSON); utils.HandleError(
 			w,
 			r,
 			http.StatusInternalServerError,

@@ -29,6 +29,7 @@ func Start() {
 	mux.HandleFunc(constants.ProductsPath, products.HandleProducts)
 	mux.HandleFunc(constants.ProductsPath+"category/{category}", products.HandleProducts)
 	mux.HandleFunc(constants.ProductsPath+"brand/{brand}", products.HandleProducts)
+	mux.HandleFunc(constants.ProductsPath+"brand/{brand}/category/{category}", products.HandleProducts)
 	mux.HandleFunc(constants.ProductsPath+"{id}", products.HandleProductDetail)
 	mux.HandleFunc(constants.ProductsPath+"search/{query}", products.HandleQueryProducts)
 
@@ -70,6 +71,12 @@ func Start() {
 	mux.HandleFunc(
 		"/profile", func(w http.ResponseWriter, r *http.Request) {
 			http.ServeFile(w, r, "templates/profile.html")
+		},
+	)
+
+	mux.HandleFunc(
+		"/cart", func(w http.ResponseWriter, r *http.Request) {
+			http.ServeFile(w, r, "templates/cart.html")
 		},
 	)
 
