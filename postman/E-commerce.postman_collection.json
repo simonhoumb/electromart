@@ -1,0 +1,353 @@
+{
+	"info": {
+		"_postman_id": "b03791a9-8264-4e41-aa40-c049bad45dcb",
+		"name": "E-commerce",
+		"description": "# 🚀 Get started here\n\nThis collection guides you through CRUD operations (GET, POST, PUT, DELETE), variables, and tests.\n\n## 🔖 **How to use this collection**\n\n#### **Step 1: Send requests**\n\nRESTful APIs allow you to perform CRUD operations using the POST, GET, PUT, and DELETE HTTP methods.\n\nThis collection contains each of these request types. Open each request and click \"Send\" to see what happens.\n\n#### **Step 2: View responses**\n\nObserve the response tab for status code (200 OK), response time, and size.\n\n#### **Step 3: Send new Body data**\n\nUpdate or add new data in \"Body\" in the POST request. Typically, Body data is also used in PUT and PATCH requests.\n\n```\n{\n    \"name\": \"Add your name in the body\"\n}\n\n```\n\n#### **Step 4: Update the variable**\n\nVariables enable you to store and reuse values in Postman. We have created a variable called `base_url` with the sample request [https://postman-api-learner.glitch.me](https://postman-api-learner.glitch.me). Replace it with your API endpoint to customize this collection.\n\n#### **Step 5: Add tests in the \"Tests\" tab**\n\nTests help you confirm that your API is working as expected. You can write test scripts in JavaScript and view the output in the \"Test Results\" tab.\n\n<img src=\"https://content.pstmn.io/b5f280a7-4b09-48ec-857f-0a7ed99d7ef8/U2NyZWVuc2hvdCAyMDIzLTAzLTI3IGF0IDkuNDcuMjggUE0ucG5n\">\n\n## 💪 Pro tips\n\n- Use folders to group related requests and organize the collection.\n- Add more scripts in \"Tests\" to verify if the API works as expected and execute flows.\n    \n\n## ℹ️ Resources\n\n[Building requests](https://learning.postman.com/docs/sending-requests/requests/)  \n[Authorizing requests](https://learning.postman.com/docs/sending-requests/authorization/)  \n[Using variables](https://learning.postman.com/docs/sending-requests/variables/)  \n[Managing environments](https://learning.postman.com/docs/sending-requests/managing-environments/)  \n[Writing scripts](https://learning.postman.com/docs/writing-scripts/intro-to-scripts/)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "34135196",
+		"_collection_link": "https://warped-astronaut-908633.postman.co/workspace/mongobay_ws~64aa7054-34e0-4bb2-a2b4-dfbc9b6bded9/collection/34135196-b03791a9-8264-4e41-aa40-c049bad45dcb?action=share&source=collection_link&creator=34135196"
+	},
+	"item": [
+		{
+			"name": "Products",
+			"item": [
+				{
+					"name": "Get all products",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{products_endpoint}}",
+							"host": [
+								"{{products_endpoint}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search for products",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{products_endpoint}}search/apple",
+							"host": [
+								"{{products_endpoint}}search"
+							],
+							"path": [
+								"apple"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get specific product",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{products_endpoint}}d74b2e01-0c54-11ef-96c4-fa163ecc81b6",
+							"host": [
+								"{{products_endpoint}}d74b2e01-0c54-11ef-96c4-fa163ecc81b6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add product",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Galaxy Book Pro\",\n    \"brandName\": \"Samsung\",\n    \"categoryName\": \"Laptops\",\n    \"description\": \"Latest Samsung laptop model\",\n    \"qtyInStock\": 100,\n    \"price\": 11999.99\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{products_endpoint}}",
+							"host": [
+								"{{products_endpoint}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update product",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"28e0c560-0628-11ef-ae1f-fa163ecc81b6\",\n    \"name\": \"Galaxy Book Pro\",\n    \"brandName\": \"Samsung\",\n    \"categoryName\": \"Laptops\",\n    \"description\": \"Latest Samsung laptop model with new screen\",\n    \"qtyInStock\": 100,\n    \"price\": 1199.99\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{products_endpoint}}28e0c560-0628-11ef-ae1f-fa163ecc81b6",
+							"host": [
+								"{{products_endpoint}}28e0c560-0628-11ef-ae1f-fa163ecc81b6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete product",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{products_endpoint}}5e2aaa11-07c0-11ef-ae1f-fa163ecc81b6",
+							"host": [
+								"{{products_endpoint}}5e2aaa11-07c0-11ef-ae1f-fa163ecc81b6"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Categories",
+			"item": [
+				{
+					"name": "Get all categories",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{categories_endpoint}}",
+							"host": [
+								"{{categories_endpoint}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get specific category",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{categories_endpoint}}5e2aaa11-07c0-11ef-ae1f-fa163ecc81b6",
+							"host": [
+								"{{categories_endpoint}}5e2aaa11-07c0-11ef-ae1f-fa163ecc81b6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add category",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Bicycles\",\n    \"description\": \"Human-powered or motor-assisted, pedal-driven, single-track vehicle, with two wheels attached to a frame, one behind the other.\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{categories_endpoint}}",
+							"host": [
+								"{{categories_endpoint}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update category",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Bicycles\",\n    \"description\": \"Become the new Pogachar with a new bike!\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{categories_endpoint}}Canyon",
+							"host": [
+								"{{categories_endpoint}}Canyon"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete category",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{categories_endpoint}}Bicycles",
+							"host": [
+								"{{categories_endpoint}}Bicycles"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Brands",
+			"item": [
+				{
+					"name": "Get all brands",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{brands_endpoint}}",
+							"host": [
+								"{{brands_endpoint}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get specific brand",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{brands_endpoint}}Smartphones",
+							"host": [
+								"{{brands_endpoint}}Smartphones"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add brand",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Canyon\",\n    \"description\": \"Bicycle brand focusing on performance and innovation.\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{brands_endpoint}}",
+							"host": [
+								"{{brands_endpoint}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update brand",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n        \"name\": \"Canyon\",\n        \"description\": \"Become the new MvDP with a new bike!\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{brands_endpoint}}Canyon",
+							"host": [
+								"{{brands_endpoint}}Canyon"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete brand",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{brands_endpoint}}Canyon",
+							"host": [
+								"{{brands_endpoint}}Canyon"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "id",
+			"value": "1"
+		},
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000/"
+		},
+		{
+			"key": "products_endpoint",
+			"value": "http://localhost:8000/api/v1/products/",
+			"type": "string"
+		},
+		{
+			"key": "categories_endpoint",
+			"value": "http://localhost:8000/api/v1/categories/",
+			"type": "string"
+		},
+		{
+			"key": "brands_endpoint",
+			"value": "http://localhost:8000/api/v1/brands/",
+			"type": "string"
+		}
+	]
+}
