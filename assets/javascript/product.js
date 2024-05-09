@@ -1,6 +1,7 @@
 const productId = window.location.search.slice(1).split('&')[0].split('=')[1]; // Assuming product ID is passed in the URL like ?id=123
 
 function displayProduct(product) {
+    console.log('Starting to display product', product);
     document.getElementById("product-title").textContent = product.name;
     document.getElementById("product-brand").textContent = product.brand;
     document.getElementById("product-description").textContent = product.description;
@@ -19,7 +20,7 @@ function displayProduct(product) {
         availabilityElement.textContent = "Out of Stock";
         availabilityElement.classList.add('out-of-stock');
     }
-
+    console.log('Finished displaying product');
 }
 
 fetch(`/api/v1/products/${productId}`)  // Assuming your API endpoint is like this
