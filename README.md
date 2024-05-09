@@ -256,6 +256,98 @@ Body (exemplary code):
 
 The response should return a collection of return all stored products.
 
+##### View all registered products by a Category
+
+Enables retrieval of all products filtered by a category.
+
+###### Request
+
+A `GET` request to the endpoint should return all products including their IDs.
+
+```text
+Method: GET
+Path: /api/v1/products/category/{category}
+```
+
+###### Response
+
+* Content type: `application/json`
+
+Example request: `/api/v1/products/category/smartphones`
+
+Body (exemplary code):
+
+```json lines
+[
+    {
+        "id": "7acef38c-0d18-11ef-96c4-fa163ecc81b6",
+        "name": "Supatest",
+        "brandName": "Apple",
+        "categoryName": "Smartphones",
+        "description": "Supatest Supatest Supadescription",
+        "qtyInStock": 10,
+        "price": 999
+    },
+    {
+        "id": "ca868913-0d16-11ef-96c4-fa163ecc81b6",
+        "name": "iPhone 13",
+        "brandName": "Apple",
+        "categoryName": "Smartphones",
+        "description": "Latest iPhone model",
+        "qtyInStock": 100,
+        "price": 9999.99
+    }
+]
+```
+
+The response should return a collection of return all products filtered by the provided category.
+
+##### View all registered products by a Brand
+
+Enables retrieval of all products filtered by a brand.
+
+###### Request
+
+A `GET` request to the endpoint should return all products including their IDs.
+
+```text
+Method: GET
+Path: /api/v1/products/brand/{brand}
+```
+
+###### Response
+
+* Content type: `application/json`
+
+Example request: `/api/v1/products/brand/apple`
+
+Body (exemplary code):
+
+```json lines
+[
+    {
+        "id": "7acef38c-0d18-11ef-96c4-fa163ecc81b6",
+        "name": "Supatest",
+        "brandName": "Apple",
+        "categoryName": "Smartphones",
+        "description": "Supatest Supatest Supadescription",
+        "qtyInStock": 10,
+        "price": 999
+    },
+    {
+        "id": "ca868913-0d16-11ef-96c4-fa163ecc81b6",
+        "name": "iPhone 13",
+        "brandName": "Apple",
+        "categoryName": "Smartphones",
+        "description": "Latest iPhone model",
+        "qtyInStock": 100,
+        "price": 9999.99
+    }
+]
+```
+
+The response should return a collection of return all products filtered by the provided brand.
+
 ##### Update a specific product
 Enables the replacing of specific product.
 
