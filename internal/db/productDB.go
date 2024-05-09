@@ -117,6 +117,7 @@ func GetProductByID(id string) (*structs.Product, error) {
 			&product.Description,
 			&product.QtyInStock,
 			&product.Price,
+			&product.Active,
 		)
 		if err2 != nil {
 			log.Println("Error when selecting product by ID: ", err2)
@@ -142,8 +143,8 @@ func AddProduct(product structs.Product) (string, error) {
 
 	// Insert product
 	_, err2 := Client.Exec(
-		`INSERT INTO Product (ID, Name, BrandName, CategoryName, Description, QtyInStock, 
-Price) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+		`INSERT INTO Product (ID, Name, BrandName, CategoryName, Description, QtyInStock, Price, Active) VALUES (?, 
+?, ?, ?, ?, ?, ?, ?)`,
 		id,
 		product.Name,
 		product.BrandName,
@@ -151,6 +152,7 @@ Price) VALUES (?, ?, ?, ?, ?, ?, ?)`,
 		product.Description,
 		product.QtyInStock,
 		product.Price,
+		product.Active,
 	)
 	if err2 != nil {
 		log.Println("Error inserting product: ", err2)
@@ -174,13 +176,14 @@ func UpdateProduct(product structs.Product) error {
 	if exists {
 		_, err2 := Client.Exec(
 			`UPDATE Product SET Name = ?, BrandName = ?, CategoryName = ?, Description = ?, QtyInStock = ?, 
-Price = ? WHERE ID = ?`,
+Price = ?, Active = ? WHERE ID = ?`,
 			product.Name,
 			product.BrandName,
 			product.CategoryName,
 			product.Description,
 			product.QtyInStock,
 			product.Price,
+			product.Active,
 			product.ID,
 		)
 		if err2 != nil {
@@ -232,6 +235,7 @@ func rowsToProductSlice(rows *sql.Rows) ([]structs.Product, error) {
 			&product.Description,
 			&product.QtyInStock,
 			&product.Price,
+			&product.Active,
 		)
 		if err2 != nil {
 			return nil, err2
