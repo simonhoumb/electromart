@@ -17,11 +17,11 @@ func SearchProducts(query string) ([]structs.Product, error) {
 	lowerQuery := strings.ToLower(query) // Convert query to lowercase
 	rows, err := Client.Query(
 		`SELECT * FROM Product
-WHERE LOWER(Name) LIKE ? 
-   OR LOWER(Description) LIKE ? 
-   OR LOWER(BrandName) LIKE ? 
-   OR LOWER(CategoryName) LIKE ?`,
-		"%"+lowerQuery+"%", "%"+lowerQuery+"%", "%"+lowerQuery+"%", "%"+lowerQuery+"%",
+WHERE LOWER(Name) LIKE CONCAT('%', ?, '%') 
+   OR LOWER(Description) LIKE CONCAT('%', ?, '%') 
+   OR LOWER(BrandName) LIKE CONCAT('%', ?, '%') 
+   OR LOWER(CategoryName) LIKE CONCAT('%', ?, '%')`,
+		lowerQuery, lowerQuery, lowerQuery, lowerQuery,
 	)
 	if err != nil {
 		log.Println("Error when querying for products: ", err)
@@ -47,6 +47,44 @@ GetAllProducts retrieves all rows from the Product table in the database and ret
 */
 func GetAllProducts() ([]structs.Product, error) {
 	rows, err := Client.Query(`SELECT * FROM Product`)
+	if err != nil {
+		log.Println("Error when selecting all products: ", err)
+		return nil, err
+	}
+
+	foundProducts, err2 := rowsToProductSlice(rows)
+	if err2 != nil {
+		log.Println("Error when converting rows to slice: ", err2)
+		return nil, err2
+	}
+	return foundProducts, nil
+}
+
+/*
+GetAllProductsByCategory retrieves all rows from the Product table in the database by Category and returns them as a
+slice of Product structs.
+*/
+func GetAllProductsByCategory(category string) ([]structs.Product, error) {
+	rows, err := Client.Query(`SELECT * FROM Product WHERE CategoryName = ?`, category)
+	if err != nil {
+		log.Println("Error when selecting all products: ", err)
+		return nil, err
+	}
+
+	foundProducts, err2 := rowsToProductSlice(rows)
+	if err2 != nil {
+		log.Println("Error when converting rows to slice: ", err2)
+		return nil, err2
+	}
+	return foundProducts, nil
+}
+
+/*
+GetAllProductsByBrand retrieves all rows from the Product table in the database by Brand and returns them as a
+slice of Product structs.
+*/
+func GetAllProductsByBrand(brand string) ([]structs.Product, error) {
+	rows, err := Client.Query(`SELECT * FROM Product WHERE BrandName = ?`, brand)
 	if err != nil {
 		log.Println("Error when selecting all products: ", err)
 		return nil, err
