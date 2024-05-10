@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EStore</title>
     <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/product.css">
 </head>
 <body>
 <header>
@@ -20,13 +21,14 @@
         <div id="user-controls">
             <div id="user-logged">
                 <span id="logged-username">Username</span>
-                <div id="cart">
-                    <img src="../assets/images/cart_icon.jpg" alt="Cart Icon"> <!-- Placeholder for cart icon -->
-                </div>
                 <div id="user-menu">
                     <a href="/profile">Profile</a>
                     <button id="logoutButton">Logout</button>
                 </div>
+            </div>
+            <div id="cart">
+                <img src="../assets/images/cart_icon.jpg" alt="Cart Icon">
+                <div id="cart-dropdown" style="display: none;"> </div>
             </div>
             <div id="user-not-logged">
                 <button id="loginButton">Login</button>
@@ -43,28 +45,35 @@
             <li class="dropdown">
                 <a href="#">Category</a>
                 <div class="dropdown-content" id="categories">
-                    <!-- Categories will be added here by JavaScript -->
+                </div>
+            </li>
+            <li class="dropdown"> <a href="#">Brand</a>
+                <div class="dropdown-content" id="brands">
                 </div>
             </li>
         </ul>
     </div>
 </nav>
 
-<section class="container">
+<section class="products-header">
     <div id="sort-dropdown">
-        <select>
+        <label for="sort-products">Sort Products:</label>
+        <select id="sort-products">
             <option value="price-asc">Price (low to high)</option>
             <option value="price-desc">Price (high to low)</option>
             <option value="quantity-asc">Quantity (low to high)</option>
             <option value="quantity-desc">Quantity (high to low)</option>
         </select>
     </div>
-
     <h2>Our Products</h2>
-    <div class="breadcrumbs"></div> <!-- Breadcrumbs container -->
-    <div id="product-filters"><!-- Filters will be added here --></div>
+    <div class="breadcrumbs"></div>
+</section>
+
+
+<section class="container">
+    <section id="product-details-container" style="display: none;"></section>
+    <div id="product-filters"></div>
     <div id="products" class="product-grid">
-        <!-- Product elements will be added here by JavaScript -->
     </div>
 </section>
 
