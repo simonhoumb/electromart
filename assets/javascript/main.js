@@ -8,9 +8,10 @@
                 loginButton: document.getElementById('loginButton'),
                 closeModalButton: document.querySelector('.close'),
                 sortDropdown: document.getElementById('sort-dropdown'),
+                cartDropdown: document.getElementById('cart-dropdown'),
             }
-            this.addEventListeners();
             this.checkLoginState();
+            this.addEventListeners();
             this.fetchProducts();
             this.brandClicked = '';
             this.categoryClicked = '';
@@ -25,7 +26,50 @@
             this.elements.logoutButton.addEventListener('click', this.logoutUser.bind(this));
             this.elements.loginButton.addEventListener('click', this.openLoginModal.bind(this));
             this.elements.closeModalButton.addEventListener('click', this.closeModal.bind(this));
+            this.elements.closeModalButton.addEventListener('click', this.closeModal.bind(this));
             this.elements.sortDropdown.addEventListener('change', this.handleSort.bind(this));
+            document.querySelector('#cart').addEventListener('mouseenter', this.showCartDropdown.bind(this));
+            document.querySelector('#cart').addEventListener('mouseleave', this.hideCartDropdown.bind(this));
+        }
+
+        async showCartDropdown() {
+            // Check if user is logged in
+            const loginState = await fetch('/api/check_login', { credentials: 'include' })
+                .then(response => response.json());
+
+            if (!loginState.logged_in) {
+                // User is not logged in. Do nothing and return.
+                return;
+            }
+
+            // User is logged in, proceed with fetching the cart summary
+            try {
+                const cartSummaryHtml = await fetch('templates/cart.html');
+                if (cartSummaryHtml.ok) {
+                    const cartDropdownContent = await cartSummaryHtml.text();
+                    this.elements.cartDropdown.innerHTML = cartDropdownContent;
+                    this.elements.cartDropdown.style.display = 'block';
+                } else {
+                    throw new Error('Failed to fetch cart summary');
+                }
+            } catch (error) {
+                console.error('Error fetching cart summary:', error);
+            }
+        }
+
+        hideCartDropdown() {
+            this.elements.cartDropdown.style.display = 'none';
+        }
+
+        handleAddToCart(event) {
+            event.preventDefault();
+            if (!this.isUserLoggedIn) {
+                this.openLoginModal();
+            } else {
+                // Code to add the product to the cart.
+                // You can access the product ID using:
+                // const productId = event.target.dataset.productId;
+            }
         }
 
         handleSearch(event) {
@@ -395,7 +439,8 @@
 
             // Create the button element
             const buttonElement = document.createElement('button');
-            buttonElement.className = 'add-to-cart-button';
+            buttonElement.innerHTML = this.isUserLoggedIn ? 'Add To Cart' : 'Login to Add To Cart';
+            buttonElement.addEventListener('click', this.handleAddToCart.bind(this));
             buttonElement.dataset.productId = product.id;
             buttonElement.textContent = 'Add to Cart';
 
@@ -466,18 +511,23 @@
             fetch('/api/check_login', { credentials: 'include' })
                 .then(response => response.json())
                 .then(respJson => {
+                    this.isUserLoggedIn = respJson.logged_in;
                     const userNotLogged = document.getElementById('user-not-logged');
                     const userLogged = document.getElementById('user-logged');
                     const logoutButton = document.getElementById('logoutButton');
-                    if (respJson.logged_in) {
+                    const cartIcon = document.getElementById('cart'); // Get cart icon
+
+                    if (this.isUserLoggedIn) {
                         document.getElementById('logged-username').textContent = respJson.username;
                         userNotLogged.style.display = 'none';
                         userLogged.style.display = 'block';
                         logoutButton.style.display = 'block';
+                        cartIcon.style.display = 'block'; // Show cart icon if user is logged in
                     } else {
                         userNotLogged.style.display = 'block';
                         userLogged.style.display = 'none';
                         logoutButton.style.display = 'none';
+                        cartIcon.style.display = 'none'; // Hide cart icon if user is not logged in
                     }
                 })
                 .catch(error => console.error('Error checking login:', error));
@@ -489,6 +539,10 @@
                 .then(text => {
                     this.checkLoginState();
                     window.location.href = "/";
+                    // Remove event listener for login button
+                    this.elements.loginButton.removeEventListener('click', this.openLoginModal.bind(this));
+                    // Add event listener for login button
+                    this.elements.loginButton.addEventListener('click', this.openLoginModal.bind(this));
                 })
                 .catch(error => console.error('Error:', error));
         }
@@ -507,17 +561,3 @@
     // Instantiate the EStore class
     new EStore();
 
-    // Inside your main.js
-
-    document.querySelector('#cart').addEventListener('mouseover', async () => {
-        const cartSummaryHtml = await fetch('templates/cart.html');
-        if (cartSummaryHtml) {
-            const cartDropdown = document.getElementById('cart-dropdown'); // Target the dropdown
-            cartDropdown.innerHTML = cartSummaryHtml;
-            cartDropdown.style.display = 'block';
-        }
-    });
-
-    document.querySelector('#cart').addEventListener('mouseout', () => {
-        document.getElementById('cart-dropdown').style.display = 'none'; // Target the dropdown
-    });

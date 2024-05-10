@@ -103,6 +103,38 @@ func (db *UserDB) GetUser(username string) (structs.ActiveUser, error) {
 	return user, nil
 }
 
+// GetUser retrieves a user with given username from the database.
+func (db *UserDB) GetUserByID(userID string) (structs.ActiveUser, error) {
+	var user structs.ActiveUser
+
+	query := `SELECT UserAccount.ID, UserAccount.Username, UserAccount.Email, UserAccount.Password, UserAccount.FirstName, UserAccount.LastName, UserAccount.Phone,
+       UserAddress.Street, PostalCode.PostalCode 
+		FROM UserAccount 
+		LEFT JOIN UserAddress ON UserAccount.ID = UserAddress.UserAccountID
+		LEFT JOIN PostalCode ON UserAddress.PostalCode = PostalCode.PostalCode
+			WHERE UserAccount.ID = ?
+`
+
+	err := db.Client.QueryRow(query, userID).Scan(
+		&user.ID,
+		&user.Username,
+		&user.Email,
+		&user.Password,
+		&user.FirstName,
+		&user.LastName,
+		&user.Phone,
+		&user.Address,
+		&user.PostCode,
+	)
+
+	if err != nil {
+		log.Printf("Error fetching user info for %v: %v", userID, err)
+		return user, err
+	}
+
+	return user, nil
+}
+
 // UpdateUserProfile updates the user's profile in the database, including their address.
 func (db *UserDB) UpdateUserProfile(user structs.ActiveUser) error {
 	// Begin transaction
