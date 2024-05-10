@@ -21,7 +21,7 @@ func init() {
 
 	// Load .env file
 	if err := godotenv.Load(); err != nil {
-		log.Fatal("No .env file found")
+		log.Fatal("No .env file found, see .env.example for an example file")
 	}
 }
 
