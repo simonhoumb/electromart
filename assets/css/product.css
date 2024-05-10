@@ -1,217 +1,50 @@
-/* Global Styles */
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
+/* Product Detail Page Styles */
+#product-title {
+    font-size: 2rem;
+    color: #333;
 }
 
-.container {
-    width: 80%;
-    margin: 0 auto;
+#product-availability {
+    color: #007600;
+    margin-bottom: 1rem;
 }
 
-/* Header Styles */
-header {
-    background-color: #232f3e;
-    color: #ffffff;
-    padding: 20px 0;
-}
-
-header h1 {
-    margin: 0;
-    padding-left: 20px;
-}
-
-/* Breadcrumb Styles */
-.breadcrumbs {
-    background-color: #f2f2f2;
-    padding: 10px 0;
-}
-
-.breadcrumbs a {
-    color: #333333;
-    text-decoration: none;
-}
-
-
-.product {
-    border: 1px solid #ddd;
-    padding: 20px;
-    background-color: white;
-    text-align: center;
-    flex: 1;
-}
-
-.product h3 {
-    color: #444;
-}
-
-.product .product-price-label {
+#product-description {
     color: #666;
+    margin-bottom: 2rem;
 }
 
-.product .product-quantity-label {
-    color: #666;
+#product-price {
+    color: #B12704;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
 }
 
-.show-details-button {
-    background-color: #333;
-    color: white;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.show-details-button:hover {
-    background-color: #555;
-}
-
-
-/* Product Details Styles */
-.product-details {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 20px;
-}
-
-.product-image img {
-    max-width: 100%;
-}
-
-.product-info {
-    max-width: 60%;
-}
-
-.product-info h2 {
-    margin-top: 0;
-}
-
-.quantity {
-    margin-top: 10px;
-}
-
-.quantity label {
+.add-to-cart-button {
     font-weight: bold;
-}
-
-.quantity input {
-    width: 50px;
-    padding: 5px;
-}
-
-.add-to-cart {
-    background-color: #ff9900;
-    color: #ffffff;
-    border: none;
+    color: #fff;
+    background-color: #B12704;
+    border-color: #a6261a;
+    box-shadow: 0 2px 5px 2px rgba(0,0,0,.15);
+    transition: box-shadow .3s ease-in-out;
     padding: 10px 20px;
+    border-radius: 4px;
     cursor: pointer;
-    margin-top: 10px;
+    font-size: 1.2rem;
+    display: inline-block;
+    margin-top: 1rem;
+    text-align: center;
+    vertical-align: middle;
+    width: auto;
 }
 
-.add-to-cart:hover {
-    background-color: #ff6600;
+.add-to-cart-button:hover {
+    box-shadow: 0 2px 5px 2px rgba(0,0,0,.3);
 }
 
-/* ... (Your existing styles) */
-
-.product-details {
-    display: grid;
-    grid-template-columns: 1fr 2fr; /* Image and info side-by-side */
-    gap: 20px;
-}
-
-.product-image img {
-    max-width: 100%;
-    height: auto;
-    margin: 0 auto;
-    display: block;
-    border-radius: 5px; /* Add a little rounding to the image */
-}
-
-.related-products {
-    margin-top: 40px;
-}
-
-/* Basic Styling - you'll enhance this */
-.container {
-    max-width: 1000px;
-    margin: 0 auto;
-}
-
-.product-details {
-    display: grid;
-    grid-template-columns: 1fr 2fr;
-    gap: 30px;
-}
-
-.product-image img {
-    max-width: 100%;
-    height: auto;
-    display: block;
-}
-
-.price-action {
-    display: flex;
-    align-items: center;
-}
-
-.add-to-cart {
-    background-color: #3498db; /* Example button color */
-    color: white;
-    /* ... other button styles ... */
-}
-
-/* Add styles for related products */
-
-/* ... Your existing styles ... */
-
-.product-details {
-    display: flex;
-    grid-template-columns: 1fr 2fr; /* Image and info side-by-side */
-    gap: 30px;
-}
-
-.product-image img {
-    max-width: 100%;
-    height: auto;
-    display: block;
-    border-radius: 5px;
-}
-
-.price-action {
-    display: flex;
-    align-items: center;
-    margin-top: 20px;
-}
-
-.add-to-cart {
-    background-color: #FF9900;
-    color: #ffffff;
-    border: none;
-    padding: 10px 20px;
-    cursor: pointer;
-    border-radius: 5px;
-}
-
-/* Breadcrumbs */
-.breadcrumbs {
-    margin-top: 10px;
-    margin-bottom: 20px;
-    font-size: 14px;
-    color: #666666;
-}
-
-/* Availability */
-.availability {
-    margin-top: 10px;
-}
-
-.in-stock { /* For in-stock items  */
-    color: green;
-}
-
-.out-of-stock { /* For out-of-stock items */
-    color: red;
+.product-details{
+    border-top: 1px solid #e7e7e7;
+    border-bottom: 1px solid #e7e7e7;
+    padding: 2rem 0;
+    margin: 1rem 0;
 }

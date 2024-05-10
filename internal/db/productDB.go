@@ -17,11 +17,11 @@ func SearchProducts(query string) ([]structs.Product, error) {
 	lowerQuery := strings.ToLower(query) // Convert query to lowercase
 	rows, err := Client.Query(
 		`SELECT * FROM Product
-WHERE LOWER(Name) LIKE ? 
-   OR LOWER(Description) LIKE ? 
-   OR LOWER(BrandName) LIKE ? 
-   OR LOWER(CategoryName) LIKE ?`,
-		"%"+lowerQuery+"%", "%"+lowerQuery+"%", "%"+lowerQuery+"%", "%"+lowerQuery+"%",
+WHERE LOWER(Name) LIKE CONCAT('%', ?, '%') 
+   OR LOWER(Description) LIKE CONCAT('%', ?, '%') 
+   OR LOWER(BrandName) LIKE CONCAT('%', ?, '%') 
+   OR LOWER(CategoryName) LIKE CONCAT('%', ?, '%')`,
+		lowerQuery, lowerQuery, lowerQuery, lowerQuery,
 	)
 	if err != nil {
 		log.Println("Error when querying for products: ", err)
@@ -43,10 +43,80 @@ WHERE LOWER(Name) LIKE ?
 }
 
 /*
+SearchProductsByCategoryAndBrand retrieves rows from the Product table in the database based on the category and brand names provided.
+*/
+func SearchProductsByCategoryAndBrand(categoryName, brandName string) ([]structs.Product, error) {
+	lowerCategory := strings.ToLower(categoryName)
+	lowerBrand := strings.ToLower(brandName)
+
+	rows, err := Client.Query(
+		`SELECT * FROM Product
+        WHERE LOWER(CategoryName) LIKE ?
+        AND LOWER(BrandName) LIKE ?`,
+		"%"+lowerCategory+"%", "%"+lowerBrand+"%",
+	)
+	if err != nil {
+		log.Println("Error when querying for products: ", err)
+		return nil, err
+	}
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			log.Println("Error when closing rows: ", err)
+		}
+	}(rows)
+
+	products, err := rowsToProductSlice(rows)
+	if err != nil {
+		log.Println("Error when converting rows to slice: ", err)
+		return nil, err
+	}
+	return products, nil
+}
+
+/*
 GetAllProducts retrieves all rows from the Product table in the database and returns them as a slice of Product structs.
 */
 func GetAllProducts() ([]structs.Product, error) {
 	rows, err := Client.Query(`SELECT * FROM Product`)
+	if err != nil {
+		log.Println("Error when selecting all products: ", err)
+		return nil, err
+	}
+
+	foundProducts, err2 := rowsToProductSlice(rows)
+	if err2 != nil {
+		log.Println("Error when converting rows to slice: ", err2)
+		return nil, err2
+	}
+	return foundProducts, nil
+}
+
+/*
+GetAllProductsByCategory retrieves all rows from the Product table in the database by Category and returns them as a
+slice of Product structs.
+*/
+func GetAllProductsByCategory(category string) ([]structs.Product, error) {
+	rows, err := Client.Query(`SELECT * FROM Product WHERE CategoryName = ?`, category)
+	if err != nil {
+		log.Println("Error when selecting all products: ", err)
+		return nil, err
+	}
+
+	foundProducts, err2 := rowsToProductSlice(rows)
+	if err2 != nil {
+		log.Println("Error when converting rows to slice: ", err2)
+		return nil, err2
+	}
+	return foundProducts, nil
+}
+
+/*
+GetAllProductsByBrand retrieves all rows from the Product table in the database by Brand and returns them as a
+slice of Product structs.
+*/
+func GetAllProductsByBrand(brand string) ([]structs.Product, error) {
+	rows, err := Client.Query(`SELECT * FROM Product WHERE BrandName = ?`, brand)
 	if err != nil {
 		log.Println("Error when selecting all products: ", err)
 		return nil, err
@@ -79,6 +149,7 @@ func GetProductByID(id string) (*structs.Product, error) {
 			&product.Description,
 			&product.QtyInStock,
 			&product.Price,
+			&product.Active,
 		)
 		if err2 != nil {
 			log.Println("Error when selecting product by ID: ", err2)
@@ -104,8 +175,8 @@ func AddProduct(product structs.Product) (string, error) {
 
 	// Insert product
 	_, err2 := Client.Exec(
-		`INSERT INTO Product (ID, Name, BrandName, CategoryName, Description, QtyInStock, 
-Price) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+		`INSERT INTO Product (ID, Name, BrandName, CategoryName, Description, QtyInStock, Price, Active) VALUES (?, 
+?, ?, ?, ?, ?, ?, ?)`,
 		id,
 		product.Name,
 		product.BrandName,
@@ -113,6 +184,7 @@ Price) VALUES (?, ?, ?, ?, ?, ?, ?)`,
 		product.Description,
 		product.QtyInStock,
 		product.Price,
+		product.Active,
 	)
 	if err2 != nil {
 		log.Println("Error inserting product: ", err2)
@@ -136,13 +208,14 @@ func UpdateProduct(product structs.Product) error {
 	if exists {
 		_, err2 := Client.Exec(
 			`UPDATE Product SET Name = ?, BrandName = ?, CategoryName = ?, Description = ?, QtyInStock = ?, 
-Price = ? WHERE ID = ?`,
+Price = ?, Active = ? WHERE ID = ?`,
 			product.Name,
 			product.BrandName,
 			product.CategoryName,
 			product.Description,
 			product.QtyInStock,
 			product.Price,
+			product.Active,
 			product.ID,
 		)
 		if err2 != nil {
@@ -194,6 +267,7 @@ func rowsToProductSlice(rows *sql.Rows) ([]structs.Product, error) {
 			&product.Description,
 			&product.QtyInStock,
 			&product.Price,
+			&product.Active,
 		)
 		if err2 != nil {
 			return nil, err2
@@ -214,4 +288,29 @@ func productExists(id string) (bool, error) {
 	}
 
 	return exists, nil
+}
+
+/*
+GetAllProductsByBrandAndCategory retrieves all rows from the Product table in the database by Brand and Category and returns them as a
+*/
+func GetAllProductsByBrandAndCategory(db *sql.DB, brand string, category string) ([]structs.Product, error) {
+	stmt, err := db.Prepare(`SELECT * FROM Product WHERE BrandName = ? AND CategoryName = ?`)
+	if err != nil {
+		return nil, fmt.Errorf("error preparing statement: %v", err)
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(brand, category)
+	if err != nil {
+		return nil, fmt.Errorf("error executing query: %v", err)
+	}
+	defer rows.Close()
+
+	// Use your rowsToProductSlice function
+	products, err := rowsToProductSlice(rows)
+	if err != nil {
+		return nil, fmt.Errorf("error converting rows to slice: %v", err)
+	}
+
+	return products, nil
 }

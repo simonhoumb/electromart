@@ -9,25 +9,30 @@ import (
 	"net/http"
 )
 
-// Implemented methods for the endpoint
-var productsImplementedMethods = []string{
-	http.MethodGet,
-	http.MethodPost,
-}
+var productsImplementedMethods = []string{http.MethodGet, http.MethodPost}
 
 /*
 HandleProducts for the /products endpoint.
 */
 func HandleProducts(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-type", "application/json")
+	category := r.PathValue("category")
+	brand := r.PathValue("brand")
+
 	// Switch on the HTTP request method
 	switch r.Method {
 	case http.MethodGet:
-		handleGetAllRequest(w, r)
-
+		if brand != "" && category != "" {
+			handleGetAllByBrandAndCategoryRequest(w, r) // Handle by brand and category
+		} else if category != "" {
+			handleGetAllByCategoryRequest(w, r) // Handle by category
+		} else if brand != "" {
+			handleGetAllByBrandRequest(w, r) // Handle by brand
+		} else {
+			handleGetAllRequest(w, r) // Default: handle all products
+		}
 	case http.MethodPost:
 		handleCreateRequest(w, r)
-
 	default:
 		// If the method is not implemented, return an error with the allowed methods
 		http.Error(
@@ -48,10 +53,90 @@ func handleGetAllRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Return the products
-	if productsJSON, err := json.Marshal(products); utils.HandleError(w, r, http.StatusInternalServerError, err, "error during encoding response") {
+	if productsJSON, err := json.Marshal(products); utils.HandleError(
+		w,
+		r,
+		http.StatusInternalServerError,
+		err,
+		"error during encoding response",
+	) {
 		return
 	} else {
-		if _, err := w.Write(productsJSON); utils.HandleError(w, r, http.StatusInternalServerError, err, "error writing response") {
+		if _, err := w.Write(productsJSON); utils.HandleError(
+			w,
+			r,
+			http.StatusInternalServerError,
+			err,
+			"error writing response",
+		) {
+			return
+		}
+	}
+}
+
+func handleGetAllByCategoryRequest(w http.ResponseWriter, r *http.Request) {
+	category, err := utils.GetCategoryFromRequest(r)
+	if utils.HandleError(w, r, http.StatusBadRequest, err, "Error getting category from request") {
+		return
+	}
+
+	// Get all products by category
+	products, err := db.GetAllProductsByCategory(category)
+	if utils.HandleError(w, r, http.StatusInternalServerError, err, "error getting products from database") {
+		return
+	}
+
+	// Return the products
+	if productsJSON, err := json.Marshal(products); utils.HandleError(
+		w,
+		r,
+		http.StatusInternalServerError,
+		err,
+		"error during encoding response",
+	) {
+		return
+	} else {
+		if _, err := w.Write(productsJSON); utils.HandleError(
+			w,
+			r,
+			http.StatusInternalServerError,
+			err,
+			"error writing response",
+		) {
+			return
+		}
+	}
+}
+
+func handleGetAllByBrandRequest(w http.ResponseWriter, r *http.Request) {
+	brand, err := utils.GetBrandFromRequest(r)
+	if utils.HandleError(w, r, http.StatusBadRequest, err, "Error getting brand from request") {
+		return
+	}
+
+	// Get all products by category
+	products, err := db.GetAllProductsByBrand(brand)
+	if utils.HandleError(w, r, http.StatusInternalServerError, err, "error getting products from database") {
+		return
+	}
+
+	// Return the products
+	if productsJSON, err := json.Marshal(products); utils.HandleError(
+		w,
+		r,
+		http.StatusInternalServerError,
+		err,
+		"error during encoding response",
+	) {
+		return
+	} else {
+		if _, err := w.Write(productsJSON); utils.HandleError(
+			w,
+			r,
+			http.StatusInternalServerError,
+			err,
+			"error writing response",
+		) {
 			return
 		}
 	}
@@ -60,11 +145,23 @@ func handleGetAllRequest(w http.ResponseWriter, r *http.Request) {
 func handleCreateRequest(w http.ResponseWriter, r *http.Request) {
 	var product structs.Product
 
-	if err := json.NewDecoder(r.Body).Decode(&product); utils.HandleError(w, r, http.StatusBadRequest, err, "error during decoding request") {
+	if err := json.NewDecoder(r.Body).Decode(&product); utils.HandleError(
+		w,
+		r,
+		http.StatusBadRequest,
+		err,
+		"error during decoding request",
+	) {
 		return
 	}
 
-	if err := product.ValidateNewProductRequest(); utils.HandleError(w, r, http.StatusBadRequest, err, "invalid request json, check documentation") {
+	if err := product.ValidateNewProductRequest(); utils.HandleError(
+		w,
+		r,
+		http.StatusBadRequest,
+		err,
+		"invalid request json, check documentation",
+	) {
 		return
 	}
 
@@ -75,10 +172,64 @@ func handleCreateRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Two above in one if statement
-	if productIDJSON, err := json.Marshal(structs.CreateProductResponse{ID: productID}); utils.HandleError(w, r, http.StatusInternalServerError, err, "error during encoding response") {
+	if productIDJSON, err := json.Marshal(structs.CreateProductResponse{ID: productID}); utils.HandleError(
+		w,
+		r,
+		http.StatusInternalServerError,
+		err,
+		"error during encoding response",
+	) {
 		return
 	} else {
-		if _, err := w.Write(productIDJSON); utils.HandleError(w, r, http.StatusInternalServerError, err, "error writing response") {
+		if _, err := w.Write(productIDJSON); utils.HandleError(
+			w,
+			r,
+			http.StatusInternalServerError,
+			err,
+			"error writing response",
+		) {
+			return
+		}
+	}
+}
+
+/*
+HandleProductDetail for the /products/{id} endpoint.
+*/
+func handleGetAllByBrandAndCategoryRequest(w http.ResponseWriter, r *http.Request) {
+	brand, err := utils.GetBrandFromRequest(r)
+	if utils.HandleError(w, r, http.StatusBadRequest, err, "Error getting brand from request") {
+		return
+	}
+
+	category, err := utils.GetCategoryFromRequest(r)
+	if utils.HandleError(w, r, http.StatusBadRequest, err, "Error getting category from request") {
+		return
+	}
+
+	// Get all products by brand and category
+	products, err := db.GetAllProductsByBrandAndCategory(db.Client, brand, category)
+	if utils.HandleError(w, r, http.StatusInternalServerError, err, "error getting products from database") {
+		return
+	}
+
+	// Return the products
+	if productsJSON, err := json.Marshal(products); utils.HandleError(
+		w,
+		r,
+		http.StatusInternalServerError,
+		err,
+		"error during encoding response",
+	) {
+		return
+	} else {
+		if _, err := w.Write(productsJSON); utils.HandleError(
+			w,
+			r,
+			http.StatusInternalServerError,
+			err,
+			"error writing response",
+		) {
 			return
 		}
 	}

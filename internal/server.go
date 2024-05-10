@@ -27,6 +27,9 @@ func Start() {
 	// API endpoints
 	// Handle the products endpoint
 	mux.HandleFunc(constants.ProductsPath, products.HandleProducts)
+	mux.HandleFunc(constants.ProductsPath+"category/{category}", products.HandleProducts)
+	mux.HandleFunc(constants.ProductsPath+"brand/{brand}", products.HandleProducts)
+	mux.HandleFunc(constants.ProductsPath+"brand/{brand}/category/{category}", products.HandleProducts)
 	mux.HandleFunc(constants.ProductsPath+"{id}", products.HandleProductDetail)
 	mux.HandleFunc(constants.ProductsPath+"search/{query}", products.HandleQueryProducts)
 
@@ -38,9 +41,11 @@ func Start() {
 	mux.HandleFunc(constants.BrandsPath, brands.HandleBrands)
 	mux.HandleFunc(constants.BrandsPath+"{name}", brands.HandleBrandDetail)
 
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "templates/index.html")
-	})
+	mux.HandleFunc(
+		"/", func(w http.ResponseWriter, r *http.Request) {
+			http.ServeFile(w, r, "templates/index.html")
+		},
+	)
 
 	mux.HandleFunc("/api/check_login", users.CheckLoginHandler(userDB))
 	mux.HandleFunc("/api/logout", users.LogoutHandler())
@@ -51,21 +56,35 @@ func Start() {
 
 	mux.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("./assets"))))
 
-	mux.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "templates/Login.html")
-	})
+	mux.HandleFunc(
+		"/login", func(w http.ResponseWriter, r *http.Request) {
+			http.ServeFile(w, r, "templates/Login.html")
+		},
+	)
 
-	mux.HandleFunc("/register", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "templates/register.html")
-	})
+	mux.HandleFunc(
+		"/register", func(w http.ResponseWriter, r *http.Request) {
+			http.ServeFile(w, r, "templates/register.html")
+		},
+	)
 
-	mux.HandleFunc("/profile", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "templates/profile.html")
-	})
+	mux.HandleFunc(
+		"/profile", func(w http.ResponseWriter, r *http.Request) {
+			http.ServeFile(w, r, "templates/profile.html")
+		},
+	)
 
-	mux.HandleFunc("/product", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "templates/product.html")
-	})
+	mux.HandleFunc(
+		"/cart", func(w http.ResponseWriter, r *http.Request) {
+			http.ServeFile(w, r, "templates/cart.html")
+		},
+	)
+
+	mux.HandleFunc(
+		"/product", func(w http.ResponseWriter, r *http.Request) {
+			http.ServeFile(w, r, "templates/product.html")
+		},
+	)
 
 	port := utils.GetPort()
 

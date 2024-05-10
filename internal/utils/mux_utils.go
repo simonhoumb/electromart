@@ -34,3 +34,23 @@ func GetQueryFromRequest(r *http.Request) (string, error) {
 
 	return query, nil
 }
+
+// GetCategoryFromRequest Get the category from the mux request
+func GetCategoryFromRequest(r *http.Request) (string, error) {
+	category := r.PathValue("category")
+	if category == "" {
+		return "", errors.New("category not found in request")
+	}
+
+	return category, nil
+}
+
+// GetBrandFromRequest Get the brand from the mux request
+func GetBrandFromRequest(r *http.Request) (string, error) {
+	brand := r.PathValue("brand")
+	if brand == "" {
+		return "", errors.New("brand not found in request")
+	}
+
+	return brand, nil
+}
