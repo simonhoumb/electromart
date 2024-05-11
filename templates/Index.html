@@ -27,8 +27,9 @@
                 </div>
             </div>
             <div id="cart">
-                <img src="../assets/images/cart_icon.jpg" alt="Cart Icon">
-                <div id="cart-dropdown" style="display: none;"> </div>
+                <a> <img src="../assets/images/cart_icon.jpg" alt="Cart Icon">
+                    <span id="cart-badge" class="badge">0</span>
+                </a>
             </div>
             <div id="user-not-logged">
                 <button id="loginButton">Login</button>
@@ -81,19 +82,20 @@
     <div id="loginModalContent">
         <span class="close">&times;</span>
         <div class="form-container">
-            <form id="loginForm">
+            <form id="loginForm" , method="post">
                 <label for="username">Username:</label><br>
                 <input type="text" id="username" name="username"><br>
                 <label for="password">Password:</label><br>
                 <input type="password" id="password" name="password"><br>
                 <input type="submit" value="Login">
             </form>
-            <p>Don't have an account? <a href="/registerPage">Register</a></p>
+            <p>Don't have an account? <a href="#" id="registerLink">Register</a></p>
         </div>
     </div>
 </div>
 
-<script src="../assets/javascript/login.js"></script>
 <script src="../assets/javascript/main.js"></script>
+<script src="../assets/javascript/cart.js"></script>
+<script src="../assets/javascript/login.js"></script>
 </body>
 </html>

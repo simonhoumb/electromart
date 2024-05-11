@@ -4,16 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cart Summary</title>
-    <link rel="stylesheet" href="../assets/css/style.css">  </head>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/cart.css">
+</head>
 <body>
 <div id="cart-summary">
     <h3>Your Cart</h3>
-    <ul>
-        <li>Product A</li>
-        <li>Product B (x2)</li>
-    </ul>
-    <p>Subtotal: $50</p>
-    <a href="/cart" class="view-cart-button">View Cart</a>
+
+    <div id="cart-items-header">
+        <div>Product Name</div>
+        <div>Quantity</div>
+        <div>Price</div>
+        <div>Total</div>
+        <div>Remove</div>
+    </div>
+
+    <div id="cart-items">
+        <!-- Cart items will be dynamically inserted here -->
+    </div>
+
+    <div id="subtotal-checkout-container" style="text-align: right;">
+        <p id="subtotal">Subtotal: KR. 0.00</p>
+        <button id="checkout-button">Check Out</button>
+    </div>
+<script src="../assets/javascript/main.js"></script>
+<script src="../assets/javascript/cart.js"></script>
 </div>
-<script src="../assets/javascript/cart.js"></script> </body>
+</body>
 </html>

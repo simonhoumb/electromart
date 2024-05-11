@@ -35,18 +35,7 @@ func handleChangePassword(w http.ResponseWriter, r *http.Request, userDB *db.Use
 		http.Error(w, "Bad Request", http.StatusBadRequest)
 		return
 	}
-
-	// Verify old password
-	isValid, err := userDB.CheckLogin(username, changePasswordRequest.OldPassword)
-	if err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-	if !isValid {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
-
+	
 	// Hash the new password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(changePasswordRequest.NewPassword), bcrypt.DefaultCost)
 	if err != nil {

@@ -1,29 +1,68 @@
+/* register.css */
+
+/* Basic Reset and General Styling */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
 body {
-    font-family: Arial, sans-serif;
+    font-family: Arial, sans-serif; /* Consistent font */
+    background-color: #f5f7fa; /* Same background as product page */
 }
 
+/* Header Styling (mimicking product page) */
 header {
-    background-color: #f8f9fa;
-    padding: 20px;
-    text-align: center;
+    background-color: #232f3e;
+    color: #ffffff;
+    padding: 20px 0;
+    text-align: center; /* Center the header text */
 }
 
+header h1 {
+    font-size: 2em;
+    margin-bottom: 10px;
+}
+
+/* Section Styling (Form Container) */
 section {
+    max-width: 600px; /* Adjust width as needed */
+    margin: 20px auto;
+    padding: 20px;
+    background-color: white;
+    border: 1px solid #dddddd;
+    border-radius: 8px; /* Slightly rounded corners */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+/* Form Element Styling */
+form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+form input[type="text"],
+form input[type="password"] {
     width: 100%;
-    display: flex;
-    justify-content: center;
-}
-
-form {
-    margin-top: 50px;
-    width: 300px;
-    display: flex;
-    flex-direction: column;
-}
-
-input {
-    margin-top: 10px;
     padding: 10px;
-    border-radius: 5px;
-    border: 1px solid #333;
+    margin-bottom: 15px;
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+}
+
+form input[type="submit"] {
+    background-color: #f0c14b; /* Same color as add to cart button */
+    color: black;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease; /* Hover effect */
+}
+
+form input[type="submit"]:hover {
+    background-color: #a88734; /* Slightly darker on hover */
 }

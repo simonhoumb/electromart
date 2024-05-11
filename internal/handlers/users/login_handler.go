@@ -32,21 +32,16 @@ func handleLoginPostRequest(w http.ResponseWriter, r *http.Request, userDB *db.U
 		return
 	}
 
-	valid, err := userDB.CheckLogin(loginRequest.Username, loginRequest.Password)
+	user, err := userDB.GetUser(loginRequest.Username)
 	if err != nil {
 		fmt.Println(err)
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
 
-	if !valid {
-		http.Error(w, "Invalid username or password", http.StatusUnauthorized)
-		return
-	}
-
-	// Create a new session and save the username
+	// Create a new session and save the userID
 	session, _ := session.Store.Get(r, "user-session") // get/create a session
-	session.Values["username"] = loginRequest.Username
+	session.Values["userID"] = user.ID
 	err = session.Save(r, w)
 	if err != nil {
 		http.Error(w, "Could not save session", http.StatusInternalServerError)
@@ -55,7 +50,7 @@ func handleLoginPostRequest(w http.ResponseWriter, r *http.Request, userDB *db.U
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"username": loginRequest.Username})
+	json.NewEncoder(w).Encode(map[string]string{"userID": user.ID})
 }
 
 // CheckLoginHandler checks whether user is logged in or not.
@@ -67,15 +62,23 @@ func CheckLoginHandler(userDB *db.UserDB) http.HandlerFunc {
 			log.Printf("Error fetching session: %v", err)
 			return
 		}
-		username := session.Values["username"]
-		if username == nil {
+		userID := session.Values["userID"]
+		if userID == nil {
 			// Send response indicating user is not logged in
 			w.Header().Set("Content-Type", "application/json")
 			w.Write([]byte(`{"logged_in": false}`))
 		} else {
+			// Fetch username using userID
+			user, err := userDB.GetUserByID(userID.(string))
+			if err != nil {
+				http.Error(w, "Error fetching user", http.StatusInternalServerError)
+				log.Printf("Error fetching user: %v", err)
+				return
+			}
+
 			// Send response indicating user is logged in along with their username
 			w.Header().Set("Content-Type", "application/json")
-			w.Write([]byte(`{"logged_in": true, "username": "` + username.(string) + `"}`))
+			w.Write([]byte(`{"logged_in": true, "username": "` + user.Username + `"}`))
 		}
 	}
 }
