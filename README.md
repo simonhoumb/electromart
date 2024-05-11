@@ -78,7 +78,9 @@ The service provides the following endpoints:
 /api/v1/categories/
 /api/v1/brands/
 ```
-Note: where the user needs to provide an ID, it can be found using the `View all` endpoints or the `Search` endpoints.
+* Note: where the user needs to provide an ID, it can be found using the `View all` endpoints or the `Search` endpoints.
+
+* An easy way to test the API is to use a tool like `Postman` or `Insomnia`. A Postman collection template is provided in the repository.
 
 #### Products
 The initial endpoint focuses on the management of products stored in the database.
