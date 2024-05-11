@@ -69,24 +69,29 @@ function setupModalEventListeners() {
 
 function fetchUserProfile() {
     console.log("Fetching user profile...");
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', '/api/profile', true);
-    xhr.setRequestHeader('Content-type', 'application/json');
-    xhr.onload = function () {
-        if (xhr.status === 200) {
-            var respJson = JSON.parse(xhr.responseText);
-            fillUserProfileForm(respJson);
-        } else if (xhr.status === 401) {
-            window.location.href = '/login';
-        } else {
-            showError('Failed to get profile information. Please try again later.');
-        }
-    };
-    xhr.onerror = function () {
-        showError('Failed to fetch profile. Please check your internet connection and try again.');
-    };
-    xhr.send();
+
+    fetch('/api/profile', { credentials: 'include' }) // Make a GET request to /api/profile
+        .then(response => {
+            if (!response.ok) { // Check if the response was successful (status code 200-299)
+                if (response.status === 401) { // Check for unauthorized
+                    window.location.href = '/login'; // Redirect to login page
+                    return Promise.reject(new Error("Unauthorized"));
+                } else {
+                    return response.json().then(data => Promise.reject(new Error(data.error || "An error occurred")));
+                }
+            } else {
+                return response.json();
+            }
+        })
+        .then(data => {
+            fillUserProfileForm(data); // Assuming you have this function to fill the form
+        })
+        .catch(error => {
+            console.error("Error fetching profile:", error);
+            showError(error.message || "Failed to fetch profile. Please try again later."); // Display the error message or a default message
+        });
 }
+
 
 function confirmDeleteUser() {
     var password = document.getElementById('confirmPassword').value.trim();
@@ -171,7 +176,7 @@ function updateUserProfile() {
         } else if (this.status == 400) {
             showErrorMessage('Bad request: The server could not understand the request due to invalid syntax.');
         } else if (this.status == 401) {
-            window.location.href = '/login';
+            window.location.href = '/profile';
         } else if (this.status == 403) {
             showErrorMessage('Forbidden: You are not allowed to update this profile.');
         } else if (this.status == 404) {

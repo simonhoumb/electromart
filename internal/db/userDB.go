@@ -31,29 +31,31 @@ func (db *UserDB) UserExists(username string, password string) (bool, error) {
 }
 
 // CheckLogin checks if the given username and password match a record in the database.
-func (db *UserDB) CheckLogin(username string, password string) (bool, error) {
-	queryStmt := `SELECT Password FROM UserAccount WHERE Username=?`
+func (db *UserDB) CheckLogin(username string, password string) (structs.ActiveUser, error) {
+	var user structs.ActiveUser
 
-	var hashedPassword string
-	err := db.Client.QueryRow(queryStmt, username).Scan(&hashedPassword)
+	queryStmt := `SELECT ID, Password FROM UserAccount WHERE Username=?`
+
+	err := db.Client.QueryRow(queryStmt, username).Scan(&user.ID, &user.Password)
+
 	if err != nil {
 		if err == sql.ErrNoRows {
 			// Username was not found
-			return false, fmt.Errorf("username not found")
+			return user, fmt.Errorf("username not found")
 		}
 		// Another error occurred
-		return false, fmt.Errorf("internal error when fetching row: %v", err)
+		return user, fmt.Errorf("internal error when fetching row: %v", err)
 	}
 
 	// this will check if the password hashes match, returns an error if they don't
-	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
 		// Password does not match stored hash
-		return false, fmt.Errorf("unauthorized")
+		return user, fmt.Errorf("unauthorized")
 	}
 
 	// Both username and password match the record in the database
-	return true, nil
+	return user, nil
 }
 
 // RegisterUser creates a new user in the database.
@@ -207,32 +209,22 @@ func (db *UserDB) UpdateUserProfile(user structs.ActiveUser) error {
 }
 
 // DeleteUser deletes a user from the database along with their associated address and cart.
-func (db *UserDB) DeleteUser(username string) error {
-	// Begin transaction
+func (db *UserDB) DeleteUser(userID string) error {
 	tx, err := db.Client.Begin()
 	if err != nil {
 		return err
 	}
 	defer func() {
 		if err != nil {
-			// Rollback the transaction if an error occurred
 			tx.Rollback()
 			log.Printf("Transaction rolled back: %v", err)
 			return
 		}
-		// Commit the transaction if everything is successful
 		err = tx.Commit()
 		if err != nil {
 			log.Printf("Error committing transaction: %v", err)
 		}
 	}()
-
-	// Get the user's ID
-	var userID string
-	err = tx.QueryRow("SELECT ID FROM UserAccount WHERE Username = ?", username).Scan(&userID)
-	if err != nil {
-		return err
-	}
 
 	// Delete Address associated with the user
 	_, err = tx.Exec("DELETE FROM UserAddress WHERE UserAccountID = ?", userID)
@@ -241,7 +233,7 @@ func (db *UserDB) DeleteUser(username string) error {
 	}
 
 	// Delete User
-	_, err = tx.Exec("DELETE FROM UserAccount WHERE Username = ?", username)
+	_, err = tx.Exec("DELETE FROM UserAccount WHERE ID = ?", userID) // Filter by ID
 	if err != nil {
 		return err
 	}
@@ -249,11 +241,11 @@ func (db *UserDB) DeleteUser(username string) error {
 	return nil
 }
 
-func (db *UserDB) UpdatePassword(username, newPassword string) error {
-	query := `UPDATE UserAccount SET Password = ? WHERE Username = ?`
-	_, err := db.Client.Exec(query, newPassword, username)
+func (db *UserDB) UpdatePassword(userID string, newPassword string) error {
+	query := `UPDATE UserAccount SET Password = ? WHERE ID = ?`
+	_, err := db.Client.Exec(query, newPassword, userID)
 	if err != nil {
-		log.Printf("Error updating password for user %s: %v", username, err)
+		log.Printf("Error updating password for user %s: %v", userID, err)
 		return err
 	}
 	return nil
