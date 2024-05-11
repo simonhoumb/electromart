@@ -29,7 +29,7 @@ func CheckSession(next http.HandlerFunc) http.HandlerFunc {
 			http.Error(w, "Unable to get session", http.StatusInternalServerError)
 			return
 		}
-		if session.Values["username"] == nil {
+		if session.Values["userID"] == nil {
 			log.Println("Unauthorized access attempt")
 			fmt.Fprintln(w, "false")
 			return

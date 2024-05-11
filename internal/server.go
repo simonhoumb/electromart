@@ -4,6 +4,7 @@ import (
 	"Database_Project/internal/constants"
 	"Database_Project/internal/db"
 	"Database_Project/internal/handlers/brands"
+	"Database_Project/internal/handlers/cart"
 	"Database_Project/internal/handlers/categories"
 	"Database_Project/internal/handlers/products"
 	"Database_Project/internal/handlers/users"
@@ -37,6 +38,9 @@ func Start() {
 	mux.HandleFunc(constants.CategoriesPath, categories.HandleCategories)
 	mux.HandleFunc(constants.CategoriesPath+"{name}", categories.HandleCategoryDetail)
 
+	// Handle the cart endpoint
+	mux.HandleFunc(constants.CartPath, cart.HandleCart)
+
 	// Handle the brands endpoint
 	mux.HandleFunc(constants.BrandsPath, brands.HandleBrands)
 	mux.HandleFunc(constants.BrandsPath+"{name}", brands.HandleBrandDetail)
@@ -47,6 +51,8 @@ func Start() {
 		},
 	)
 
+	mux.Handle("/templates/", http.StripPrefix("/templates/", http.FileServer(http.Dir("./templates"))))
+
 	mux.HandleFunc("/api/check_login", users.CheckLoginHandler(userDB))
 	mux.HandleFunc("/api/logout", users.LogoutHandler())
 	mux.HandleFunc("/api/login", users.LoginHandler(userDB))
@@ -55,12 +61,6 @@ func Start() {
 	mux.HandleFunc("/api/change_password", session.CheckSession(users.ChangePasswordHandler(userDB)))
 
 	mux.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("./assets"))))
-
-	mux.HandleFunc(
-		"/login", func(w http.ResponseWriter, r *http.Request) {
-			http.ServeFile(w, r, "templates/Login.html")
-		},
-	)
 
 	mux.HandleFunc(
 		"/register", func(w http.ResponseWriter, r *http.Request) {

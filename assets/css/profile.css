@@ -1,226 +1,234 @@
-/* Global Styles */
-html, body {
-    height: 100%;
+/* profile.css */
+
+/* Basic Reset and General Styles */
+* {
+    box-sizing: border-box;
     margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; /* Modern font stack */
-    background-color: #f5f5f5; /* Slightly lighter background */
+    padding: 0;
 }
 
-.container {
-    max-width: 600px; /* Adjusted max-width */
-    margin: 0 auto;
-    padding: 2rem 1.5rem; /* Updated units (rem) and spacing */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f7fa;
+    line-height: 1.6;
 }
 
 /* Header Styles */
 .header {
-    background-color: #2980b9;
-    color: #fff;
-    padding: 0.5rem 2rem;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    display: flex;
-    justify-content: space-between; /* Align items to the left */
-    align-items: center;
-    height: 60px;
+    background-color: #232f3e;
+    color: #ffffff;
+    padding: 20px 0;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
 }
 
 .logo {
-    margin: 0;
-    font-size: 1.5rem;
+    font-size: 2em;
+    margin-bottom: 10px;
 }
 
 .nav {
-    display: flex;
-    align-items: center;
+    text-align: right;
 }
 
 .nav-link {
-    color: #fff;
+    color: #ffffff;
     text-decoration: none;
-    padding: 0.75rem 1.5rem;
+    font-size: 16px;
+    margin-right: 20px;
+}
+
+/* Main Profile Section */
+.profile-section {
+    display: flex;
+    flex-wrap: wrap; /* Allow wrapping for smaller screens */
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: white;
+    border: 1px solid #dddddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.profile-info, .address-info {
+    flex: 1; /* Take up available space */
+    min-width: 250px; /* Minimum width to prevent squeezing on small screens */
+    padding: 10px;
+}
+
+.address-info label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.address-info input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px; /* Adjust spacing as needed */
+    border: 1px solid #ccc;
     border-radius: 4px;
-    background-color: #3498db;
+}
+
+/* Form Styling */
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+form input[type="text"],
+form input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+}
+
+form button[type="submit"] {
+    background-color: #f0c14b;
+    color: black;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
     transition: background-color 0.3s ease;
 }
 
-.nav-link:hover {
-    background-color: #55acee;
+form button[type="submit"]:hover {
+    background-color: #a88734;
 }
 
-/* Profile Section Styles */
-.profile-section {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto auto;
-    gap: 20px;
-    /* Add margin to the top */
-    /* Add margin to the bottom */
-    margin: 20px 10px;
-}
-
-.profile-info {
-    grid-row: span 2; /* Span profile across two rows */
-}
-
-.profile-info,
-.address-info {
-    padding: 1rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    background-color: #fff;
-    margin-bottom: 20px; /* Add margin to the bottom */
-}
-
-.profile-info label,
-.address-info label {
-    display: block;
-    font-size: 1rem; /* Adjusted font size */
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 0.5rem;
-}
-
-.profile-info input,
-.address-info input {
-    width: calc(100% - 2rem); /* Adjusted input width */
-    padding: 0.5rem 1rem;
-    font-size: 1rem;
-    border-radius: 4px;
-    border: 1px solid #ddd;
-    margin-bottom: 0.5rem;
-}
-
+/* Action Buttons */
 .action-buttons {
-    display: block;
-    align-items: center;
-    grid-column: 2; /* Buttons in the second column */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 10px;
+    flex: 1; /* Ensure it takes up space */
 }
 
 .action-buttons button {
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-    color: #fff;
-    background-color: #2980b9;
+    background-color: #f0c14b;
+    color: black;
     border: none;
+    padding: 10px 20px;
+    margin-top: 10px;
     border-radius: 4px;
     cursor: pointer;
+    font-size: 16px;
     transition: background-color 0.3s ease;
 }
 
 .action-buttons button:hover {
-    background-color: #55acee;
+    background-color: #a88734;
 }
 
-.update-profile-button {
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-    color: #fff;
-    background-color: #2980b9;
-    border: none;
+
+/* Dropdown menu styles */
+#user-logged {
+    position: relative; /* For positioning the dropdown */
+}
+
+#user-menu {
+    display: none;
+    position: absolute;
+    top: 100%; /* Position below the username */
+    left: 50%;  /* Start at the horizontal center */
+    transform: translateX(-50%); /* Shift left by half its width to center */
+    background-color: #ffffff;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    width: 150px; /* Adjusted width */
     border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+    white-space: nowrap; /* Prevent menu items from wrapping */
 }
 
-.update-profile-button:hover {
-    background-color: #55acee;
+
+#user-menu a, #logoutButton {
+    color: #000000;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    transition: background-color 0.3s;
 }
 
-/* New CSS for message container */
-.messages {
+#user-menu a:hover, #logoutButton:hover {
+    background-color: #f2f2f2;
+}
+
+#user-logged:hover #user-menu {
+    display: block;
+}
+
+
+/* Modal Styles */
+.modal {
+    display: none;
     position: fixed;
-    bottom: 20px; /* Adjusted distance from bottom */
-    left: 50%; /* Center horizontally */
-    transform: translateX(-50%); /* Center horizontally */
-    z-index: 1000;
-    padding: 1rem;
-    background-color: #55acee; /* Background color for success and error messages */
-    color: #fff; /* Text color */
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0,0,0);
+    background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 30%;
+}
+
+/* Close Button */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+
+/* Success and Error Messages */
+.messages {
+    max-width: 600px;
+    margin: 10px auto;
+    padding: 10px;
     border-radius: 4px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    display: none; /* Hidden by default */
+    display: none; /* Initially hidden */
 }
 
 .success-message {
-    background-color: #27ae60; /* Success message background color */
+    background-color: lightgreen;
+    color: #3c763d;
+    border: 1px solid #d6e9c6;
 }
 
 .error-message {
-    background-color: #c0392b; /* Error message background color */
-}
-
-/* Adjusted modal styles for better appearance */
-.modal-content {
-    background-color: #fff; /* White background */
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Box shadow */
-    padding: 2rem 1.5rem; /* Adjusted padding */
-    max-width: 400px; /* Reduced max-width */
-    margin: 0 auto; /* Center horizontally */
-}
-
-
-/* Modal Content Styles */
-/* Modal Styles */
-.modal {
-    display: none; /* Hide the modal by default */
-    position: fixed;
-    z-index: 1000;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
-    overflow: auto; /* Allow scrolling when modal content exceeds viewport height */
-}
-
-.modal-content {
-    background-color: #fff; /* White background */
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Box shadow */
-    padding: 2rem 1.5rem; /* Adjusted padding */
-    max-width: 600px; /* Same max-width as the container */
-    margin: 0 auto; /* Center horizontally */
-}
-
-/* Modal Form Label Styles */
-.modal-content label {
-    display: block;
-    font-size: 1rem;
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 0.5rem;
-}
-
-/* Modal Form Input Styles */
-.modal-content input {
-    width: calc(100% - 2rem); /* Adjusted input width */
-    padding: 0.5rem 1rem;
-    font-size: 1rem;
-    border-radius: 4px;
-    border: 1px solid #ddd;
-    margin-bottom: 1rem; /* Increased margin bottom */
-}
-
-/* Modal Submit Button Styles */
-.modal-content button {
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-    color: #fff;
-    background-color: #2980b9;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.modal-content button:hover {
-    background-color: #55acee;
-}
-
-
-
-
-body {
-    overflow: hidden;
+    background-color: #f2dede;
+    color: #a94442;
+    border: 1px solid #ebccd1;
 }
