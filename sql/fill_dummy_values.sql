@@ -47,4 +47,5 @@ VALUES
     (UUID(), 'Wireless Router', 'Netgear', 'Networking', 'High-speed wireless router for home networks', 30, 999.99),
     (UUID(), 'Microsoft Office Suite', 'Microsoft', 'Software', 'Productivity software for home and business use', 100, 1499.99),
     (UUID(), 'Google Nest', 'Google', 'Smart Home', 'Voice-activated speaker for smart home control', 40, 999.99),
-    (UUID(), 'Lenovo Tab M10', 'Lenovo', 'Tablets', 'Android tablet for entertainment and productivity', 60, 2999.99);
+    (UUID(), 'Lenovo Tab M10', 'Lenovo', 'Tablets', 'Android tablet for entertainment and productivity', 60, 2999.99)
+ON DUPLICATE KEY UPDATE ID  = UUID();

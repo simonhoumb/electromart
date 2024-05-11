@@ -18,5 +18,8 @@ const CategoriesPath = APIPath + "categories/"
 // BrandsPath path for brands endpoint
 const BrandsPath = APIPath + "brands/"
 
+// CartPath path for cart endpoint
+const CartPath = APIPath + "cart/"
+
 // UsersPath path for users endpoint
 const UsersPath = APIPath + "users/"
