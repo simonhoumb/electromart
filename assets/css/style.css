@@ -24,28 +24,53 @@ header, nav {
 }
 
 #cart {
-    margin-right: 10px; /* Adjust as needed */
+    display: flex;
+    align-items: center; /* Align items vertically */
+    position: relative; /* To position the badge absolutely */
+}
+
+#cart a {
+    display: flex;
+    align-items: center;
 }
 
 #cart img {
-    width: 20px; /* Adjust the size of the cart icon */
+    width: 24px; /* Adjust the size as needed */
     height: auto;
+    margin-right: 5px; /* Add some space between the icon and the badge */
     cursor: pointer;
 }
+
+/* Cart badge styling */
+#cart-badge {
+    background-color: red;
+    color: white;
+    padding: 2px 5px;
+    border-radius: 50%;
+    font-size: 12px;
+    position: absolute;
+    top: -5px; /* Adjust as needed */
+    right: -5px; /* Adjust as needed */
+    min-width: 18px; /* Ensure badge has enough width even when count is single digit */
+    text-align: center;
+    display: none; /* Hide by default, show when count > 0 */
+}
+
+
 
 
 #user-controls {
     display: flex;
-    align-items: center;
-    justify-content: flex-end;
+    align-items: center; /* Align items vertically */
+    justify-content: flex-end; /* Align to the right */
 }
 
 /* Placement of username and cart */
 #user-logged {
-    display: flex; /* Use flexbox for layout */
-    align-items: center; /* Centers items vertically */
-    justify-content: space-between;
-    z-index: 1; /* Ensure it's above the cart dropdown */
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-right: 20px; /* Adjust spacing as needed */
 }
 
 #user-logged > span { /* Target direct span children for username */
@@ -68,9 +93,8 @@ header, nav {
 
 
 #logged-username {
-    margin-right: 100px;
-    cursor: pointer;
     font-weight: bold;
+    cursor: pointer;
 }
 
 #logged-username:hover {
@@ -119,6 +143,19 @@ nav ul li a:hover {
 
 #loginModal {
     display: none;
+}
+
+#loginButton {
+    background-color: #f0c14b; /* Example color, change to match your design */
+    color: black;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#loginButton:hover {
+    background-color: #a88734; /* Example hover color */
 }
 
 #loginModalContent {

@@ -39,18 +39,6 @@ func handleLoginPostRequest(w http.ResponseWriter, r *http.Request, userDB *db.U
 		return
 	}
 
-	valid, err := userDB.CheckLogin(loginRequest.Username, loginRequest.Password)
-	if err != nil {
-		fmt.Println(err)
-		http.Error(w, err.Error(), http.StatusUnauthorized)
-		return
-	}
-
-	if !valid {
-		http.Error(w, "Invalid username or password", http.StatusUnauthorized)
-		return
-	}
-
 	// Create a new session and save the userID
 	session, _ := session.Store.Get(r, "user-session") // get/create a session
 	session.Values["userID"] = user.ID

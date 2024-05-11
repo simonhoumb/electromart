@@ -131,6 +131,8 @@ async function removeFromCart(productId) {
 
             // Re-fetch and populate the cart summary
             await fetchAndPopulateCartSummary();
+            await updateCartBadge();
+            ;
         } else {
             console.error('Failed to remove item from cart:', response.statusText);
             // Handle error, e.g., show a message to the user

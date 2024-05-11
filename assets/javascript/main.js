@@ -16,6 +16,7 @@ class EStore {
         this.fetchCategories();
         this.addEventListenersProduct();
         this.fetchBrands();
+        this.updateCartBadge();
         this.allBrands = []; // Inside the EStore class constructor
     }
 
@@ -83,7 +84,21 @@ class EStore {
                     // Remove cart and re-fetch products
                     existingCart.remove();
                     await this.fetchProducts();
-                    productsHeader.style.display = 'block'; // Show products-header when cart is hidden
+
+                    // Re-create the product-details-container if it's missing
+                    const productDetailsContainer = document.getElementById('product-details-container');
+                    if (!productDetailsContainer) {
+                        const newProductDetailsContainer = document.createElement('section');
+                        newProductDetailsContainer.id = 'product-details-container';
+                        newProductDetailsContainer.style.display = 'none'; // Initially hidden
+                        productArea.appendChild(newProductDetailsContainer);
+                    }
+                    if (productDetailsContainer) {
+                        productDetailsContainer.style.display = 'block';
+                    }
+                    if (productFilters) {
+                        productFilters.style.display = 'block';
+                    }
                 }
             } else {
                 // Create a new container for the cart
@@ -123,7 +138,28 @@ class EStore {
             console.error('Error fetching cart content:', error);
             productArea.innerHTML = '<div class="error-message">Error loading cart. Please try again.</div>';
         }
+        this.updateCartBadge();
     }
+
+    async updateCartBadge() {
+        try {
+            const response = await fetch('/api/v1/cart/');
+            if (!response.ok) {
+                throw new Error('Failed to fetch cart items');
+            }
+            const cartItems = await response.json();
+
+            const count = cartItems.length;  // Get the length of the array
+            const cartBadge = document.getElementById('cart-badge');
+            if (cartBadge) {
+                cartBadge.textContent = count;
+                cartBadge.style.display = count > 0 ? 'block' : 'none';
+            }
+        } catch (error) {
+            console.error('Error updating cart badge:', error);
+        }
+    }
+
 
 
     handleSort(event) {
@@ -217,25 +253,73 @@ class EStore {
 
 
 
-    handleCategoryClick(event) {
+    async handleCategoryClick(event) {
         event.preventDefault();
+
         const categoryName = event.target.dataset.categoryName;
-        const productDetailsContainer = document.getElementById('product-details-container');
-        productDetailsContainer.style.display = 'none'; // Hide product details if visible
-        productDetailsContainer.innerHTML = '';
-        this.elements.productsContainer.style.display = 'block';
 
+        // 1. Show Product Section, Update Content, and Hide Cart and Details (if visible)
+        await this.toggleCartAndProducts('products'); // Toggle to products
 
+        // 2. Fetch products by category
         this.fetchProductsByCategory(categoryName);
 
-
-        // Update breadcrumbs
+        // 3. Update breadcrumbs and history
         this.updateBreadcrumbs([
             { text: 'Home', href: '/', type: 'home' },
             { text: categoryName, href: `/${categoryName}`, type: 'category' }
         ]);
         history.pushState(null, null, `/${categoryName}`);
     }
+
+    async toggleCartAndProducts(showElementId) {
+        const productsSection = document.getElementById('products');
+        const existingCart = document.getElementById('cart-summary');
+        const productDetailsContainer = document.getElementById('product-details-container');
+        const productFilters = document.getElementById('product-filters');
+        const productsHeader = document.querySelector('.products-header');
+
+        if (showElementId === 'cart-summary') {
+            // ... (Logic for showing the cart remains the same)
+        } else { // showElementId is 'products'
+            if (existingCart) {
+                existingCart.remove();
+            }
+
+            // If productArea does not exist, re-create it
+            if (!productsSection) {
+                const productAreaParent = document.querySelector('.container');
+                const productAreaElement = document.createElement('div');
+                productAreaElement.id = 'products';
+                productAreaElement.className = 'product-grid';
+                productAreaParent.appendChild(productAreaElement);
+            }
+
+            // 1. Fetch products FIRST before updating references
+            await this.fetchProducts();
+
+            // Update the reference to the new productArea
+            this.elements.productsContainer = document.getElementById('products'); // Update the reference
+
+            // 2. Update breadcrumbs and history (if needed)
+            this.updateBreadcrumbs([
+                { text: 'Home', href: '/', type: 'home' },
+                // ... (rest of your breadcrumb logic)
+            ]);
+            history.pushState(null, null, `/`);
+
+            document.querySelector('.products-header').style.display = 'block';
+            productDetailsContainer.style.display = 'block';
+        }
+    }
+
+
+
+
+
+
+
+
 
     handleBrandClick(event) {
         event.preventDefault();
@@ -497,7 +581,7 @@ class EStore {
                 const errorMessage = errorData.error || "Failed to add to cart.";
                 throw new Error(errorMessage);
             } else {
-                alert("Product added to cart successfully!");
+                this.updateCartBadge();
             }
         } catch (error) {
             console.error('Error adding to cart:', error);
@@ -676,3 +760,21 @@ class EStore {
 // Instantiate the EStore class
 new EStore();
 
+async function updateCartBadge() {
+    try {
+        const response = await fetch('/api/v1/cart/');
+        if (!response.ok) {
+            throw new Error('Failed to fetch cart items');
+        }
+        const cartItems = await response.json();
+
+        const count = cartItems.length;  // Get the length of the array
+        const cartBadge = document.getElementById('cart-badge');
+        if (cartBadge) {
+            cartBadge.textContent = count;
+            cartBadge.style.display = count > 0 ? 'block' : 'none';
+        }
+    } catch (error) {
+        console.error('Error updating cart badge:', error);
+    }
+}

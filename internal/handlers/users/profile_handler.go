@@ -29,29 +29,44 @@ func ProfileHandler(userDB *db.UserDB) http.HandlerFunc {
 
 // handleProfileGetRequest now uses the session to get the username
 func handleProfileGetRequest(w http.ResponseWriter, r *http.Request, userDB *db.UserDB) {
-	username, err := getUsernameFromSession(r)
+	// 1. Get the session
+	session, err := session.Store.Get(r, "user-session")
 	if err != nil {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		log.Printf("Error getting session: %v", err)
+		http.Error(w, "Session error", http.StatusInternalServerError)
 		return
 	}
 
-	user, err := userDB.GetUser(username)
+	// 2. Retrieve the userID from the session
+	userIDValue := session.Values["userID"].(string)
+
+	// 4. Fetch user by ID
+	user, err := userDB.GetUserByID(userIDValue)
 	if err != nil {
 		http.Error(w, "Error retrieving user profile", http.StatusInternalServerError)
 		return
 	}
+
+	// 5. Mask the password
+	user.Password = ""
 
 	respondWithJSON(w, http.StatusOK, user)
 }
 
 // handleProfilePatchRequest handles the PATCH request to update user profile.
 func handleProfilePatchRequest(w http.ResponseWriter, r *http.Request, userDB *db.UserDB) {
-	username, err := getUsernameFromSession(r)
+	// 1. Get the session
+	session, err := session.Store.Get(r, "user-session")
 	if err != nil {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		log.Printf("Error getting session: %v", err)
+		http.Error(w, "Session error", http.StatusInternalServerError)
 		return
 	}
 
+	// 2. Retrieve the userID from the session
+	userIDValue := session.Values["userID"].(string)
+
+	// 3. Decode the request body
 	var user structs.ActiveUser
 	err = json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
@@ -59,12 +74,8 @@ func handleProfilePatchRequest(w http.ResponseWriter, r *http.Request, userDB *d
 		return
 	}
 
-	if username != user.Username {
-		http.Error(w, "Permission Denied", http.StatusForbidden)
-		return
-	}
-
-	existingUser, err := userDB.GetUser(username)
+	// 4. Update the user profile
+	existingUser, err := userDB.GetUserByID(userIDValue)
 	if err != nil {
 		http.Error(w, "Error retrieving user profile", http.StatusInternalServerError)
 		return
@@ -80,51 +91,57 @@ func handleProfilePatchRequest(w http.ResponseWriter, r *http.Request, userDB *d
 }
 
 // handleProfileDeleteRequest handles deleting a user after password confirmation.
+// handleProfileDeleteRequest handles deleting a user after password confirmation.
 func handleProfileDeleteRequest(w http.ResponseWriter, r *http.Request, userDB *db.UserDB) {
-	username, err := getUsernameFromSession(r)
+	// 1. Get the session
+	session, err := session.Store.Get(r, "user-session")
 	if err != nil {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
 
-	// Decode the request body to get the password confirmation
+	// 2. Retrieve the userID from the session
+	userIDValue := session.Values["userID"].(string)
+
+	// 3. Decode the request body to get the password confirmation
 	var requestBody map[string]string
 	if err := json.NewDecoder(r.Body).Decode(&requestBody); err != nil {
 		http.Error(w, "Bad Request", http.StatusBadRequest)
 		return
 	}
 
-	// Check if password confirmation is provided in the request body
+	// 4. Check if password confirmation is provided
 	passwordConfirmation, ok := requestBody["passwordConfirmation"]
 	if !ok || passwordConfirmation == "" {
 		http.Error(w, "Password confirmation is required", http.StatusBadRequest)
 		return
 	}
 
-	// Retrieve user information from the database
-	user, err := userDB.GetUser(username)
+	// 5. Retrieve user information from the database using userID
+	user, err := userDB.GetUserByID(userIDValue)
 	if err != nil {
 		http.Error(w, "User not found", http.StatusNotFound)
 		return
 	}
 
-	fmt.Println(user.Password)
-	fmt.Println(passwordConfirmation)
-	// Verify password confirmation
+	// 6. Verify password confirmation
 	if !verifyPasswordHash(passwordConfirmation, user.Password) {
 		http.Error(w, "Incorrect password", http.StatusUnauthorized)
 		return
 	}
 
-	// Password confirmed, proceed with deleting the user
-	err = deleteUser(username, userDB)
+	// 7. Password confirmed, proceed with deleting the user
+	err = deleteUser(userIDValue, userDB) // Use userID.String() for the query
 	if err != nil {
 		log.Printf("Error deleting user: %v", err)
 		http.Error(w, "Error deleting user", http.StatusInternalServerError)
 		return
 	}
 
+	// 8. Clear the session (log the user out)
 	clearSession(w, r)
+
+	// 9. Respond with success
 	w.WriteHeader(http.StatusNoContent)
 }
 
@@ -139,7 +156,7 @@ func getUsernameFromSession(r *http.Request) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	username, ok := session.Values["username"].(string)
+	username, ok := session.Values["userID"].(string)
 	if !ok {
 		return "", fmt.Errorf("no username found in session")
 	}
@@ -174,8 +191,8 @@ func updateUserProfile(existingUser, user structs.ActiveUser, userDB *db.UserDB)
 	return nil
 }
 
-func deleteUser(username string, userDB *db.UserDB) error {
-	err := userDB.DeleteUser(username)
+func deleteUser(userID string, userDB *db.UserDB) error {
+	err := userDB.DeleteUser(userID) // Assuming DeleteUser now takes a uuid.UUID
 	if err != nil {
 		return err
 	}
