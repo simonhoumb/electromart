@@ -2,6 +2,7 @@ package db
 
 import (
 	"Database_Project/internal/structs"
+	"database/sql"
 	"log"
 )
 
@@ -57,12 +58,54 @@ func GetCartItemsByUser(userID string) ([]structs.CartItem, error) {
 	return cartItems, nil
 }
 
-// AddCartItem adds a new cart item to the database
 func AddCartItem(cartItem structs.CartItem) error {
-	_, err := Client.Exec("INSERT INTO CartItem (UserAccountID, ProductID, Quantity) VALUES (?, ?, ?)",
-		cartItem.UserAccountID, cartItem.ProductID, cartItem.Quantity)
+	// Check if the item already exists for the user
+	existingItem, err := GetCartItemByUserIDAndProductID(cartItem.UserAccountID, cartItem.ProductID)
+	if err != nil && err != sql.ErrNoRows { // Error other than no rows found
+		log.Println("Error checking for existing cart item:", err)
+		return err
+	}
+
+	if existingItem != nil {
+		// Update quantity if the item exists
+		newQuantity := existingItem.Quantity + cartItem.Quantity
+		_, err = Client.Exec("UPDATE CartItem SET Quantity = ? WHERE UserAccountID = ? AND ProductID = ?",
+			newQuantity, cartItem.UserAccountID, cartItem.ProductID)
+	} else {
+		// Insert a new cart item if it doesn't exist
+		_, err = Client.Exec("INSERT INTO CartItem (UserAccountID, ProductID, Quantity) VALUES (?, ?, ?)",
+			cartItem.UserAccountID, cartItem.ProductID, cartItem.Quantity)
+	}
+
 	if err != nil {
-		log.Println("Error adding cart item:", err)
+		log.Println("Error adding/updating cart item:", err)
+		return err
+	}
+
+	return nil
+}
+
+// GetCartItemByUserIDAndProductID retrieves a cart item by UserAccountID and ProductID
+func GetCartItemByUserIDAndProductID(userID, productID string) (*structs.CartItem, error) {
+	var cartItem structs.CartItem
+	err := Client.QueryRow("SELECT * FROM CartItem WHERE UserAccountID = ? AND ProductID = ?", userID, productID).Scan(
+		&cartItem.UserAccountID, &cartItem.ProductID, &cartItem.Quantity,
+	)
+	if err != nil {
+		// If no rows were found, return nil, sql.ErrNoRows to differentiate from other errors
+		if err == sql.ErrNoRows {
+			return nil, err
+		}
+		log.Println("Error retrieving cart item:", err)
+		return nil, err
+	}
+	return &cartItem, nil
+}
+
+func UpdateCartItemQuantity(userID, productID string, newQuantity int) error {
+	_, err := Client.Exec("UPDATE CartItem SET Quantity = ? WHERE UserAccountID = ? AND ProductID = ?", newQuantity, userID, productID)
+	if err != nil {
+		log.Println("Error updating cart item quantity:", err)
 		return err
 	}
 	return nil

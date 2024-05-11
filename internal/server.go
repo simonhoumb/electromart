@@ -51,6 +51,8 @@ func Start() {
 		},
 	)
 
+	mux.Handle("/templates/", http.StripPrefix("/templates/", http.FileServer(http.Dir("./templates"))))
+
 	mux.HandleFunc("/api/check_login", users.CheckLoginHandler(userDB))
 	mux.HandleFunc("/api/logout", users.LogoutHandler())
 	mux.HandleFunc("/api/login", users.LoginHandler(userDB))

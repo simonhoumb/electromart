@@ -24,6 +24,7 @@ func HandleCart(w http.ResponseWriter, r *http.Request) {
 var implementedMethods = []string{
 	http.MethodGet,
 	http.MethodPost,
+	http.MethodPatch,
 	http.MethodDelete,
 }
 
@@ -34,6 +35,8 @@ func handleCartRequest(w http.ResponseWriter, r *http.Request) {
 		handleGetRequest(w, r)
 	case http.MethodPost:
 		handlePostRequest(w, r)
+	case http.MethodPatch:
+		handlePatchRequest(w, r)
 	case http.MethodDelete:
 		handleDeleteRequest(w, r)
 	default:
@@ -99,6 +102,60 @@ func handlePostRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
+}
+
+func handlePatchRequest(w http.ResponseWriter, r *http.Request) {
+	session, err := session.Store.Get(r, "user-session")
+	if err != nil {
+		http.Error(w, "Failed to get session", http.StatusInternalServerError)
+		return
+	}
+
+	userID, ok := session.Values["userID"].(string)
+	if !ok {
+		http.Error(w, "Failed to retrieve user ID from session", http.StatusInternalServerError)
+		return
+	}
+
+	productID := r.URL.Query().Get("productID")
+	if productID == "" {
+		http.Error(w, "Missing productID query parameter", http.StatusBadRequest)
+		return
+	}
+
+	// Decode the update request
+	var updateRequest struct {
+		NewQuantity int `json:"newQuantity"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&updateRequest); err != nil {
+		http.Error(w, "Failed to decode request", http.StatusBadRequest)
+		return
+	}
+
+	// Validate newQuantity (e.g., ensure it's not negative)
+	if updateRequest.NewQuantity < 0 {
+		http.Error(w, "Invalid quantity", http.StatusBadRequest)
+		return
+	}
+
+	// Update the cart item quantity in the database
+	if err := db.UpdateCartItemQuantity(userID, productID, updateRequest.NewQuantity); err != nil {
+		http.Error(w, "Failed to update cart item quantity", http.StatusInternalServerError)
+		return
+	}
+
+	// Fetch and return updated cart items to the client
+	cartItems, err := db.GetCartItemsByUser(userID)
+	if err != nil {
+		http.Error(w, "Failed to fetch updated cart items", http.StatusInternalServerError)
+		return
+	}
+	if err := json.NewEncoder(w).Encode(cartItems); err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }
 
 func handleDeleteRequest(w http.ResponseWriter, r *http.Request) {

@@ -9,8 +9,9 @@
 }
 
 #cart-items-header, .cart-item {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 1fr 50px 100px 100px 80px; /* Refined column widths */
+    align-items: center;
     box-sizing: border-box;
     padding: 10px;
     border-bottom: 1px solid #F0F0F0;
@@ -23,12 +24,57 @@
     text-transform: uppercase;
 }
 
-#cart-items-header div:nth-child(5), .cart-item div:nth-child(5) {
+#cart-items-header, .cart-item {
+    display: grid;
+    grid-template-columns: minmax(150px, 1fr) 60px 120px 120px 80px; /* More flexible column widths */
+    align-items: center;
+    box-sizing: border-box;
+    padding: 10px;
+    border-bottom: 1px solid #F0F0F0;
+    color: #333;
+}
+
+/* Key Changes Here */
+#cart-items-header div:first-child, .cart-item div:first-child { /* Target the first div (Product Name) */
+    flex: 1;  /* Allow it to grow and take available space */
+    min-width: 150px; /* Set a minimum width to prevent it from shrinking too much */
+    overflow-wrap: break-word; /* Allow long words to break */
+}
+
+#cart-items-header div:not(:first-child), .cart-item div:not(:first-child) {
+    flex: 0 0 auto;
+    min-width: 100px; /* Increased min-width for more space */
     text-align: center;
+    white-space: nowrap; /* Prevent text from wrapping in these columns */
+}
+
+/* Refined quantity column styling */
+.cart-item div:nth-child(2) {
+    width: 60px; /* Ensure enough space */
+}
+
+/* Add some padding to the right of the price column */
+.cart-item div:nth-child(3),
+.cart-item div:nth-child(4) { /* Price and Total */
+    text-align: center;
+    white-space: nowrap; /* Prevent wrapping */
 }
 
 .cart-item {
     background-color: #FFF;
+}
+
+.cart-item .quantity-container { /* Style the container */
+    display: flex;
+    align-items: center;
+    width: 60px; /* Adjust as needed */
+}
+
+.cart-item .quantity-input { /* Style the input itself */
+    width: 50px; /* Set explicit width */
+    text-align: center;
+    border: 1px solid #ddd; /* Add a border (optional) */
+    padding: 5px; /* Add some padding (optional) */
 }
 
 #subtotal {
@@ -64,4 +110,45 @@
     text-align: center;
     text-decoration: none;
     color: #333;
+}
+
+.remove-btn {
+    background-color: #ff4d4d; /* Red background color */
+    color: white; /* White text color */
+    border: none; /* Remove default border */
+    padding: 8px 12px; /* Add padding for better visual appearance */
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    border-radius: 5px; /* Add rounded corners */
+    cursor: pointer; /* Indicate that it's clickable */
+    transition: background-color 0.3s ease; /* Add smooth transition on hover */
+}
+
+.remove-btn:hover {
+    background-color: #cc0000; /* Darker red on hover */
+}
+
+/* Optional: Add a subtle shadow to the button */
+.remove-btn:active {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Additional Styling to Align Remove Button in the "Remove" Column */
+.cart-item div:last-child { /* Target the last div (Remove) in each cart item */
+    display: flex; /* Use flexbox for alignment */
+    justify-content: center; /* Center the button horizontally */
+    align-items: center; /* Center the button vertically */
+}
+
+@media (max-width: 480px) {
+    #cart-items-header, .cart-item {
+        grid-template-columns: 1fr 50px 80px; /* Further adjust for smaller screens */
+    }
+
+    .cart-item div:nth-child(4) { /* Total column on smallest screens */
+        grid-column: span 2; /* Span two columns */
+        text-align: right;
+    }
 }
