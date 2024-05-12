@@ -51,14 +51,22 @@ func handleCartRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleGetRequest(w http.ResponseWriter, r *http.Request) {
-	// Get all cart items
-	cartItems, err := db.GetAllCartItems()
+	// 1. Check the user session
+	session, err := session.Store.Get(r, "user-session")
+	if err != nil {
+		http.Error(w, "Session error", http.StatusInternalServerError)
+		return
+	}
+	userIDValue := session.Values["userID"].(string)
+
+	// 2. Get cart items for the specific user using userID
+	cartItems, err := db.GetCartItemsByUser(userIDValue)
 	if err != nil {
 		http.Error(w, "Failed to fetch cart items", http.StatusInternalServerError)
 		return
 	}
 
-	// Return the cart items
+	// 3. Return the cart items
 	if err := json.NewEncoder(w).Encode(cartItems); err != nil {
 		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
 		return
