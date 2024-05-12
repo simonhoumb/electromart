@@ -1,20 +1,42 @@
 package db
 
 import (
+	"Database_Project/internal/session"
 	"Database_Project/internal/structs"
 	"database/sql"
+	"fmt"
+	"github.com/google/uuid"
 	"log"
+	"net/http"
 )
 
-// GetAllCartItems retrieves all cart items from the database and returns them as a slice of CartItem structs.
-func GetAllCartItems() ([]structs.CartItem, error) {
-	rows, err := Client.Query(`SELECT UserAccountID, ProductID, Quantity FROM CartItem`)
+// GetAllCartItems retrieves all cart items for the currently logged-in user.
+func (db *UserDB) GetAllCartItems(r *http.Request) ([]structs.CartItem, error) {
+	// 1. Get user ID from session
+	session, err := session.Store.Get(r, "user-session")
 	if err != nil {
-		log.Println("Error fetching all cart items:", err)
+		return nil, fmt.Errorf("error getting session: %v", err)
+	}
+
+	userIDValue := session.Values["userID"]
+	userID, ok := userIDValue.(uuid.UUID)
+	if !ok || userID.String() == "" { // Changed from != uuid.Nil to == ""
+		return nil, fmt.Errorf("user not logged in or invalid userID")
+	}
+
+	// 2. Query the database with userID
+	rows, err := db.Client.Query(`
+        SELECT UserAccountID, ProductID, Quantity 
+        FROM CartItem
+        WHERE UserAccountID = ?
+    `, userID)
+	if err != nil {
+		log.Println("Error fetching cart items:", err)
 		return nil, err
 	}
 	defer rows.Close()
 
+	// 3. Process the results
 	var cartItems []structs.CartItem
 	for rows.Next() {
 		var cartItem structs.CartItem
@@ -24,6 +46,7 @@ func GetAllCartItems() ([]structs.CartItem, error) {
 		}
 		cartItems = append(cartItems, cartItem)
 	}
+
 	if err := rows.Err(); err != nil {
 		log.Println("Error iterating over cart item rows:", err)
 		return nil, err
