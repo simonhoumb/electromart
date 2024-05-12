@@ -764,6 +764,8 @@ This is the response to the delete request.
 * Status code: `204 No Content` if deletion is successful
 * Body: empty
 
+---
+
 #### Cart
 
 This endpoint focuses on the management of the cart stored in the database. A session cookie in the header is needed to
@@ -856,6 +858,8 @@ The response to the delete request.
 
 * Status code: `204 No Content` if deletion is successful
 * Body: empty
+
+---
 
 #### User
 
