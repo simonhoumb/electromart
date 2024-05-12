@@ -764,6 +764,357 @@ This is the response to the delete request.
 * Status code: `204 No Content` if deletion is successful
 * Body: empty
 
+#### Cart
+
+This endpoint focuses on the management of the cart stored in the database. A session cookie in the header is needed to
+access the cart, see the user section for more information.
+
+##### Get all cart items
+
+Enables retrieval of all cart items.
+
+###### Request
+
+A `GET` request to the endpoint should return all cart items.
+
+```text
+Method: GET
+Path: /api/v1/cart/
+```
+
+###### Response
+
+* Content type: `application/json`
+* Status code: `200 OK`
+
+Body (exemplary code):
+
+```json lines
+[
+  {
+    "UserProductID": "65c1d15d-0f9b-11ef-96c4-fa163ecc81b6",
+    "ProductID": "65c1d15d-0f9b-11ef-96c4-fa163ecc81b6",
+    "Quantity": 1
+  }
+]
+```
+
+The response should return a collection of all stored cart items.
+
+##### Add new item to cart
+
+Manages the registration of new item to the cart.
+
+###### Request
+
+```http
+Method: POST
+Path: /api/v1/cart/
+Content-Type: application/json
+```
+
+Body example:
+
+```json lines
+{
+  "productID": "65c1d15d-0f9b-11ef-96c4-fa163ecc81b6",
+  "quantity": 1
+}
+```
+
+###### Response
+
+The response to the POST request on the endpoint stores the item in the cart on the server.
+
+* Status Code: `204 No Content`
+* Body: empty
+
+##### Delete a specific item from cart
+
+Enabling the deletion of a specific item from the cart.
+
+###### Request
+
+The following shows a request for deletion of an individual item from the cart identified by its product ID.
+
+```text
+Method: DELETE
+Path: /api/v1/cart/
+```
+
+Body example:
+
+```json lines
+{
+  "productID": "65c1d15d-0f9b-11ef-96c4-fa163ecc81b6"
+}
+```
+
+###### Response
+
+The response to the delete request.
+
+* Status code: `204 No Content` if deletion is successful
+* Body: empty
+
+#### User
+
+This endpoint allows the user to manage their account.
+
+##### Create a new user
+
+Manages the registration of a new user.
+
+###### Request
+
+```http
+Method: POST
+Path: /api/register/
+Content-Type: application/json
+```
+
+Body example:
+
+```json lines
+{
+  "Username": "your_unique_username",
+  "Password": "your_strong_password",
+  "Email": "your_email@example.com",
+  "FirstName": "Your",
+  "LastName": "Name",
+  "Phone": "1234567890"
+}
+```
+
+###### Response
+
+The response to the POST request on the endpoint stores the user on the server.
+
+* Content type: `application/json`
+* Status code: `201 Created`
+
+Body:
+
+```json
+{
+  "message": "User created successfully"
+}
+```
+
+##### Login
+
+Manages the login of a user.
+
+###### Request
+
+```http
+Method: POST
+Path: /api/login/
+Content-Type: application/json
+```
+
+Body example:
+
+```json lines
+{
+  "Username": "your_unique_username",
+  "Password": "your_strong_password"
+}
+```
+
+###### Response
+
+The response to the POST request on the endpoint logs the user in.
+
+* Content type: `application/json`
+* Status code: `200 OK`
+
+Body:
+
+```json
+{
+  "userID": "4591b179-0034-4357-9cb5-35be6865d007"
+}
+```
+
+##### Update user information
+
+Manages the update of user information.
+
+###### Request
+
+```http
+Method: PUT
+Path: /api/user/
+Content-Type: application/json
+```
+
+Body example:
+
+```json lines
+{
+  "Username": "Test",
+  "Email": "test@test.test",
+  "FirstName": "Test",
+  "LastName": "Testsen",
+  "Phone": "99999999",
+  "Address": {
+    "String": "Kardemommeby 2",
+    "Valid": true
+  },
+  "PostCode": {
+    "String": "4609",
+    "Valid": true
+  }
+}
+```
+
+###### Response
+
+The response to the PUT request on the endpoint updates the user information.
+
+* Content type: `application/json`
+* Status code: `200 OK`
+
+Body:
+
+```json
+{
+  "message": "User profile updated successfully"
+}
+```
+
+##### Delete user
+
+Enabling the deletion of a user.
+
+###### Request
+
+The following shows a request for deletion of a user.
+
+```text
+Method: DELETE
+Path: /api/profile/
+Content-Type: application/json
+```
+
+Body example:
+
+```json lines
+{
+  "passwordConfirmation": "your_actual_password"
+}
+```
+
+###### Response
+
+The response to the delete request.
+
+* Status code: `204 No Content` if deletion is successful
+* Body: empty
+
+##### Get user information
+
+Enables retrieval of user information.
+
+###### Request
+
+A `GET` request to the endpoint should return the user information.
+
+```text
+Method: GET
+Path: /api/profile/
+```
+
+###### Response
+
+* Content type: `application/json`
+* Status code: `200 OK`
+
+Body:
+
+```json
+{
+  "Id": "4591b179-0034-4357-9cb5-35be6865d007",
+  "Username": "Test",
+  "Email": "test@test.test",
+  "FirstName": "Test",
+  "LastName": "Testsen",
+  "Phone": "99999999",
+  "Address": {
+    "String": "Kardemommeby 2",
+    "Valid": true
+  },
+  "PostCode": {
+    "String": "4609",
+    "Valid": true
+  },
+  "Password": "",
+  "CartID": ""
+}
+```
+
+##### Change password
+
+Enables the change of a user's password.
+
+###### Request
+
+```http
+Method: PATCH
+Path: /api/profile/
+Content-Type: application/json
+```
+
+Body example:
+
+```json
+{
+  "OldPassword": "current_password_of_user",
+  "NewPassword": "new_strong_password"
+}
+```
+
+###### Response
+
+The response to the PATCH request on the endpoint changes the user's password.
+
+* Content type: `application/json`
+* Status code: `200 OK`
+* Body:
+
+```json
+{
+  "message": "Uer profile changed successfully"
+}
+```
+
+##### Logout
+
+Manages the logout of a user.
+
+###### Request
+
+```http
+Method: GET
+Path: /api/logout/
+```
+
+###### Response
+
+The response to the GET request on the endpoint logs the user out.
+
+* Content type: `application/json`
+* Status code: `200 OK`
+
+Body:
+
+```json
+{
+  "message": "Logged out successful"
+}
+```
+
 ---
 
 ## Contact 📧
