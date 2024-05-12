@@ -57,6 +57,22 @@
 					"response": []
 				},
 				{
+					"name": "Get Products By Category",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "Get Products By Brand",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
 					"name": "Add product",
 					"request": {
 						"method": "POST",
@@ -303,6 +319,261 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "Cart",
+			"item": [
+				{
+					"name": "Get all cart items",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{carts_endpoint}}",
+							"host": [
+								"{{carts_endpoint}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add cart item",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"productID\": \"65c1d15d-0f9b-11ef-96c4-fa163ecc81b6\",\r\n    \"quantity\": 1\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{carts_endpoint}}",
+							"host": [
+								"{{carts_endpoint}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete cart item",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"productID\": \"65c1d15d-0f9b-11ef-96c4-fa163ecc81b6\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{carts_endpoint}}?productID=65c1d15d-0f9b-11ef-96c4-fa163ecc81b6",
+							"host": [
+								"{{carts_endpoint}}"
+							],
+							"query": [
+								{
+									"key": "productID",
+									"value": "65c1d15d-0f9b-11ef-96c4-fa163ecc81b6"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Need to log in before using this endpoint, see User folder"
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Login user",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"your_unique_username\",\n    \"password\": \"your_strong_password\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8000/api/login",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register user",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"Username\": \"your_unique_username\",\r\n  \"Password\": \"your_strong_password\",\r\n  \"Email\": \"your_email@example.com\",\r\n  \"FirstName\": \"Your\",\r\n  \"LastName\": \"Name\",\r\n  \"Phone\": \"1234567890\" \r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8000/api/register",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update user",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Username\": \"k\",\r\n    \"Email\": \"k\",\r\n    \"FirstName\": \"A\",\r\n    \"LastName\": \"s\",\r\n    \"Phone\": \"99\",\r\n    \"Address\": {\r\n        \"String\": \"Åsvegen 2b\",\r\n        \"Valid\": true\r\n    },\r\n    \"PostCode\": {\r\n        \"String\": \"2819\",\r\n        \"Valid\": true\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8000/api/profile",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete user",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"passwordConfirmation\": \"your_actual_password\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8000/api/profile",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get user",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8000/api/profile",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Change user password",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"OldPassword\": \"current_password_of_user\",\r\n  \"NewPassword\": \"new_strong_password\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8000/api/profile",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout user",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8000/api/logout",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	],
 	"event": [
@@ -319,6 +590,7 @@
 			"listen": "test",
 			"script": {
 				"type": "text/javascript",
+				"packages": {},
 				"exec": [
 					""
 				]
@@ -347,6 +619,11 @@
 		{
 			"key": "brands_endpoint",
 			"value": "http://localhost:8000/api/v1/brands/",
+			"type": "string"
+		},
+		{
+			"key": "carts_endpoint",
+			"value": "http://localhost:8000/api/v1/cart/",
 			"type": "string"
 		}
 	]
