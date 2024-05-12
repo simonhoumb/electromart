@@ -4,7 +4,7 @@
 ElectroMart is a web application that allows users to buy electronic products.
 The application is built as a part of the course IDATG2204 Datamodellering og databasesystemer (2024 VÅR) at NTNU.
 
-## Local Development 🛠
+## Local Deployment 🛠
 1. Install GO from https://golang.org/dl/
 
 2. Install MySQL:
@@ -47,12 +47,12 @@ The application is built as a part of the course IDATG2204 Datamodellering og da
    
 6. Build the project:
     ```bash
-    go build
+    go build cmd
     ```
    
 7. Run the project:
     ```bash
-    ./database_2024
+    go run ./cmd
     ```
 
 ## Usage 🤓
@@ -63,7 +63,7 @@ In the current version the user is able to do the following:
  - Create a user account
  - Update user information (e.g. name, address, email)
  - View all products
- - View products by category
+ - View products by category and brand
  - Search for products
  - Add items to cart
  ```
@@ -76,6 +76,7 @@ The service provides the following endpoints:
 ```plaintext
 /api/v1/products/
 /api/v1/categories/
+/api/v1/cart/
 /api/v1/brands/
 ```
 * Note: where the user needs to provide an ID, it can be found using the `View all` endpoints or the `Search` endpoints.
