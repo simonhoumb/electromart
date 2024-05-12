@@ -46,9 +46,7 @@
                                  UserAccountID varchar(64) NOT NULL,
                                  PostalCode    int(4) DEFAULT 0 NOT NULL,
                                  Street        varchar(128) NOT NULL,
-                                 PRIMARY KEY (ID,
-                                              UserAccountID,
-                                              PostalCode));
+                                 PRIMARY KEY (ID));
     CREATE TABLE PostalCode (
                                 PostalCode int(4) DEFAULT 0 NOT NULL,
                                 Area       varchar(128) DEFAULT 'Sted' NOT NULL,
