@@ -39,12 +39,12 @@ The application is built as a part of the course IDATG2204 Datamodellering og da
     - Navigate to the directory where you want to clone the repository
     - Use the following command:
     ```bash
-    git clone https://github.com/EskilAl/database_2024
+    git clone https://github.com/simonhoumb/electromart
     ```
 
 5. Navigate to the project directory:
     ```bash
-    cd database_2024
+    cd electromart
     ```
 
 6. Build the project:
